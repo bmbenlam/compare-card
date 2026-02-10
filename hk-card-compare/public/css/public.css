@@ -354,38 +354,52 @@
  * Desktop (min-width: 768px)
  * -------------------------------------------------------------- */
 @media (min-width: 768px) {
-	/* Filters sidebar on left */
+	/* Desktop: single column, filters row at top */
 	.hkcc-comparison {
-		display: grid;
-		grid-template-columns: 260px 1fr;
-		gap: 24px;
-	}
-
-	.hkcc-filters {
-		grid-row: 1 / 5;
+		max-width: 800px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	.hkcc-filters-body {
 		display: block !important;
 	}
 
+	/* Filters displayed inline on desktop */
+	.hkcc-filters-body {
+		display: flex !important;
+		flex-wrap: wrap;
+		gap: 24px;
+		align-items: flex-start;
+	}
+
+	.hkcc-filter-group {
+		flex: 1;
+		min-width: 150px;
+		margin-bottom: 0;
+	}
+
 	.hkcc-toggle-arrow {
 		display: none;
 	}
 
-	/* 2-column card grid */
+	/* Single column card list */
 	.hkcc-card-list {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 16px;
+		display: block;
 	}
 
-	.hkcc-listing-card {
-		margin-bottom: 0;
+	/* Suggest: single column */
+	.hkcc-suggest {
+		max-width: 800px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
-	/* Suggest grid: up to 5 columns */
 	.hkcc-suggest-grid {
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		display: block;
+	}
+
+	.hkcc-suggest-card {
+		margin-bottom: 16px;
 	}
 }

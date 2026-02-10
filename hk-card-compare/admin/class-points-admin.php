@@ -165,7 +165,27 @@ class HKCC_Points_Admin {
 									<select name="conv_reward_type[]">
 										<option value="">— Select —</option>
 										<?php
-										$reward_options = array( 'cash' => 'Cash', 'asia_miles' => 'Asia Miles', 'ba_avios' => 'BA Avios', 'marriott_bonvoy' => 'Marriott Bonvoy', 'hilton_honor' => 'Hilton Honors' );
+										$reward_options = array(
+											'cash'                 => 'Cash (現金)',
+											'asia_miles'           => 'Asia Miles (亞洲萬里通)',
+											'avios'                => 'Avios (英國航空)',
+											'emirates_skywards'    => 'Emirates Skywards (阿聯酋航空)',
+											'etihad_guest'         => 'Etihad Guest (阿提哈德航空)',
+											'flying_blue'          => 'Flying Blue (法荷航)',
+											'krisflyer'            => 'KrisFlyer (新加坡航空)',
+											'qantas_ff'            => 'Qantas Frequent Flyer (澳洲航空)',
+											'virgin_fc'            => 'Virgin Atlantic Flying Club (維珍航空)',
+											'finnair_plus'         => 'Finnair Plus (芬蘭航空)',
+											'enrich'               => 'Enrich (馬來西亞航空)',
+											'infinity_mileagelands'=> 'Infinity MileageLands (長榮航空)',
+											'royal_orchid_plus'    => 'Royal Orchid Plus (泰國航空)',
+											'qatar_privilege'      => 'Qatar Privilege Club (卡塔爾航空)',
+											'phoenix_miles'        => '鳳凰知音 (中國國航)',
+											'aeroplan'             => 'Aeroplan (加拿大航空)',
+											'marriott_bonvoy'      => 'Marriott Bonvoy (萬豪)',
+											'hilton_honors'        => 'Hilton Honors (希爾頓)',
+											'ihg_rewards'          => 'IHG Rewards (洲際酒店)',
+										);
 										foreach ( $reward_options as $rk => $rl ) :
 											?>
 											<option value="<?php echo esc_attr( $rk ); ?>" <?php selected( $row->reward_type, $rk ); ?>><?php echo esc_html( $rl ); ?></option>

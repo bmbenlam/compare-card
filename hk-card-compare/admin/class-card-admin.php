@@ -299,7 +299,23 @@ class HKCC_Card_Admin {
 
 		<h4>Transferable Airlines</h4>
 		<?php
-		$airlines     = array( 'Asia Miles', 'BA Avios', 'Virgin Points' );
+		$airlines = array(
+			'Asia Miles (亞洲萬里通)',
+			'Avios (英國航空)',
+			'Emirates Skywards (阿聯酋航空)',
+			'Etihad Guest (阿提哈德航空)',
+			'Flying Blue (法荷航)',
+			'KrisFlyer (新加坡航空)',
+			'Qantas Frequent Flyer (澳洲航空)',
+			'Virgin Atlantic Flying Club (維珍航空)',
+			'Finnair Plus (芬蘭航空)',
+			'Enrich (馬來西亞航空)',
+			'Infinity MileageLands (長榮航空)',
+			'Royal Orchid Plus (泰國航空)',
+			'Qatar Privilege Club (卡塔爾航空)',
+			'鳳凰知音 (中國國航)',
+			'Aeroplan (加拿大航空)',
+		);
 		$saved_airlines = (array) get_post_meta( $post->ID, 'transferable_airlines', true );
 		foreach ( $airlines as $airline ) :
 			?>
@@ -312,7 +328,11 @@ class HKCC_Card_Admin {
 
 		<h4>Transferable Hotels</h4>
 		<?php
-		$hotels      = array( 'Marriott Bonvoy', 'Hilton Honors' );
+		$hotels = array(
+			'Marriott Bonvoy (萬豪)',
+			'Hilton Honors (希爾頓)',
+			'IHG Rewards (洲際酒店)',
+		);
 		$saved_hotels = (array) get_post_meta( $post->ID, 'transferable_hotels', true );
 		foreach ( $hotels as $hotel ) :
 			?>

@@ -148,7 +148,7 @@
 		var activeCount = Object.keys(filters).length;
 		var countEl = wrapper.querySelector('.hkcc-active-count');
 		if (countEl) {
-			countEl.textContent = activeCount > 0 ? '(' + activeCount + ' active)' : '';
+			countEl.textContent = activeCount > 0 ? '(' + activeCount + ' 個篩選)' : '';
 		}
 
 		wrapper.classList.add('hkcc-loading');
@@ -192,11 +192,11 @@
 		if (expanded.style.display === 'none') {
 			expanded.style.display = '';
 			btn.setAttribute('aria-expanded', 'true');
-			btn.innerHTML = 'Hide Details &#9650;';
+			btn.innerHTML = '收起詳情 &#9650;';
 		} else {
 			expanded.style.display = 'none';
 			btn.setAttribute('aria-expanded', 'false');
-			btn.innerHTML = 'View Details &#9660;';
+			btn.innerHTML = '查看詳情 &#9660;';
 		}
 	});
 

@@ -103,28 +103,28 @@ class HKCC_Card_Shortcodes {
 				<div class="hkcc-filters-header">
 					<span class="hkcc-filters-toggle">
 						<span class="hkcc-filter-icon">&#x1F50D;</span>
-						Filters <span class="hkcc-active-count"></span>
+						篩選條件 <span class="hkcc-active-count"></span>
 						<span class="hkcc-toggle-arrow">&#9660;</span>
 					</span>
 				</div>
 				<div class="hkcc-filters-body" style="display:none;">
 					<?php self::render_filters( $filter_keys ); ?>
-					<button type="button" class="hkcc-clear-filters">Clear All</button>
+					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>
 				</div>
 			</div>
 
 			<?php if ( 'true' === $atts['show_toggle'] ) : ?>
 			<!-- Miles / Cash toggle -->
 			<div class="hkcc-rebate-toggle">
-				<span>Show rebates as:</span>
-				<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> Miles</label>
-				<label><input type="radio" name="hkcc_view_mode" value="cash" <?php checked( $atts['default_view'], 'cash' ); ?> /> Cash</label>
+				<span>顯示回贈方式：</span>
+				<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> 飛行里數</label>
+				<label><input type="radio" name="hkcc_view_mode" value="cash" <?php checked( $atts['default_view'], 'cash' ); ?> /> 現金回贈</label>
 			</div>
 			<?php endif; ?>
 
 			<!-- Card count -->
 			<div class="hkcc-card-count">
-				Showing <span class="hkcc-count"><?php echo count( $cards ); ?></span> cards
+				共 <span class="hkcc-count"><?php echo count( $cards ); ?></span> 張信用卡
 			</div>
 
 			<!-- Card listing -->

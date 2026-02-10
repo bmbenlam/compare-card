@@ -242,6 +242,10 @@ class HKCC_Points_System {
 
 			$earning_rate = self::extract_earning_rate( $points_text );
 			if ( $earning_rate <= 0 ) {
+				// Store 不適用 for display, 0 for sorting.
+				update_post_meta( $post_id, "{$txn}_cash_sortable", 0 );
+				update_post_meta( $post_id, "{$txn}_cash_display", '不適用' );
+				update_post_meta( $post_id, "{$txn}_miles_display", '不適用' );
 				continue;
 			}
 
