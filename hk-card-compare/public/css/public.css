@@ -1,0 +1,391 @@
+/**
+ * HK Card Compare – Public (frontend) styles.
+ * Mobile-first design for a 65% mobile / 35% desktop audience.
+ */
+
+/* ----------------------------------------------------------------
+ * Base & Reset
+ * -------------------------------------------------------------- */
+.hkcc-comparison,
+.hkcc-suggest {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: #333;
+	line-height: 1.6;
+}
+
+.hkcc-comparison *,
+.hkcc-suggest * {
+	box-sizing: border-box;
+}
+
+/* ----------------------------------------------------------------
+ * Buttons
+ * -------------------------------------------------------------- */
+.hkcc-btn {
+	display: inline-block;
+	padding: 10px 20px;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	border-radius: 6px;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+	min-height: 44px;
+	line-height: 24px;
+	transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.hkcc-btn:focus-visible {
+	outline: 2px solid #0073aa;
+	outline-offset: 2px;
+}
+
+.hkcc-btn-primary {
+	background: #0073aa;
+	color: #fff;
+}
+
+.hkcc-btn-primary:hover {
+	background: #005d8c;
+}
+
+.hkcc-btn-secondary {
+	background: #f0f0f0;
+	color: #333;
+}
+
+.hkcc-btn-secondary:hover {
+	background: #e0e0e0;
+}
+
+/* ----------------------------------------------------------------
+ * Filters
+ * -------------------------------------------------------------- */
+.hkcc-filters {
+	background: #f9f9f9;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	margin-bottom: 16px;
+}
+
+.hkcc-filters-header {
+	padding: 12px 16px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.hkcc-filters-toggle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.hkcc-toggle-arrow {
+	margin-left: auto;
+	transition: transform 0.2s;
+}
+
+.hkcc-filters.open .hkcc-toggle-arrow {
+	transform: rotate(180deg);
+}
+
+.hkcc-active-count {
+	font-size: 13px;
+	font-weight: 400;
+	color: #666;
+}
+
+.hkcc-filters-body {
+	padding: 0 16px 16px;
+}
+
+.hkcc-filter-group {
+	margin-bottom: 12px;
+}
+
+.hkcc-filter-heading {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 6px;
+	padding: 8px 0 4px;
+	border-bottom: 1px solid #e8e8e8;
+}
+
+.hkcc-filter-options label {
+	display: block;
+	padding: 6px 0;
+	cursor: pointer;
+	font-size: 14px;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.hkcc-clear-filters {
+	background: none;
+	border: none;
+	color: #0073aa;
+	font-size: 13px;
+	cursor: pointer;
+	padding: 4px 0;
+	text-decoration: underline;
+}
+
+/* ----------------------------------------------------------------
+ * Rebate toggle
+ * -------------------------------------------------------------- */
+.hkcc-rebate-toggle {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 0;
+	font-size: 14px;
+	margin-bottom: 8px;
+}
+
+.hkcc-rebate-toggle label {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 44px;
+}
+
+/* ----------------------------------------------------------------
+ * Card count
+ * -------------------------------------------------------------- */
+.hkcc-card-count {
+	font-size: 13px;
+	color: #666;
+	padding: 6px 0 12px;
+}
+
+/* ----------------------------------------------------------------
+ * Listing card (collapsed)
+ * -------------------------------------------------------------- */
+.hkcc-listing-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	margin-bottom: 16px;
+	overflow: hidden;
+	transition: box-shadow 0.2s;
+}
+
+.hkcc-listing-card:hover {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.hkcc-card-collapsed {
+	padding: 16px;
+}
+
+.hkcc-card-tagline {
+	font-size: 13px;
+	color: #666;
+	margin: 0 0 8px;
+	font-style: italic;
+}
+
+.hkcc-card-image {
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+.hkcc-card-image img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 6px;
+}
+
+.hkcc-card-name {
+	font-size: 18px;
+	font-weight: 700;
+	margin: 0 0 12px;
+}
+
+/* Featured parameters */
+.hkcc-featured-params {
+	border-top: 1px solid #eee;
+	padding-top: 10px;
+	margin-bottom: 12px;
+}
+
+.hkcc-featured-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 4px 0;
+	font-size: 14px;
+}
+
+.hkcc-featured-label {
+	color: #666;
+}
+
+.hkcc-featured-value {
+	font-weight: 600;
+}
+
+/* Card actions */
+.hkcc-card-actions {
+	display: flex;
+	gap: 8px;
+	justify-content: space-between;
+	margin-top: 12px;
+}
+
+.hkcc-card-actions .hkcc-btn {
+	flex: 1;
+	text-align: center;
+}
+
+/* ----------------------------------------------------------------
+ * Listing card (expanded)
+ * -------------------------------------------------------------- */
+.hkcc-card-expanded {
+	padding: 0 16px 16px;
+	border-top: 1px solid #eee;
+}
+
+.hkcc-details-section {
+	margin-bottom: 16px;
+}
+
+.hkcc-details-section h4 {
+	font-size: 15px;
+	font-weight: 700;
+	margin: 16px 0 8px;
+	color: #222;
+}
+
+.hkcc-detail-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 4px 0;
+	font-size: 14px;
+	border-bottom: 1px dotted #eee;
+}
+
+.hkcc-detail-label {
+	color: #555;
+	flex-shrink: 0;
+	margin-right: 8px;
+}
+
+.hkcc-detail-value {
+	text-align: right;
+	font-weight: 500;
+}
+
+.hkcc-welcome-desc {
+	font-size: 14px;
+	line-height: 1.7;
+}
+
+.hkcc-cooling {
+	font-size: 13px;
+	color: #888;
+	margin-top: 4px;
+}
+
+.hkcc-card-actions-bottom {
+	padding-top: 12px;
+	border-top: 1px solid #eee;
+}
+
+/* ----------------------------------------------------------------
+ * cc_suggest grid
+ * -------------------------------------------------------------- */
+.hkcc-suggest-title {
+	font-size: 20px;
+	font-weight: 700;
+	margin: 0 0 16px;
+}
+
+.hkcc-suggest-grid {
+	display: grid;
+	gap: 16px;
+}
+
+.hkcc-suggest-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	padding: 16px;
+	text-align: center;
+}
+
+.hkcc-suggest-card .hkcc-card-image img {
+	max-width: 200px;
+}
+
+.hkcc-suggest-card .hkcc-card-name {
+	font-size: 16px;
+	margin: 8px 0 4px;
+}
+
+.hkcc-suggest-card .hkcc-card-tagline {
+	margin-bottom: 12px;
+}
+
+.hkcc-suggest-card .hkcc-card-actions {
+	justify-content: center;
+}
+
+/* No results */
+.hkcc-no-results {
+	text-align: center;
+	color: #888;
+	padding: 40px 16px;
+	font-size: 15px;
+}
+
+/* Loading overlay */
+.hkcc-loading .hkcc-card-list {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+/* ----------------------------------------------------------------
+ * Desktop (min-width: 768px)
+ * -------------------------------------------------------------- */
+@media (min-width: 768px) {
+	/* Filters sidebar on left */
+	.hkcc-comparison {
+		display: grid;
+		grid-template-columns: 260px 1fr;
+		gap: 24px;
+	}
+
+	.hkcc-filters {
+		grid-row: 1 / 5;
+	}
+
+	.hkcc-filters-body {
+		display: block !important;
+	}
+
+	.hkcc-toggle-arrow {
+		display: none;
+	}
+
+	/* 2-column card grid */
+	.hkcc-card-list {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
+	}
+
+	.hkcc-listing-card {
+		margin-bottom: 0;
+	}
+
+	/* Suggest grid: up to 5 columns */
+	.hkcc-suggest-grid {
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	}
+}

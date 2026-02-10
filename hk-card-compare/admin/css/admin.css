@@ -1,0 +1,81 @@
+/**
+ * HK Card Compare – Admin styles.
+ */
+
+/* Tab navigation */
+.hkcc-tabs {
+	margin-top: 12px;
+}
+
+.hkcc-tab-nav {
+	display: flex;
+	list-style: none;
+	margin: 0 0 -1px;
+	padding: 0;
+	border-bottom: 1px solid #ccd0d4;
+}
+
+.hkcc-tab-nav li {
+	margin: 0;
+}
+
+.hkcc-tab-nav a {
+	display: block;
+	padding: 8px 16px;
+	text-decoration: none;
+	color: #0073aa;
+	border: 1px solid transparent;
+	border-bottom: none;
+	background: transparent;
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.hkcc-tab-nav a:hover {
+	background: #f1f1f1;
+}
+
+.hkcc-tab-nav a.active {
+	background: #fff;
+	border-color: #ccd0d4;
+	border-bottom-color: #fff;
+	color: #23282d;
+}
+
+.hkcc-tab-content {
+	padding: 16px 0;
+}
+
+/* Fields table tweaks */
+.hkcc-fields th {
+	width: 220px;
+	vertical-align: top;
+	padding-top: 14px;
+}
+
+.hkcc-fields .small-text {
+	width: 100px;
+}
+
+/* Points Systems page */
+.hkcc-conversions-table {
+	max-width: 700px;
+}
+
+.hkcc-conversions-table input.small-text {
+	width: 90px;
+}
+
+.hkcc-conversions-table select {
+	min-width: 130px;
+}
+
+.hkcc-remove-row {
+	color: #a00 !important;
+	border-color: #a00 !important;
+}
+
+/* Analytics page */
+.hkcc-analytics-filters .button {
+	margin-right: 4px;
+}
