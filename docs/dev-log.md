@@ -16,6 +16,7 @@
 2. [Architecture Quick Reference](#architecture-quick-reference)
 3. [Session Log](#session-log)
    - [2026-02-10 — Session 1: Initial Plugin Build](#2026-02-10--session-1-initial-plugin-build)
+   - [2026-02-10 — Session 2: Frontend zh-HK, Layout & Programme List Updates](#2026-02-10--session-2-frontend-zh-hk-layout--programme-list-updates)
 4. [Known Issues & Technical Debt](#known-issues--technical-debt)
 5. [What's Next](#whats-next)
 
@@ -147,6 +148,67 @@ Built the entire plugin from scratch based on the README.md specification. This 
 - Templates are provided but the shortcodes work standalone without theme template overrides
 - PublishPress integration is via the `publishpress_revisions_post_types` filter hook
 
+### 2026-02-10 — Session 2: Frontend zh-HK, Layout & Programme List Updates
+
+**Branch:** `claude/code-plugin-E74dL`
+**Commit:** `5da92fb` — `fix: Frontend zh-HK only, single-column layout, 不適用 for zero rebates, full airline/hotel list`
+
+**What was done:**
+
+Four changes based on user feedback:
+
+**1. Frontend language → zh-HK only (admin stays English)**
+
+All user-facing frontend text changed to Traditional Chinese:
+
+| Before (English)     | After (zh-HK)       | Location                     |
+|---------------------|---------------------|------------------------------|
+| Apply Now →         | 立即申請 →           | All card buttons              |
+| View Details ▼      | 查看詳情 ▼           | Collapsed card button         |
+| Hide Details ▲      | 收起詳情 ▲           | Expanded card button (JS)     |
+| Filters             | 篩選條件             | Filter header                 |
+| (X active)          | (X 個篩選)           | Active filter count (JS)      |
+| Clear All           | 清除所有篩選          | Clear filters button          |
+| Show rebates as:    | 顯示回贈方式：        | Toggle label                  |
+| Miles / Cash        | 飛行里數 / 現金回贈    | Toggle options                |
+| Showing X cards     | 共 X 張信用卡         | Card count                    |
+| N/A                 | 不適用               | Empty featured param value    |
+
+**2. Desktop layout → single column (n rows × 1 col)**
+
+- Removed 2-column card grid and sidebar filter layout
+- Both `[cc_comparison]` and `[cc_suggest]` now render cards in a single column stack
+- Desktop: max-width 800px, centered, filters row at top (flex-wrap inline)
+- Mobile: unchanged (already single column)
+
+**3. Zero-rebate items → 不適用**
+
+- `class-points-system.php`: Auto-calculation now stores `不適用` when earning rate = 0
+- `class-card-display.php`: `get_reward_display()` checks for 0-rate and returns `不適用`
+- Featured params fallback changed from `N/A` to `不適用`
+- Prevents weird display like "網上繳費: HK$1 = 0 points"
+
+**4. Complete airline/hotel programme list**
+
+Based on [FlyAsia article](https://www.flyasia.co/2025/credit-card-reward-system/), expanded from 3 airlines + 2 hotels to:
+
+**Airlines (15):** Asia Miles, Avios, Emirates Skywards, Etihad Guest, Flying Blue, KrisFlyer, Qantas FF, Virgin Atlantic FC, Finnair Plus, Enrich, Infinity MileageLands, Royal Orchid Plus, Qatar Privilege Club, 鳳凰知音, Aeroplan
+
+**Hotels (3):** Marriott Bonvoy, Hilton Honors, IHG Rewards
+
+Updated in: `class-card-admin.php` (checkboxes), `class-points-admin.php` (reward type dropdown), `admin/js/admin.js` (dynamic row JS)
+
+**Files modified (8):**
+
+- `public/class-card-display.php` — zh-HK buttons, 不適用 fallback logic
+- `public/class-card-shortcodes.php` — zh-HK filter labels, toggle, card count
+- `public/css/public.css` — Single column desktop layout
+- `public/js/public.js` — zh-HK button text in expand/collapse
+- `admin/class-card-admin.php` — Full airline (15) + hotel (3) checkbox lists
+- `admin/class-points-admin.php` — Expanded reward type dropdown (19 options)
+- `admin/js/admin.js` — Matching reward type options for dynamic rows
+- `includes/class-points-system.php` — 不適用 handling for 0-rate auto-calculation
+
 ---
 
 ## Known Issues & Technical Debt
@@ -156,7 +218,7 @@ Built the entire plugin from scratch based on the README.md specification. This 
 | 1  | No query caching layer                        | Medium   | Spec calls for `wp_cache_get/set` wrapper. Add when traffic warrants it. |
 | 2  | No unit/integration tests                     | Medium   | Should add PHPUnit tests for meta save, points calculation, shortcode output. |
 | 3  | AJAX filter sends filters as JSON string      | Low      | Works but could use proper array serialisation for cleaner backend parsing. |
-| 4  | No i18n `.pot` file generated                 | Low      | Text domain `hk-card-compare` is set but no translation file exists yet. |
+| 4  | ~~No i18n `.pot` file generated~~              | Resolved | Frontend now hardcoded zh-HK. Admin stays English. No i18n needed for now. |
 | 5  | Templates not auto-loaded from theme          | Low      | Need to add `locate_template()` fallback so themes can override templates. |
 
 ---
