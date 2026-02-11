@@ -17,7 +17,8 @@ class HKCC_Card_Meta {
 	public static function get_fields() {
 		return array(
 			'basic'    => array(
-				'card_name'      => array( 'label' => 'Card Name (前端顯示名稱)', 'type' => 'text', 'max' => 200 ),
+				'card_name'       => array( 'label' => 'Card Name (前端顯示名稱)', 'type' => 'text', 'max' => 200 ),
+				'card_face_image' => array( 'label' => 'Card Face Image', 'type' => 'image' ),
 				'tagline'        => array( 'label' => 'Tagline', 'type' => 'text', 'max' => 200 ),
 				'affiliate_link' => array( 'label' => 'Affiliate Link', 'type' => 'url' ),
 			),
@@ -183,6 +184,9 @@ class HKCC_Card_Meta {
 						break;
 					case 'date':
 						$value = sanitize_text_field( $raw );
+						break;
+					case 'image':
+						$value = absint( $raw );
 						break;
 					case 'array':
 						$value = is_array( $raw ) ? array_map( 'sanitize_text_field', $raw ) : array();

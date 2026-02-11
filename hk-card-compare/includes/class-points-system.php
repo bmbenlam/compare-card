@@ -248,6 +248,7 @@ class HKCC_Points_System {
 				if ( $miles_per_dollar > 0 ) {
 					$hkd_per_mile = round( 1 / $miles_per_dollar, 1 );
 					update_post_meta( $post_id, "{$txn}_miles_display", 'HK$' . $hkd_per_mile . '/里' );
+					update_post_meta( $post_id, "{$txn}_miles_sortable", $hkd_per_mile );
 				}
 			}
 

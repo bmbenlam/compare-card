@@ -6,7 +6,8 @@
  * - Filter toggle (mobile accordion)
  * - AJAX filtering with debounce
  * - Miles / Cash toggle
- * - Expand / collapse card details
+ * - Sort dropdown
+ * - Expand / collapse card details (zh-HK)
  */
 (function () {
 	'use strict';
@@ -43,7 +44,6 @@
 		body.append('card_id', cardId);
 		body.append('source_url', window.location.href);
 
-		// Fire-and-forget; don't block the link navigation.
 		if (navigator.sendBeacon) {
 			navigator.sendBeacon(hkccPublic.ajaxUrl, body);
 		} else {
@@ -88,10 +88,22 @@
 	});
 
 	/* ----------------------------------------------------------------
-	 * Filter change → AJAX.
+	 * Filter / view / sort change → AJAX.
 	 * -------------------------------------------------------------- */
 	document.addEventListener('change', function (e) {
 		var input = e.target;
+
+		// Handle sort dropdown.
+		if (input.closest('.hkcc-sort-bar')) {
+			var wrapper = input.closest('.hkcc-comparison');
+			if (!wrapper) return;
+			var parts = input.value.split('|');
+			wrapper.setAttribute('data-sort', parts[0] || '');
+			wrapper.setAttribute('data-order', parts[1] || 'desc');
+			triggerFilter(wrapper);
+			return;
+		}
+
 		if (
 			!input.closest('.hkcc-filter-options') &&
 			!input.closest('.hkcc-rebate-toggle')
@@ -138,7 +150,7 @@
 		var view = viewMode ? viewMode.value : wrapper.getAttribute('data-view') || 'miles';
 
 		// Sort.
-		var sort = wrapper.getAttribute('data-sort') || 'local_retail_cash_sortable';
+		var sort = wrapper.getAttribute('data-sort') || '';
 		var order = wrapper.getAttribute('data-order') || 'desc';
 
 		// Shortcode atts.
@@ -180,7 +192,7 @@
 	}
 
 	/* ----------------------------------------------------------------
-	 * Expand / Collapse card details.
+	 * Expand / Collapse card details (zh-HK text).
 	 * -------------------------------------------------------------- */
 	document.addEventListener('click', function (e) {
 		var btn = e.target.closest('.hkcc-details-toggle');

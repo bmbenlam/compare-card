@@ -1,45 +1,47 @@
 /**
  * HK Card Compare – Admin JavaScript.
+ *
+ * Handles:
+ * - Tab navigation
+ * - Rewards type toggle (cash / points)
+ * - Single-select taxonomy enforcement
+ * - Media uploader for card face image
  */
 (function ($) {
 	'use strict';
 
 	/* ----------------------------------------------------------------
-	 * Tab switching.
+	 * Tab navigation.
 	 * -------------------------------------------------------------- */
 	$(document).on('click', '.hkcc-tab-nav a', function (e) {
 		e.preventDefault();
-		var target = $(this).attr('href');
 
-		$('.hkcc-tab-nav a').removeClass('active');
-		$(this).addClass('active');
+		var $this = $(this);
+		var target = $this.attr('href');
 
-		$('.hkcc-tab-content').hide();
+		$this.closest('.hkcc-tab-nav').find('a').removeClass('active');
+		$this.addClass('active');
+
+		$this.closest('.hkcc-tabs').find('.hkcc-tab-content').hide();
 		$(target).show();
 	});
 
 	/* ----------------------------------------------------------------
-	 * Rewards type toggle (cash vs points).
+	 * Rewards type toggle.
 	 * -------------------------------------------------------------- */
 	$(document).on('change', 'input[name="hkcc_reward_type_toggle"]', function () {
-		var val = $(this).val();
-
-		if (val === 'points') {
-			$('#hkcc-points-section').show();
-			$('#hkcc-cash-section').hide();
-			$('#hkcc_points_system_id_cash').prop('disabled', true);
-			$('#hkcc_points_system_id').prop('disabled', false);
+		if (this.value === 'points') {
+			$('#hkcc-points-section').show().find(':input').prop('disabled', false);
+			$('#hkcc-cash-section').hide().find(':input').prop('disabled', true);
 		} else {
-			$('#hkcc-points-section').hide();
-			$('#hkcc-cash-section').show();
-			$('#hkcc_points_system_id_cash').prop('disabled', false);
-			$('#hkcc_points_system_id').prop('disabled', true);
+			$('#hkcc-points-section').hide().find(':input').prop('disabled', true);
+			$('#hkcc-cash-section').show().find(':input').prop('disabled', false);
 		}
 	});
 
 	/* ----------------------------------------------------------------
-	 * Single-select enforcement for taxonomy checkboxes.
-	 * Converts category-style multi-checkbox into single-select.
+	 * Single-select taxonomy enforcement.
+	 * Convert checkboxes to radio-like behaviour.
 	 * -------------------------------------------------------------- */
 	$(document).on('change', '#card_bankchecklist input[type="checkbox"], #card_networkchecklist input[type="checkbox"]', function () {
 		if (this.checked) {
@@ -48,44 +50,39 @@
 	});
 
 	/* ----------------------------------------------------------------
-	 * Points Systems page – add / remove conversion rows.
+	 * Media uploader for card face image.
 	 * -------------------------------------------------------------- */
-	$(document).on('click', '#hkcc-add-conversion', function () {
-		var row =
-			'<tr>' +
-			'<td><select name="conv_reward_type[]">' +
-			'<option value="">— Select —</option>' +
-			'<option value="cash">Cash (現金)</option>' +
-			'<option value="asia_miles">Asia Miles (亞洲萬里通)</option>' +
-			'<option value="avios">Avios (英國航空)</option>' +
-			'<option value="emirates_skywards">Emirates Skywards (阿聯酋航空)</option>' +
-			'<option value="etihad_guest">Etihad Guest (阿提哈德航空)</option>' +
-			'<option value="flying_blue">Flying Blue (法荷航)</option>' +
-			'<option value="krisflyer">KrisFlyer (新加坡航空)</option>' +
-			'<option value="qantas_ff">Qantas Frequent Flyer (澳洲航空)</option>' +
-			'<option value="virgin_fc">Virgin Atlantic Flying Club (維珍航空)</option>' +
-			'<option value="finnair_plus">Finnair Plus (芬蘭航空)</option>' +
-			'<option value="enrich">Enrich (馬來西亞航空)</option>' +
-			'<option value="infinity_mileagelands">Infinity MileageLands (長榮航空)</option>' +
-			'<option value="royal_orchid_plus">Royal Orchid Plus (泰國航空)</option>' +
-			'<option value="qatar_privilege">Qatar Privilege Club (卡塔爾航空)</option>' +
-			'<option value="phoenix_miles">鳳凰知音 (中國國航)</option>' +
-			'<option value="aeroplan">Aeroplan (加拿大航空)</option>' +
-			'<option value="marriott_bonvoy">Marriott Bonvoy (萬豪)</option>' +
-			'<option value="hilton_honors">Hilton Honors (希爾頓)</option>' +
-			'<option value="ihg_rewards">IHG Rewards (洲際酒店)</option>' +
-			'</select></td>' +
-			'<td><input type="number" name="conv_points_required[]" class="small-text" /></td>' +
-			'<td><input type="number" step="0.01" name="conv_reward_value[]" class="small-text" /></td>' +
-			'<td><input type="text" name="conv_reward_currency[]" value="HKD" class="small-text" /></td>' +
-			'<td><button type="button" class="button hkcc-remove-row">&times;</button></td>' +
-			'</tr>';
+	$(document).on('click', '.hkcc-upload-image', function (e) {
+		e.preventDefault();
+		var $field = $(this).closest('.hkcc-image-field');
+		var $input = $field.find('input[type="hidden"]');
+		var $preview = $field.find('.hkcc-image-preview');
+		var $removeBtn = $field.find('.hkcc-remove-image');
 
-		$('#hkcc-conversions tbody').append(row);
+		var frame = wp.media({
+			title: 'Select Card Face Image',
+			button: { text: 'Use this image' },
+			multiple: false,
+			library: { type: 'image' }
+		});
+
+		frame.on('select', function () {
+			var attachment = frame.state().get('selection').first().toJSON();
+			var url = attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url;
+			$input.val(attachment.id);
+			$preview.html('<img src="' + url + '" style="max-width:200px;display:block;margin-bottom:8px;" />');
+			$removeBtn.show();
+		});
+
+		frame.open();
 	});
 
-	$(document).on('click', '.hkcc-remove-row', function () {
-		$(this).closest('tr').remove();
+	$(document).on('click', '.hkcc-remove-image', function (e) {
+		e.preventDefault();
+		var $field = $(this).closest('.hkcc-image-field');
+		$field.find('input[type="hidden"]').val('');
+		$field.find('.hkcc-image-preview').html('');
+		$(this).hide();
 	});
 
 })(jQuery);

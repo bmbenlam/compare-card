@@ -21,18 +21,16 @@ while ( have_posts() ) :
 	$tagline   = get_post_meta( $post_id, 'tagline', true );
 	$aff_link  = get_post_meta( $post_id, 'affiliate_link', true );
 
-	$bank_terms    = get_the_terms( $post_id, 'card_bank' );
-	$network_terms = get_the_terms( $post_id, 'card_network' );
-	$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
-	$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
+	// Card face image (no fallback to featured image).
+	$card_face_id = (int) get_post_meta( $post_id, 'card_face_image', true );
 	?>
 
 	<article id="card-<?php echo esc_attr( $post_id ); ?>" class="hkcc-single-card">
 
 		<header class="hkcc-single-header">
-			<?php if ( has_post_thumbnail() ) : ?>
+			<?php if ( $card_face_id ) : ?>
 				<div class="hkcc-single-image">
-					<?php the_post_thumbnail( 'card-thumb', array( 'alt' => esc_attr( $card_name ) ) ); ?>
+					<?php echo wp_get_attachment_image( $card_face_id, 'card-thumb', false, array( 'alt' => esc_attr( $card_name ) ) ); ?>
 				</div>
 			<?php endif; ?>
 
@@ -41,15 +39,6 @@ while ( have_posts() ) :
 			<?php if ( $tagline ) : ?>
 				<p class="hkcc-single-tagline"><?php echo esc_html( $tagline ); ?></p>
 			<?php endif; ?>
-
-			<div class="hkcc-single-meta">
-				<?php if ( $bank_name ) : ?>
-					<span class="hkcc-meta-item"><strong>發卡機構:</strong> <?php echo esc_html( $bank_name ); ?></span>
-				<?php endif; ?>
-				<?php if ( $network_name ) : ?>
-					<span class="hkcc-meta-item"><strong>結算機構:</strong> <?php echo esc_html( $network_name ); ?></span>
-				<?php endif; ?>
-			</div>
 		</header>
 
 		<div class="hkcc-single-body">
@@ -63,11 +52,8 @@ while ( have_posts() ) :
 			}
 			?>
 
-			<?php
-			// Render expanded card details (same as cc_comparison expanded view).
-			?>
 			<div class="hkcc-single-card-details">
-				<?php HKCC_Card_Display::render_listing_card( get_post(), 'cash' ); ?>
+				<?php HKCC_Card_Display::render_single_card_details( get_post() ); ?>
 			</div>
 		</div>
 

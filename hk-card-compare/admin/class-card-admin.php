@@ -45,6 +45,8 @@ class HKCC_Card_Admin {
 			return;
 		}
 
+		wp_enqueue_media();
+
 		wp_enqueue_style(
 			'hkcc-admin',
 			HKCC_PLUGIN_URL . 'admin/css/admin.css',
@@ -146,6 +148,20 @@ class HKCC_Card_Admin {
 						esc_attr( $input_name ),
 						esc_attr( $value )
 					);
+					break;
+				case 'image':
+					$img_id  = intval( $value );
+					$img_url = $img_id ? wp_get_attachment_image_url( $img_id, 'medium' ) : '';
+					echo '<div class="hkcc-image-field">';
+					printf( '<input type="hidden" id="%1$s" name="%1$s" value="%2$s" />', esc_attr( $input_name ), esc_attr( $img_id ?: '' ) );
+					echo '<div class="hkcc-image-preview">';
+					if ( $img_url ) {
+						printf( '<img src="%s" style="max-width:200px;display:block;margin-bottom:8px;" />', esc_url( $img_url ) );
+					}
+					echo '</div>';
+					echo '<button type="button" class="button hkcc-upload-image">選擇圖片</button> ';
+					printf( '<button type="button" class="button hkcc-remove-image" %s>移除</button>', $img_id ? '' : 'style="display:none;"' );
+					echo '</div>';
 					break;
 				case 'int':
 					printf(

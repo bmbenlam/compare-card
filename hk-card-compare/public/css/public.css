@@ -2,8 +2,7 @@
  * HK Card Compare – Public (frontend) styles.
  * Mobile-first design for a 65% mobile / 35% desktop audience.
  *
- * FlyAsia branding with psychology-driven UX:
- * perks first, fees last, visual emphasis on rewards & welcome offers.
+ * FlyAsia branding — no purple/green; brand-consistent palette only.
  */
 
 /* ----------------------------------------------------------------
@@ -17,23 +16,15 @@
 :root {
 	--hkcc-primary: #b38850;
 	--hkcc-primary-dark: #998263;
+	--hkcc-primary-light: #f5efe6;
 	--hkcc-accent: #5099b3;
 	--hkcc-accent-dark: #3d7a8f;
+	--hkcc-accent-light: #e8f3f7;
 	--hkcc-cta: #b20000;
 	--hkcc-cta-hover: #981e1e;
 	--hkcc-bg: #F7F6F0;
-	--hkcc-reward: #00796b;
-	--hkcc-reward-bg: #e0f2f1;
-	--hkcc-welcome: #6a1b9a;
-	--hkcc-welcome-bg: #f3e5f5;
-	--hkcc-benefit: #1565c0;
-	--hkcc-benefit-bg: #e3f2fd;
-	--hkcc-fee-text: #888;
-	--hkcc-fee-bg: #fafafa;
-	--hkcc-badge-free: #2e7d32;
-	--hkcc-badge-free-bg: #e8f5e9;
-	--hkcc-badge-welcome: #6a1b9a;
-	--hkcc-badge-welcome-bg: #f3e5f5;
+	--hkcc-minor-bg: #f5f5f3;
+	--hkcc-minor-text: #777;
 	--hkcc-border: #e0e0e0;
 	--hkcc-border-light: #f0f0f0;
 	--hkcc-text: #333;
@@ -198,6 +189,34 @@
 }
 
 /* ----------------------------------------------------------------
+ * Sort bar
+ * -------------------------------------------------------------- */
+.hkcc-sort-bar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 0;
+	font-size: 14px;
+	margin-bottom: 4px;
+}
+
+.hkcc-sort-bar label {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.hkcc-sort-select {
+	padding: 6px 10px;
+	border: 1px solid var(--hkcc-border);
+	border-radius: 6px;
+	font-size: 14px;
+	font-family: 'Lato', sans-serif;
+	background: #fff;
+	cursor: pointer;
+	min-height: 36px;
+}
+
+/* ----------------------------------------------------------------
  * Rebate toggle
  * -------------------------------------------------------------- */
 .hkcc-rebate-toggle {
@@ -237,6 +256,7 @@
 	overflow: hidden;
 	transition: box-shadow 0.25s ease, transform 0.25s ease;
 	box-shadow: var(--hkcc-shadow);
+	position: relative;
 }
 
 .hkcc-listing-card:hover {
@@ -246,6 +266,27 @@
 
 .hkcc-card-collapsed {
 	padding: 20px;
+	padding-top: 24px;
+}
+
+/* Tagline bookmark — positioned top-left like a ribbon */
+.hkcc-tagline-bookmark {
+	position: absolute;
+	top: 14px;
+	left: 0;
+	background: var(--hkcc-primary);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 14px 4px 10px;
+	border-radius: 0 4px 4px 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	z-index: 1;
+	max-width: 70%;
+	line-height: 1.4;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .hkcc-card-image {
@@ -281,38 +322,26 @@
 	color: #111;
 }
 
-.hkcc-card-badges {
+.hkcc-welcome-preview {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-bottom: 4px;
-}
-
-.hkcc-badge {
-	display: inline-block;
-	font-size: 11px;
-	font-weight: 700;
-	padding: 3px 10px;
-	border-radius: 20px;
-	letter-spacing: 0.03em;
-	line-height: 1.4;
-}
-
-.hkcc-badge-free {
-	color: var(--hkcc-badge-free);
-	background: var(--hkcc-badge-free-bg);
-}
-
-.hkcc-badge-welcome {
-	color: var(--hkcc-badge-welcome);
-	background: var(--hkcc-badge-welcome-bg);
-}
-
-.hkcc-card-tagline {
+	align-items: center;
+	gap: 8px;
+	background: var(--hkcc-primary-light);
+	border-radius: 8px;
+	padding: 8px 12px;
+	margin-bottom: 14px;
 	font-size: 13px;
-	color: var(--hkcc-text-muted);
-	margin: 0 0 10px;
-	font-style: italic;
+	color: var(--hkcc-primary-dark);
+}
+
+.hkcc-welcome-preview-icon {
+	font-size: 16px;
+	flex-shrink: 0;
+}
+
+.hkcc-welcome-preview-text {
+	font-weight: 500;
+	line-height: 1.4;
 }
 
 .hkcc-featured-params {
@@ -341,28 +370,6 @@
 	font-weight: 700;
 	color: var(--hkcc-primary);
 	font-size: 15px;
-}
-
-.hkcc-welcome-preview {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	background: var(--hkcc-welcome-bg);
-	border-radius: 8px;
-	padding: 8px 12px;
-	margin-bottom: 14px;
-	font-size: 13px;
-	color: var(--hkcc-welcome);
-}
-
-.hkcc-welcome-preview-icon {
-	font-size: 16px;
-	flex-shrink: 0;
-}
-
-.hkcc-welcome-preview-text {
-	font-weight: 500;
-	line-height: 1.4;
 }
 
 .hkcc-card-actions {
@@ -419,36 +426,16 @@
 	font-weight: 500;
 }
 
-.hkcc-section-rewards {
-	background: var(--hkcc-reward-bg);
-	border-radius: 10px;
-	padding: 2px 16px 12px;
-	margin-top: 16px;
-}
-
-.hkcc-section-rewards h4 {
-	color: var(--hkcc-reward);
-}
-
-.hkcc-section-rewards .hkcc-detail-row {
-	border-bottom-color: rgba(0, 121, 107, 0.12);
-}
-
-.hkcc-section-rewards .hkcc-reward-value {
-	color: var(--hkcc-reward);
-	font-weight: 700;
-	font-size: 15px;
-}
-
+/* Welcome section — brand primary */
 .hkcc-section-welcome {
-	background: var(--hkcc-welcome-bg);
+	background: var(--hkcc-primary-light);
 	border-radius: 10px;
 	padding: 2px 16px 12px;
-	border-left: 4px solid var(--hkcc-welcome);
+	border-left: 4px solid var(--hkcc-primary);
 }
 
 .hkcc-section-welcome h4 {
-	color: var(--hkcc-welcome);
+	color: var(--hkcc-primary-dark);
 }
 
 .hkcc-welcome-banner {
@@ -472,69 +459,68 @@
 	margin-top: 4px;
 }
 
+/* Rewards section — brand accent */
+.hkcc-section-rewards {
+	background: var(--hkcc-accent-light);
+	border-radius: 10px;
+	padding: 2px 16px 12px;
+	margin-top: 16px;
+}
+
+.hkcc-section-rewards h4 {
+	color: var(--hkcc-accent-dark);
+}
+
+.hkcc-section-rewards .hkcc-detail-row {
+	border-bottom-color: rgba(80, 153, 179, 0.12);
+}
+
+.hkcc-section-rewards .hkcc-reward-value {
+	color: var(--hkcc-accent-dark);
+	font-weight: 700;
+	font-size: 15px;
+}
+
+/* Benefits section — lighter accent */
 .hkcc-section-benefits {
-	background: var(--hkcc-benefit-bg);
+	background: var(--hkcc-accent-light);
 	border-radius: 10px;
 	padding: 2px 16px 12px;
 }
 
 .hkcc-section-benefits h4 {
-	color: var(--hkcc-benefit);
+	color: var(--hkcc-accent-dark);
 }
 
 .hkcc-section-benefits .hkcc-detail-row {
-	border-bottom-color: rgba(21, 101, 192, 0.1);
+	border-bottom-color: rgba(80, 153, 179, 0.1);
 }
 
-.hkcc-section-eligibility {
-	background: #f5f5f5;
+/* Minor info sections — unified for 申請資格, 費用, 備註 */
+.hkcc-section-minor {
+	background: var(--hkcc-minor-bg);
 	border-radius: 8px;
 	padding: 2px 16px 12px;
 }
 
-.hkcc-section-eligibility h4 {
+.hkcc-section-minor h4 {
 	font-size: 14px;
-	color: #555;
-}
-
-.hkcc-section-fees {
-	background: var(--hkcc-fee-bg);
-	border-radius: 8px;
-	padding: 2px 16px 12px;
-	opacity: 0.85;
-}
-
-.hkcc-section-fees h4 {
-	font-size: 14px;
-	color: var(--hkcc-fee-text);
+	color: var(--hkcc-minor-text);
 	font-weight: 600;
 }
 
-.hkcc-section-fees .hkcc-detail-row {
+.hkcc-section-minor .hkcc-detail-row {
 	font-size: 13px;
-	color: var(--hkcc-fee-text);
+	color: var(--hkcc-minor-text);
 }
 
-.hkcc-section-fees .hkcc-detail-label,
-.hkcc-section-fees .hkcc-detail-value {
-	color: var(--hkcc-fee-text);
+.hkcc-section-minor .hkcc-detail-label,
+.hkcc-section-minor .hkcc-detail-value {
+	color: var(--hkcc-minor-text);
 	font-weight: 400;
 }
 
 /* Footnotes */
-.hkcc-section-footnotes {
-	background: #f9f9f6;
-	border-radius: 8px;
-	padding: 2px 16px 12px;
-	border-top: 1px solid var(--hkcc-border-light);
-}
-
-.hkcc-section-footnotes h4 {
-	font-size: 13px;
-	color: var(--hkcc-text-muted);
-	font-weight: 600;
-}
-
 .hkcc-footnote {
 	font-size: 12px;
 	color: var(--hkcc-text-muted);
@@ -571,51 +557,12 @@
 }
 
 /* ----------------------------------------------------------------
- * cc_suggest grid
+ * cc_suggest title
  * -------------------------------------------------------------- */
 .hkcc-suggest-title {
 	font-size: 20px;
 	font-weight: 700;
 	margin: 0 0 16px;
-}
-
-.hkcc-suggest-grid {
-	display: grid;
-	gap: 16px;
-}
-
-.hkcc-suggest-card {
-	background: #fff;
-	border: 1px solid var(--hkcc-border);
-	border-radius: var(--hkcc-radius);
-	padding: 20px;
-	text-align: center;
-	box-shadow: var(--hkcc-shadow);
-	transition: box-shadow 0.25s ease, transform 0.25s ease;
-}
-
-.hkcc-suggest-card:hover {
-	box-shadow: var(--hkcc-shadow-hover);
-	transform: translateY(-2px);
-}
-
-.hkcc-suggest-card .hkcc-card-image img {
-	max-width: 200px;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-	border-radius: 8px;
-}
-
-.hkcc-suggest-card .hkcc-card-name {
-	font-size: 16px;
-	margin: 8px 0 4px;
-}
-
-.hkcc-suggest-card .hkcc-card-tagline {
-	margin-bottom: 12px;
-}
-
-.hkcc-suggest-card .hkcc-card-actions {
-	justify-content: center;
 }
 
 .hkcc-no-results {
@@ -668,14 +615,6 @@
 	margin: 0 0 12px;
 }
 
-.hkcc-single-meta {
-	display: flex;
-	justify-content: center;
-	gap: 20px;
-	font-size: 14px;
-	color: var(--hkcc-text-muted);
-}
-
 .hkcc-single-body {
 	margin-bottom: 32px;
 }
@@ -723,16 +662,13 @@
 		display: none;
 	}
 
-	.hkcc-card-list {
-		display: block;
-	}
-
 	.hkcc-card-collapsed {
 		display: grid;
 		grid-template-columns: 180px 1fr;
 		grid-template-rows: auto auto auto auto;
 		gap: 0 20px;
 		align-items: start;
+		padding-top: 20px;
 	}
 
 	.hkcc-card-collapsed .hkcc-card-image {
@@ -753,7 +689,7 @@
 		grid-row: 1;
 	}
 
-	.hkcc-card-collapsed .hkcc-card-tagline {
+	.hkcc-card-collapsed .hkcc-welcome-preview {
 		grid-column: 2;
 		grid-row: 2;
 	}
@@ -763,27 +699,16 @@
 		grid-row: 3;
 	}
 
-	.hkcc-card-collapsed .hkcc-welcome-preview {
+	.hkcc-card-collapsed .hkcc-card-actions {
 		grid-column: 2;
 		grid-row: 4;
 	}
 
-	.hkcc-card-collapsed .hkcc-card-actions {
-		grid-column: 2;
-		grid-row: 5;
-	}
+	/* Tagline bookmark stays top-left via absolute positioning */
 
 	.hkcc-suggest {
 		max-width: 800px;
 		margin-left: auto;
 		margin-right: auto;
-	}
-
-	.hkcc-suggest-grid {
-		display: block;
-	}
-
-	.hkcc-suggest-card {
-		margin-bottom: 16px;
 	}
 }

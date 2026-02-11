@@ -124,6 +124,17 @@ function hkcc_init() {
 add_action( 'plugins_loaded', 'hkcc_init' );
 
 /**
+ * Flush rewrite rules once after plugin update (fixes 404 on card URLs).
+ */
+function hkcc_maybe_flush_rules() {
+	if ( get_option( 'hkcc_flush_rules_version' ) !== HKCC_VERSION ) {
+		flush_rewrite_rules();
+		update_option( 'hkcc_flush_rules_version', HKCC_VERSION );
+	}
+}
+add_action( 'init', 'hkcc_maybe_flush_rules', 99 );
+
+/**
  * Load single-card template from plugin when viewing a card post.
  */
 function hkcc_template_include( $template ) {

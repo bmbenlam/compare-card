@@ -23,7 +23,7 @@ class HKCC_Card_Shortcodes {
 	}
 
 	/* ==================================================================
-	 * [cc_suggest]
+	 * [cc_suggest] — same card style as cc_comparison, no filters/sort.
 	 * ================================================================ */
 
 	public static function shortcode_suggest( $atts ) {
@@ -46,12 +46,12 @@ class HKCC_Card_Shortcodes {
 		}
 
 		ob_start();
-		echo '<div class="hkcc-suggest hkcc-layout-' . esc_attr( $atts['layout'] ) . '">';
+		echo '<div class="hkcc-comparison hkcc-suggest">';
 		echo '<h3 class="hkcc-suggest-title">相關信用卡推薦</h3>';
-		echo '<div class="hkcc-suggest-grid">';
+		echo '<div class="hkcc-card-list">';
 
 		foreach ( $cards as $card ) {
-			HKCC_Card_Display::render_suggest_card( $card );
+			HKCC_Card_Display::render_listing_card( $card, 'miles' );
 		}
 
 		echo '</div></div>';
@@ -68,7 +68,7 @@ class HKCC_Card_Shortcodes {
 			'bank'          => '',
 			'network'       => '',
 			'filters'       => 'bank,network,annual_fee',
-			'default_sort'  => 'local_retail_cash_sortable',
+			'default_sort'  => '',
 			'default_order' => 'desc',
 			'show_toggle'   => 'true',
 			'default_view'  => 'miles',
@@ -99,6 +99,20 @@ class HKCC_Card_Shortcodes {
 					<?php self::render_filters( $filter_keys ); ?>
 					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>
 				</div>
+			</div>
+
+			<!-- Sort -->
+			<div class="hkcc-sort-bar">
+				<label for="hkcc_sort">排序：</label>
+				<select class="hkcc-sort-select" id="hkcc_sort">
+					<option value="|">推薦排序</option>
+					<option value="local_retail_cash_sortable|desc">本地簽賬回贈 (%)</option>
+					<option value="local_retail_miles_sortable|asc">本地簽賬回贈 (里數)</option>
+					<option value="overseas_retail_cash_sortable|desc">海外簽賬回贈 (%)</option>
+					<option value="overseas_retail_miles_sortable|asc">海外簽賬回贈 (里數)</option>
+					<option value="min_income_sortable|asc">最低年薪要求</option>
+					<option value="annual_fee_sortable|asc">年費</option>
+				</select>
 			</div>
 
 			<?php if ( 'true' === $atts['show_toggle'] ) : ?>
@@ -141,7 +155,14 @@ class HKCC_Card_Shortcodes {
 			$atts = array();
 		}
 
-		$filters = isset( $_POST['filters'] ) ? (array) $_POST['filters'] : array();
+		// Fix: properly decode JSON-encoded filters.
+		$filters = array();
+		if ( isset( $_POST['filters'] ) ) {
+			$filters = json_decode( stripslashes( $_POST['filters'] ), true );
+			if ( ! is_array( $filters ) ) {
+				$filters = array();
+			}
+		}
 
 		if ( ! empty( $filters['bank'] ) ) {
 			$atts['bank'] = implode( ',', array_map( 'sanitize_text_field', (array) $filters['bank'] ) );
@@ -173,11 +194,14 @@ class HKCC_Card_Shortcodes {
 			}
 		}
 
-		$sort  = sanitize_text_field( $_POST['sort'] ?? 'local_retail_cash_sortable' );
+		$sort  = sanitize_text_field( $_POST['sort'] ?? '' );
 		$order = sanitize_text_field( $_POST['order'] ?? 'desc' );
-		$query_args['meta_key'] = $sort;
-		$query_args['orderby']  = 'meta_value_num';
-		$query_args['order']    = strtoupper( $order );
+
+		if ( $sort ) {
+			$query_args['meta_key'] = $sort;
+			$query_args['orderby']  = 'meta_value_num';
+			$query_args['order']    = strtoupper( $order );
+		}
 
 		$view  = sanitize_text_field( $_POST['view'] ?? 'miles' );
 		$cards = get_posts( $query_args );
@@ -299,37 +323,6 @@ class HKCC_Card_Shortcodes {
 					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="" checked /> 任何</label>';
 					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="free" /> 永久免年費</label>';
 					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="first_year_free" /> 首年免年費</label>';
-					echo '</div></div>';
-					break;
-
-				case 'min_income':
-					echo '<div class="hkcc-filter-group" data-filter="min_income">';
-					echo '<h4 class="hkcc-filter-heading">最低收入</h4>';
-					echo '<div class="hkcc-filter-options">';
-					echo '<label><input type="radio" name="hkcc_filter_min_income" value="" checked /> 任何</label>';
-					echo '<label><input type="radio" name="hkcc_filter_min_income" value="50000" /> &lt; HK$50,000</label>';
-					echo '<label><input type="radio" name="hkcc_filter_min_income" value="100000" /> HK$50,000 - 100,000</label>';
-					echo '<label><input type="radio" name="hkcc_filter_min_income" value="100001" /> &gt; HK$100,000</label>';
-					echo '</div></div>';
-					break;
-
-				case 'lounge_access':
-					echo '<div class="hkcc-filter-group" data-filter="lounge_access">';
-					echo '<h4 class="hkcc-filter-heading">機場貴賓室</h4>';
-					echo '<div class="hkcc-filter-options">';
-					echo '<label><input type="radio" name="hkcc_filter_lounge" value="" checked /> 任何</label>';
-					echo '<label><input type="radio" name="hkcc_filter_lounge" value="yes" /> 有</label>';
-					echo '<label><input type="radio" name="hkcc_filter_lounge" value="no" /> 無</label>';
-					echo '</div></div>';
-					break;
-
-				case 'points_system':
-					echo '<div class="hkcc-filter-group" data-filter="points_system">';
-					echo '<h4 class="hkcc-filter-heading">回贈類型</h4>';
-					echo '<div class="hkcc-filter-options">';
-					echo '<label><input type="radio" name="hkcc_filter_points" value="" checked /> 任何</label>';
-					echo '<label><input type="radio" name="hkcc_filter_points" value="cash" /> 現金回贈</label>';
-					echo '<label><input type="radio" name="hkcc_filter_points" value="points" /> 積分系統</label>';
 					echo '</div></div>';
 					break;
 			}

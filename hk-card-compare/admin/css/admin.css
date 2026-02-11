@@ -73,6 +73,19 @@
 	color: #666;
 }
 
+/* Image field */
+.hkcc-image-field {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.hkcc-image-preview img {
+	border-radius: 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Points Systems page */
 .hkcc-conversions-table {
 	max-width: 700px;
