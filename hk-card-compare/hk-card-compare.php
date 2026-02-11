@@ -3,7 +3,7 @@
  * Plugin Name: HK Card Compare
  * Plugin URI:  https://example.com/hk-card-compare
  * Description: Credit card comparison plugin for Hong Kong travel & personal finance blogs. Supports Traditional Chinese, points conversion, miles/cash toggle, and affiliate click tracking.
- * Version:     1.0.0
+ * Version:     1.0.2
  * Author:      HK Card Compare
  * Author URI:  https://example.com
  * Text Domain: hk-card-compare
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HKCC_VERSION', '1.0.0' );
+define( 'HKCC_VERSION', '1.0.2' );
 define( 'HKCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HKCC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
