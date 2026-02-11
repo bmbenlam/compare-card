@@ -11,22 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class HKCC_Points_System {
 
-	/**
-	 * Hook into WordPress.
-	 */
-	public static function init() {
-		// No front-end hooks needed; admin pages call methods directly.
-	}
+	public static function init() {}
 
 	/* ------------------------------------------------------------------
 	 * CRUD helpers for points systems table.
 	 * ---------------------------------------------------------------- */
 
-	/**
-	 * Get all active points systems.
-	 *
-	 * @return array
-	 */
 	public static function get_all() {
 		global $wpdb;
 		return $wpdb->get_results(
@@ -34,12 +24,6 @@ class HKCC_Points_System {
 		);
 	}
 
-	/**
-	 * Get a single points system by ID.
-	 *
-	 * @param int $id System ID.
-	 * @return object|null
-	 */
 	public static function get( $id ) {
 		global $wpdb;
 		return $wpdb->get_row(
@@ -50,13 +34,6 @@ class HKCC_Points_System {
 		);
 	}
 
-	/**
-	 * Insert a new points system.
-	 *
-	 * @param string $name    Chinese name.
-	 * @param string $name_en English name.
-	 * @return int|false Inserted ID or false.
-	 */
 	public static function create( $name, $name_en = '' ) {
 		global $wpdb;
 		$result = $wpdb->insert(
@@ -70,15 +47,6 @@ class HKCC_Points_System {
 		return $result ? $wpdb->insert_id : false;
 	}
 
-	/**
-	 * Update an existing points system.
-	 *
-	 * @param int    $id      System ID.
-	 * @param string $name    Chinese name.
-	 * @param string $name_en English name.
-	 * @param string $status  active or inactive.
-	 * @return bool
-	 */
 	public static function update( $id, $name, $name_en, $status = 'active' ) {
 		global $wpdb;
 		return (bool) $wpdb->update(
@@ -94,12 +62,6 @@ class HKCC_Points_System {
 		);
 	}
 
-	/**
-	 * Delete a points system and its conversions.
-	 *
-	 * @param int $id System ID.
-	 * @return bool
-	 */
 	public static function delete( $id ) {
 		global $wpdb;
 		return (bool) $wpdb->delete(
@@ -113,12 +75,6 @@ class HKCC_Points_System {
 	 * Conversion rate helpers.
 	 * ---------------------------------------------------------------- */
 
-	/**
-	 * Get all conversions for a given system.
-	 *
-	 * @param int $system_id System ID.
-	 * @return array
-	 */
 	public static function get_conversions( $system_id ) {
 		global $wpdb;
 		return $wpdb->get_results(
@@ -129,17 +85,10 @@ class HKCC_Points_System {
 		);
 	}
 
-	/**
-	 * Replace all conversion rows for a system (delete + insert).
-	 *
-	 * @param int   $system_id   System ID.
-	 * @param array $conversions Array of arrays with keys: reward_type, points_required, reward_value, reward_currency, effective_date, expiry_date.
-	 */
 	public static function save_conversions( $system_id, $conversions ) {
 		global $wpdb;
 		$system_id = intval( $system_id );
 
-		// Remove old rows.
 		$wpdb->delete(
 			$wpdb->prefix . 'card_points_conversion',
 			array( 'system_id' => $system_id ),
@@ -164,15 +113,10 @@ class HKCC_Points_System {
 	}
 
 	/* ------------------------------------------------------------------
-	 * Auto-calculation: points → cash / miles.
+	 * Transaction types (reward categories) — now configurable.
 	 * ---------------------------------------------------------------- */
 
-	/**
-	 * Transaction type slugs used in meta keys.
-	 *
-	 * @return array
-	 */
-	public static function get_transaction_types() {
+	private static function get_default_transaction_types() {
 		return array(
 			'local_retail',
 			'overseas_retail',
@@ -188,13 +132,61 @@ class HKCC_Points_System {
 	}
 
 	/**
-	 * Extract the numeric earning rate from a points string like "HK$1 = 3 MR 積分".
+	 * Get all transaction types including user-defined custom ones.
 	 *
-	 * @param string $text Points earning description.
-	 * @return float Earning rate (points per HK$1). Returns 0 if not parseable.
+	 * @return array Flat array of slugs.
 	 */
+	public static function get_transaction_types() {
+		$defaults = self::get_default_transaction_types();
+		$custom   = get_option( 'hkcc_custom_txn_types', array() );
+
+		if ( ! empty( $custom ) && is_array( $custom ) ) {
+			foreach ( $custom as $type ) {
+				if ( ! empty( $type['slug'] ) ) {
+					$defaults[] = $type['slug'];
+				}
+			}
+		}
+
+		return $defaults;
+	}
+
+	/**
+	 * Get slug => Chinese label map for all transaction types.
+	 *
+	 * @return array
+	 */
+	public static function get_transaction_labels() {
+		$labels = array(
+			'local_retail'        => '本地零售簽賬',
+			'overseas_retail'     => '海外零售簽賬',
+			'online_hkd'         => '網上港幣簽賬',
+			'online_fx'          => '網上外幣簽賬',
+			'local_dining'       => '本地餐飲簽賬',
+			'online_bill_payment'=> '網上繳費',
+			'payme_reload'       => 'PayMe 增值',
+			'alipay_reload'      => 'AlipayHK 增值',
+			'wechat_reload'      => 'WeChat Pay 增值',
+			'octopus_reload'     => '八達通增值',
+		);
+
+		$custom = get_option( 'hkcc_custom_txn_types', array() );
+		if ( ! empty( $custom ) && is_array( $custom ) ) {
+			foreach ( $custom as $type ) {
+				if ( ! empty( $type['slug'] ) && ! empty( $type['label'] ) ) {
+					$labels[ $type['slug'] ] = $type['label'];
+				}
+			}
+		}
+
+		return $labels;
+	}
+
+	/* ------------------------------------------------------------------
+	 * Auto-calculation: points → cash / miles.
+	 * ---------------------------------------------------------------- */
+
 	public static function extract_earning_rate( $text ) {
-		// Try pattern "HK$1 = X" or just a bare number.
 		if ( preg_match( '/=\s*([\d.]+)/', $text, $m ) ) {
 			return floatval( $m[1] );
 		}
@@ -207,15 +199,12 @@ class HKCC_Points_System {
 	/**
 	 * Run auto-calculation for a card after save.
 	 *
-	 * For each transaction type that has a points string, compute the equivalent
-	 * cash rebate percentage and miles-per-dollar, then store as meta.
-	 *
 	 * @param int $post_id Card post ID.
 	 */
 	public static function auto_calculate_rebates( $post_id ) {
 		$system_id = (int) get_post_meta( $post_id, 'points_system_id', true );
 		if ( $system_id <= 0 ) {
-			return; // Direct cash card — nothing to calculate.
+			return;
 		}
 
 		$conversions = self::get_conversions( $system_id );
@@ -223,7 +212,6 @@ class HKCC_Points_System {
 			return;
 		}
 
-		// Build lookup: reward_type => value per point.
 		$value_per_point = array();
 		foreach ( $conversions as $conv ) {
 			if ( $conv->points_required > 0 ) {
@@ -231,32 +219,30 @@ class HKCC_Points_System {
 			}
 		}
 
-		$cash_vpp  = $value_per_point['cash'] ?? 0;   // HKD per point.
-		$miles_vpp = $value_per_point['asia_miles'] ?? 0; // Miles per point.
+		$cash_vpp  = $value_per_point['cash'] ?? 0;
+		$miles_vpp = $value_per_point['asia_miles'] ?? 0;
 
 		foreach ( self::get_transaction_types() as $txn ) {
 			$points_text = get_post_meta( $post_id, "{$txn}_points", true );
-			if ( empty( $points_text ) ) {
+
+			if ( $points_text === '' || $points_text === false ) {
 				continue;
 			}
 
 			$earning_rate = self::extract_earning_rate( $points_text );
 			if ( $earning_rate <= 0 ) {
-				// Store 不適用 for display, 0 for sorting.
 				update_post_meta( $post_id, "{$txn}_cash_sortable", 0 );
 				update_post_meta( $post_id, "{$txn}_cash_display", '不適用' );
 				update_post_meta( $post_id, "{$txn}_miles_display", '不適用' );
 				continue;
 			}
 
-			// Cash rebate percentage.
 			if ( $cash_vpp > 0 ) {
 				$cash_pct = round( $earning_rate * $cash_vpp * 100, 2 );
 				update_post_meta( $post_id, "{$txn}_cash_sortable", $cash_pct );
 				update_post_meta( $post_id, "{$txn}_cash_display", $cash_pct . '% 現金回贈' );
 			}
 
-			// Miles per dollar display.
 			if ( $miles_vpp > 0 ) {
 				$miles_per_dollar = $earning_rate * $miles_vpp;
 				if ( $miles_per_dollar > 0 ) {
@@ -265,7 +251,6 @@ class HKCC_Points_System {
 				}
 			}
 
-			// Additional reward types (Marriott, Hilton, etc.)
 			foreach ( $value_per_point as $rtype => $vpp ) {
 				if ( in_array( $rtype, array( 'cash', 'asia_miles' ), true ) ) {
 					continue;

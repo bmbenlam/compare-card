@@ -13,15 +13,13 @@ class HKCC_Card_Meta {
 
 	/**
 	 * All meta field definitions grouped by tab.
-	 *
-	 * @return array
 	 */
 	public static function get_fields() {
 		return array(
 			'basic'    => array(
+				'card_name'      => array( 'label' => 'Card Name (前端顯示名稱)', 'type' => 'text', 'max' => 200 ),
 				'tagline'        => array( 'label' => 'Tagline', 'type' => 'text', 'max' => 200 ),
 				'affiliate_link' => array( 'label' => 'Affiliate Link', 'type' => 'url' ),
-				'blog_post_link' => array( 'label' => 'Blog Post Link', 'type' => 'url' ),
 			),
 			'fees'     => array(
 				'annual_fee_display'           => array( 'label' => '年費 (Display)', 'type' => 'text' ),
@@ -38,7 +36,6 @@ class HKCC_Card_Meta {
 			),
 			'rewards'  => array(
 				'points_system_id'             => array( 'label' => '積分系統', 'type' => 'int' ),
-				// Points-based fields.
 				'local_retail_points'          => array( 'label' => '本地零售簽賬 (積分)', 'type' => 'text' ),
 				'overseas_retail_points'       => array( 'label' => '海外零售簽賬 (積分)', 'type' => 'text' ),
 				'online_hkd_points'            => array( 'label' => '網上港幣簽賬 (積分)', 'type' => 'text' ),
@@ -49,7 +46,6 @@ class HKCC_Card_Meta {
 				'alipay_reload_points'         => array( 'label' => 'AlipayHK 增值 (積分)', 'type' => 'text' ),
 				'wechat_reload_points'         => array( 'label' => 'WeChat Pay 增值 (積分)', 'type' => 'text' ),
 				'octopus_reload_points'        => array( 'label' => '八達通增值 (積分)', 'type' => 'text' ),
-				// Direct cash fields.
 				'local_retail_cash_display'    => array( 'label' => '本地零售簽賬 現金回贈 (Display)', 'type' => 'text' ),
 				'local_retail_cash_sortable'   => array( 'label' => '本地零售簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
 				'overseas_retail_cash_display'  => array( 'label' => '海外零售簽賬 現金回贈 (Display)', 'type' => 'text' ),
@@ -70,7 +66,6 @@ class HKCC_Card_Meta {
 				'wechat_reload_cash_sortable'  => array( 'label' => 'WeChat Pay 增值 現金回贈 (Sortable)', 'type' => 'float' ),
 				'octopus_reload_cash_display'  => array( 'label' => '八達通增值 現金回贈 (Display)', 'type' => 'text' ),
 				'octopus_reload_cash_sortable' => array( 'label' => '八達通增值 現金回贈 (Sortable)', 'type' => 'float' ),
-				// Redemption.
 				'redemption_types'             => array( 'label' => '兌換方式', 'type' => 'array' ),
 				'statement_credit_requirement' => array( 'label' => 'Statement Credit 要求', 'type' => 'text' ),
 				'points_system_name'           => array( 'label' => '積分系統名稱', 'type' => 'text' ),
@@ -80,9 +75,10 @@ class HKCC_Card_Meta {
 				'transferable_hotels'          => array( 'label' => '可轉換酒店積分', 'type' => 'array' ),
 			),
 			'welcome'  => array(
+				'welcome_offer_short'             => array( 'label' => '迎新優惠簡述 (Preview)', 'type' => 'text', 'max' => 120 ),
 				'welcome_cooling_period_display'  => array( 'label' => '迎新冷河期 (Display)', 'type' => 'text' ),
 				'welcome_cooling_period_sortable' => array( 'label' => '迎新冷河期 (Sortable)', 'type' => 'int' ),
-				'welcome_offer_description'       => array( 'label' => '迎新優惠描述', 'type' => 'html' ),
+				'welcome_offer_description'       => array( 'label' => '迎新優惠詳細描述', 'type' => 'html' ),
 				'welcome_offer_expiry'            => array( 'label' => '迎新優惠到期日', 'type' => 'date' ),
 			),
 			'benefits' => array(
@@ -105,11 +101,6 @@ class HKCC_Card_Meta {
 		);
 	}
 
-	/**
-	 * Return a flat list of all meta keys.
-	 *
-	 * @return array
-	 */
 	public static function get_all_keys() {
 		$keys = array();
 		foreach ( self::get_fields() as $fields ) {
@@ -120,40 +111,41 @@ class HKCC_Card_Meta {
 
 	/**
 	 * Fields that can be chosen as "featured parameter" values.
-	 *
-	 * @return array key => human-readable label
+	 * Returns clean zh-HK labels for display-appropriate fields only.
+	 * Values auto-switch between miles and cash view.
 	 */
 	public static function get_featurable_fields() {
-		$fields  = self::get_fields();
 		$options = array( '' => '— Select —' );
-		$skip    = array( 'featured', 'eligibility' );
 
-		foreach ( $fields as $group => $group_fields ) {
-			if ( in_array( $group, $skip, true ) ) {
-				continue;
-			}
-			foreach ( $group_fields as $key => $def ) {
-				if ( str_ends_with( $key, '_sortable' ) || 'points_system_id' === $key ) {
-					continue;
-				}
-				$options[ $key ] = $def['label'];
-			}
+		// Fee fields.
+		$options['annual_fee_display']       = '年費';
+		$options['fx_fee_display']           = '外幣兌換手續費';
+		$options['cross_border_fee_display'] = '跨境結算手續費';
+
+		// Reward fields (dynamic from transaction types).
+		$txn_labels = HKCC_Points_System::get_transaction_labels();
+		foreach ( HKCC_Points_System::get_transaction_types() as $txn ) {
+			$label = $txn_labels[ $txn ] ?? $txn;
+			$options[ "{$txn}_cash_display" ] = "{$label}回贈";
 		}
+
+		// Benefits.
+		$options['lounge_access_display'] = '免費貴賓室';
+		$options['travel_insurance']      = '旅遊保險';
+
+		// Welcome.
+		$options['welcome_offer_short']            = '迎新優惠';
+		$options['welcome_cooling_period_display']  = '迎新冷河期';
+
 		return $options;
 	}
 
-	/**
-	 * Hook into WordPress.
-	 */
 	public static function init() {
 		add_action( 'save_post_card', array( __CLASS__, 'save' ), 10, 2 );
 	}
 
 	/**
 	 * Sanitise and save all meta fields when a card is saved.
-	 *
-	 * @param int     $post_id Post ID.
-	 * @param WP_Post $post    Post object.
 	 */
 	public static function save( $post_id, $post ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -204,7 +196,23 @@ class HKCC_Card_Meta {
 			}
 		}
 
-		// After saving, run auto-calculation for points-based cards.
+		// Save custom transaction type fields.
+		$custom_types = get_option( 'hkcc_custom_txn_types', array() );
+		if ( ! empty( $custom_types ) ) {
+			foreach ( $custom_types as $type ) {
+				$slug = $type['slug'];
+				if ( isset( $_POST[ "hkcc_{$slug}_points" ] ) ) {
+					update_post_meta( $post_id, "{$slug}_points", sanitize_text_field( $_POST[ "hkcc_{$slug}_points" ] ) );
+				}
+				if ( isset( $_POST[ "hkcc_{$slug}_cash_display" ] ) ) {
+					update_post_meta( $post_id, "{$slug}_cash_display", sanitize_text_field( $_POST[ "hkcc_{$slug}_cash_display" ] ) );
+				}
+				if ( isset( $_POST[ "hkcc_{$slug}_cash_sortable" ] ) ) {
+					update_post_meta( $post_id, "{$slug}_cash_sortable", floatval( $_POST[ "hkcc_{$slug}_cash_sortable" ] ) );
+				}
+			}
+		}
+
 		HKCC_Points_System::auto_calculate_rebates( $post_id );
 	}
 }
