@@ -68,7 +68,7 @@ class HKCC_Card_Display {
 					<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary" target="_blank" rel="noopener">了解更多</a>
 				<?php endif; ?>
 				<?php if ( $aff_link ) : ?>
-					<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-primary card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+					<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -96,20 +96,40 @@ class HKCC_Card_Display {
 		$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
 		$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
 		?>
+		<?php
+		// Check for free annual fee badge.
+		$annual_fee_sortable = (float) get_post_meta( $card->ID, 'annual_fee_sortable', true );
+
+		// Get welcome offer for collapsed preview.
+		$welcome_short = get_post_meta( $card->ID, 'welcome_offer_description', true );
+		$welcome_short = $welcome_short ? wp_strip_all_tags( $welcome_short ) : '';
+		if ( strlen( $welcome_short ) > 60 ) {
+			$welcome_short = mb_substr( $welcome_short, 0, 57 ) . '...';
+		}
+		?>
 		<div class="hkcc-listing-card" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
 			<!-- Collapsed view -->
 			<div class="hkcc-card-collapsed">
-				<?php if ( $tagline ) : ?>
-					<p class="hkcc-card-tagline"><?php echo esc_html( $tagline ); ?></p>
-				<?php endif; ?>
-
 				<?php if ( has_post_thumbnail( $card->ID ) ) : ?>
 					<div class="hkcc-card-image">
 						<?php echo get_the_post_thumbnail( $card->ID, 'card-thumb', array( 'loading' => 'lazy', 'alt' => esc_attr( $card->post_title ) ) ); ?>
 					</div>
 				<?php endif; ?>
 
-				<h3 class="hkcc-card-name"><?php echo esc_html( $card->post_title ); ?></h3>
+				<div class="hkcc-card-header">
+					<h3 class="hkcc-card-name"><?php echo esc_html( $card->post_title ); ?></h3>
+					<div class="hkcc-card-badges">
+						<?php if ( $annual_fee_sortable <= 0 ) : ?>
+							<span class="hkcc-badge hkcc-badge-free">免年費</span>
+						<?php endif; ?>
+						<?php if ( $welcome_short ) : ?>
+							<span class="hkcc-badge hkcc-badge-welcome">迎新</span>
+						<?php endif; ?>
+					</div>
+				</div>
+				<?php if ( $tagline ) : ?>
+					<p class="hkcc-card-tagline"><?php echo esc_html( $tagline ); ?></p>
+				<?php endif; ?>
 
 				<div class="hkcc-featured-params">
 					<?php foreach ( $featured_values as $fv ) : ?>
@@ -120,10 +140,17 @@ class HKCC_Card_Display {
 					<?php endforeach; ?>
 				</div>
 
+				<?php if ( $welcome_short ) : ?>
+					<div class="hkcc-welcome-preview">
+						<span class="hkcc-welcome-preview-icon">&#127873;</span>
+						<span class="hkcc-welcome-preview-text"><?php echo esc_html( $welcome_short ); ?></span>
+					</div>
+				<?php endif; ?>
+
 				<div class="hkcc-card-actions">
 					<button type="button" class="hkcc-btn hkcc-btn-secondary hkcc-details-toggle" aria-expanded="false">查看詳情 &#9660;</button>
 					<?php if ( $aff_link ) : ?>
-						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-primary card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -137,7 +164,7 @@ class HKCC_Card_Display {
 						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary" target="_blank" rel="noopener">了解更多</a>
 					<?php endif; ?>
 					<?php if ( $aff_link ) : ?>
-						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-primary card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -241,34 +268,25 @@ class HKCC_Card_Display {
 		$insurance = get_post_meta( $id, 'travel_insurance', true );
 		?>
 
-		<div class="hkcc-details-section">
+		<div class="hkcc-details-section hkcc-section-meta">
 			<p><strong>發卡銀行:</strong> <?php echo esc_html( $bank_name ); ?></p>
 			<p><strong>結算機構:</strong> <?php echo esc_html( $network_name ); ?></p>
 		</div>
 
-		<?php if ( array_filter( $fees ) ) : ?>
-		<div class="hkcc-details-section">
-			<h4>費用</h4>
-			<?php foreach ( $fees as $label => $val ) : ?>
-				<?php if ( $val ) : ?>
-					<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value"><?php echo esc_html( $val ); ?></span></div>
-				<?php endif; ?>
-			<?php endforeach; ?>
-		</div>
-		<?php endif; ?>
-
 		<?php if ( ! empty( $rewards ) ) : ?>
-		<div class="hkcc-details-section">
-			<h4>回贈</h4>
+		<div class="hkcc-details-section hkcc-section-rewards">
+			<h4><span class="hkcc-section-icon">&#9733;</span> 回贈</h4>
 			<?php foreach ( $rewards as $label => $val ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value"><?php echo esc_html( $val ); ?></span></div>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value hkcc-reward-value"><?php echo esc_html( $val ); ?></span></div>
 			<?php endforeach; ?>
 		</div>
 		<?php endif; ?>
 
 		<?php if ( $welcome_desc ) : ?>
-		<div class="hkcc-details-section">
-			<h4>迎新優惠<?php echo $welcome_expiry ? ' (至 ' . esc_html( $welcome_expiry ) . ')' : ''; ?></h4>
+		<div class="hkcc-details-section hkcc-section-welcome">
+			<div class="hkcc-welcome-banner">
+				<h4><span class="hkcc-section-icon">&#127873;</span> 迎新優惠<?php echo $welcome_expiry ? ' <span class="hkcc-welcome-expiry">(至 ' . esc_html( $welcome_expiry ) . ')</span>' : ''; ?></h4>
+			</div>
 			<div class="hkcc-welcome-desc"><?php echo wp_kses_post( $welcome_desc ); ?></div>
 			<?php if ( $cooling ) : ?>
 				<p class="hkcc-cooling">冷河期: <?php echo esc_html( $cooling ); ?></p>
@@ -277,14 +295,31 @@ class HKCC_Card_Display {
 		<?php endif; ?>
 
 		<?php if ( $lounge || $insurance ) : ?>
-		<div class="hkcc-details-section">
-			<h4>福利</h4>
+		<div class="hkcc-details-section hkcc-section-benefits">
+			<h4><span class="hkcc-section-icon">&#10004;</span> 福利</h4>
 			<?php if ( $lounge ) : ?>
 				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費使用機場貴賓室:</span> <span class="hkcc-detail-value"><?php echo esc_html( $lounge ); ?></span></div>
 			<?php endif; ?>
 			<?php if ( $insurance ) : ?>
 				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費旅遊保險:</span> <span class="hkcc-detail-value"><?php echo esc_html( $insurance ); ?></span></div>
 			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( array_filter( $fees ) ) : ?>
+		<div class="hkcc-details-section hkcc-section-fees">
+			<h4>費用</h4>
+			<?php
+			// Check if annual fee is waived / free.
+			$annual_fee_sortable = (float) get_post_meta( $id, 'annual_fee_sortable', true );
+			if ( $annual_fee_sortable <= 0 ) : ?>
+				<span class="hkcc-badge hkcc-badge-free">免年費</span>
+			<?php endif; ?>
+			<?php foreach ( $fees as $label => $val ) : ?>
+				<?php if ( $val ) : ?>
+					<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value"><?php echo esc_html( $val ); ?></span></div>
+				<?php endif; ?>
+			<?php endforeach; ?>
 		</div>
 		<?php endif;
 	}

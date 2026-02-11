@@ -18,6 +18,7 @@
    - [2026-02-10 — Session 1: Initial Plugin Build](#2026-02-10--session-1-initial-plugin-build)
    - [2026-02-10 — Session 2: Frontend zh-HK, Layout & Programme List Updates](#2026-02-10--session-2-frontend-zh-hk-layout--programme-list-updates)
 4. [Known Issues & Technical Debt](#known-issues--technical-debt)
+   - [2026-02-11 — Session 3: UX/UI Psychology-Driven Redesign](#2026-02-11--session-3-uxui-psychology-driven-redesign)
 5. [What's Next](#whats-next)
 
 ---
@@ -208,6 +209,65 @@ Updated in: `class-card-admin.php` (checkboxes), `class-points-admin.php` (rewar
 - `admin/class-points-admin.php` — Expanded reward type dropdown (19 options)
 - `admin/js/admin.js` — Matching reward type options for dynamic rows
 - `includes/class-points-system.php` — 不適用 handling for 0-rate auto-calculation
+
+### 2026-02-11 — Session 3: UX/UI Psychology-Driven Redesign
+
+**Branch:** `claude/code-plugin-E74dL`
+**Commit:** (this commit)
+
+**What was done:**
+
+Psychology-driven UX/UI overhaul: users want to see perks over fees. The entire card display hierarchy was restructured to emphasise rewards and de-emphasise costs.
+
+**1. Expanded details reordered (perks first, fees last)**
+
+| Before                                        | After                                          |
+|-----------------------------------------------|------------------------------------------------|
+| Bank/Network → **Fees** → Rewards → Welcome → Benefits | Bank/Network → **Rewards** → Welcome → Benefits → **Fees** |
+
+Each section now has a distinct CSS class (`hkcc-section-rewards`, `hkcc-section-welcome`, `hkcc-section-benefits`, `hkcc-section-fees`) enabling targeted visual treatment.
+
+**2. Visual hierarchy via colour-coded sections**
+
+| Section     | Background       | Accent Colour  | Typography       |
+|-------------|-----------------|----------------|------------------|
+| 回贈 (Rewards)  | Teal tint `#e0f2f1` | `#00796b`    | Bold values, 15px |
+| 迎新優惠 (Welcome) | Purple tint `#f3e5f5` | `#6a1b9a` | Left border accent |
+| 福利 (Benefits)   | Blue tint `#e3f2fd`  | `#1565c0`    | Checkmark icon    |
+| 費用 (Fees)       | Grey `#fafafa`       | `#888`       | Muted, 13px, 0.85 opacity |
+
+**3. Badges on collapsed cards**
+
+- `免年費` (green pill badge) — shown when `annual_fee_sortable ≤ 0`
+- `迎新` (purple pill badge) — shown when welcome offer exists
+
+**4. Welcome offer preview on collapsed cards**
+
+A compact purple-tinted preview bar shows the first ~57 chars of the welcome offer description, letting users spot welcome offers without expanding.
+
+**5. CTA button redesign**
+
+- Changed from blue `.hkcc-btn-primary` to orange `.hkcc-btn-cta` (`#e65100`)
+- Added box-shadow glow, hover lift effect, larger font (15px bold)
+- Higher contrast against the card background = draws the eye
+
+**6. Premium card image treatment**
+
+- Card images now have `box-shadow: 0 4px 16px rgba(0,0,0,0.12)` for depth
+- Subtle `scale(1.02)` on card hover for tactile feedback
+
+**7. Desktop layout: horizontal card grid**
+
+On desktop (≥768px), collapsed cards now use CSS Grid with image on the left (200px column) and text/actions on the right, making better use of horizontal space.
+
+**8. CSS variables system**
+
+Introduced `:root` CSS variables for consistent theming: `--hkcc-accent`, `--hkcc-cta`, `--hkcc-reward`, `--hkcc-welcome`, `--hkcc-benefit`, `--hkcc-fee-text`, `--hkcc-shadow`, etc.
+
+**Files modified (2):**
+
+- `public/class-card-display.php` — Reordered `render_expanded_details()`, added badges, welcome preview, icon spans, CTA class change
+- `public/css/public.css` — Complete overhaul: CSS variables, colour-coded sections, badge styles, CTA button, card shadows, desktop grid layout
 
 ---
 

@@ -1,7 +1,39 @@
 /**
  * HK Card Compare – Public (frontend) styles.
  * Mobile-first design for a 65% mobile / 35% desktop audience.
+ *
+ * Design psychology: perks first, fees last. Visual emphasis on
+ * rewards & welcome offers; CTA buttons stand out; fees are muted.
  */
+
+/* ----------------------------------------------------------------
+ * Variables
+ * -------------------------------------------------------------- */
+:root {
+	--hkcc-accent: #0066cc;
+	--hkcc-accent-dark: #004d99;
+	--hkcc-cta: #e65100;
+	--hkcc-cta-hover: #bf4400;
+	--hkcc-reward: #00796b;
+	--hkcc-reward-bg: #e0f2f1;
+	--hkcc-welcome: #6a1b9a;
+	--hkcc-welcome-bg: #f3e5f5;
+	--hkcc-benefit: #1565c0;
+	--hkcc-benefit-bg: #e3f2fd;
+	--hkcc-fee-text: #888;
+	--hkcc-fee-bg: #fafafa;
+	--hkcc-badge-free: #2e7d32;
+	--hkcc-badge-free-bg: #e8f5e9;
+	--hkcc-badge-welcome: #6a1b9a;
+	--hkcc-badge-welcome-bg: #f3e5f5;
+	--hkcc-border: #e0e0e0;
+	--hkcc-border-light: #f0f0f0;
+	--hkcc-text: #333;
+	--hkcc-text-muted: #777;
+	--hkcc-radius: 12px;
+	--hkcc-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+	--hkcc-shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
 
 /* ----------------------------------------------------------------
  * Base & Reset
@@ -9,7 +41,7 @@
 .hkcc-comparison,
 .hkcc-suggest {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	color: #333;
+	color: var(--hkcc-text);
 	line-height: 1.6;
 }
 
@@ -27,46 +59,68 @@
 	font-size: 14px;
 	font-weight: 600;
 	text-decoration: none;
-	border-radius: 6px;
+	border-radius: 8px;
 	border: none;
 	cursor: pointer;
 	text-align: center;
 	min-height: 44px;
 	line-height: 24px;
-	transition: background-color 0.2s, box-shadow 0.2s;
+	transition: all 0.2s ease;
 }
 
 .hkcc-btn:focus-visible {
-	outline: 2px solid #0073aa;
+	outline: 2px solid var(--hkcc-accent);
 	outline-offset: 2px;
 }
 
+.hkcc-btn-secondary {
+	background: var(--hkcc-border-light);
+	color: var(--hkcc-text);
+}
+
+.hkcc-btn-secondary:hover {
+	background: var(--hkcc-border);
+}
+
+/* Main CTA – high-contrast orange, stands out from everything else */
+.hkcc-btn-cta {
+	background: var(--hkcc-cta);
+	color: #fff;
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	box-shadow: 0 2px 8px rgba(230, 81, 0, 0.3);
+}
+
+.hkcc-btn-cta:hover {
+	background: var(--hkcc-cta-hover);
+	box-shadow: 0 4px 14px rgba(230, 81, 0, 0.4);
+	transform: translateY(-1px);
+}
+
+.hkcc-btn-cta:active {
+	transform: translateY(0);
+}
+
+/* Keep old .hkcc-btn-primary as an alias for backwards compat */
 .hkcc-btn-primary {
-	background: #0073aa;
+	background: var(--hkcc-accent);
 	color: #fff;
 }
 
 .hkcc-btn-primary:hover {
-	background: #005d8c;
-}
-
-.hkcc-btn-secondary {
-	background: #f0f0f0;
-	color: #333;
-}
-
-.hkcc-btn-secondary:hover {
-	background: #e0e0e0;
+	background: var(--hkcc-accent-dark);
 }
 
 /* ----------------------------------------------------------------
  * Filters
  * -------------------------------------------------------------- */
 .hkcc-filters {
-	background: #f9f9f9;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
+	background: #fff;
+	border: 1px solid var(--hkcc-border);
+	border-radius: var(--hkcc-radius);
 	margin-bottom: 16px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .hkcc-filters-header {
@@ -95,7 +149,7 @@
 .hkcc-active-count {
 	font-size: 13px;
 	font-weight: 400;
-	color: #666;
+	color: var(--hkcc-text-muted);
 }
 
 .hkcc-filters-body {
@@ -111,24 +165,23 @@
 	font-weight: 600;
 	margin: 0 0 6px;
 	padding: 8px 0 4px;
-	border-bottom: 1px solid #e8e8e8;
+	border-bottom: 1px solid var(--hkcc-border-light);
 }
 
 .hkcc-filter-options label {
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	padding: 6px 0;
 	cursor: pointer;
 	font-size: 14px;
 	min-height: 44px;
-	display: flex;
-	align-items: center;
-	gap: 8px;
 }
 
 .hkcc-clear-filters {
 	background: none;
 	border: none;
-	color: #0073aa;
+	color: var(--hkcc-accent);
 	font-size: 13px;
 	cursor: pointer;
 	padding: 4px 0;
@@ -160,82 +213,156 @@
  * -------------------------------------------------------------- */
 .hkcc-card-count {
 	font-size: 13px;
-	color: #666;
+	color: var(--hkcc-text-muted);
 	padding: 6px 0 12px;
 }
 
 /* ----------------------------------------------------------------
- * Listing card (collapsed)
+ * Listing card (collapsed) – the main card container
  * -------------------------------------------------------------- */
 .hkcc-listing-card {
 	background: #fff;
-	border: 1px solid #e0e0e0;
-	border-radius: 10px;
-	margin-bottom: 16px;
+	border: 1px solid var(--hkcc-border);
+	border-radius: var(--hkcc-radius);
+	margin-bottom: 20px;
 	overflow: hidden;
-	transition: box-shadow 0.2s;
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+	box-shadow: var(--hkcc-shadow);
 }
 
 .hkcc-listing-card:hover {
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	box-shadow: var(--hkcc-shadow-hover);
+	transform: translateY(-2px);
 }
 
 .hkcc-card-collapsed {
-	padding: 16px;
+	padding: 20px;
 }
 
-.hkcc-card-tagline {
-	font-size: 13px;
-	color: #666;
-	margin: 0 0 8px;
-	font-style: italic;
-}
-
+/* Card image – premium feel with shadow */
 .hkcc-card-image {
-	margin-bottom: 12px;
+	margin-bottom: 14px;
 	text-align: center;
 }
 
 .hkcc-card-image img {
 	max-width: 100%;
 	height: auto;
-	border-radius: 6px;
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	transition: transform 0.2s ease;
+}
+
+.hkcc-listing-card:hover .hkcc-card-image img {
+	transform: scale(1.02);
+}
+
+/* Card header (name + badges) */
+.hkcc-card-header {
+	margin-bottom: 6px;
 }
 
 .hkcc-card-name {
 	font-size: 18px;
 	font-weight: 700;
-	margin: 0 0 12px;
+	margin: 0 0 6px;
+	color: #111;
 }
 
-/* Featured parameters */
+/* Badges */
+.hkcc-card-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 4px;
+}
+
+.hkcc-badge {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 3px 10px;
+	border-radius: 20px;
+	letter-spacing: 0.03em;
+	line-height: 1.4;
+}
+
+.hkcc-badge-free {
+	color: var(--hkcc-badge-free);
+	background: var(--hkcc-badge-free-bg);
+}
+
+.hkcc-badge-welcome {
+	color: var(--hkcc-badge-welcome);
+	background: var(--hkcc-badge-welcome-bg);
+}
+
+/* Tagline */
+.hkcc-card-tagline {
+	font-size: 13px;
+	color: var(--hkcc-text-muted);
+	margin: 0 0 10px;
+	font-style: italic;
+}
+
+/* Featured parameters — reward values highlighted */
 .hkcc-featured-params {
-	border-top: 1px solid #eee;
-	padding-top: 10px;
-	margin-bottom: 12px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	padding: 10px 14px;
+	margin-bottom: 14px;
 }
 
 .hkcc-featured-row {
 	display: flex;
 	justify-content: space-between;
-	padding: 4px 0;
+	padding: 5px 0;
 	font-size: 14px;
 }
 
+.hkcc-featured-row + .hkcc-featured-row {
+	border-top: 1px solid var(--hkcc-border-light);
+}
+
 .hkcc-featured-label {
-	color: #666;
+	color: var(--hkcc-text-muted);
 }
 
 .hkcc-featured-value {
-	font-weight: 600;
+	font-weight: 700;
+	color: var(--hkcc-reward);
+	font-size: 15px;
+}
+
+/* Welcome offer preview on collapsed card */
+.hkcc-welcome-preview {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: var(--hkcc-welcome-bg);
+	border-radius: 8px;
+	padding: 8px 12px;
+	margin-bottom: 14px;
+	font-size: 13px;
+	color: var(--hkcc-welcome);
+}
+
+.hkcc-welcome-preview-icon {
+	font-size: 16px;
+	flex-shrink: 0;
+}
+
+.hkcc-welcome-preview-text {
+	font-weight: 500;
+	line-height: 1.4;
 }
 
 /* Card actions */
 .hkcc-card-actions {
 	display: flex;
-	gap: 8px;
+	gap: 10px;
 	justify-content: space-between;
-	margin-top: 12px;
+	margin-top: 14px;
 }
 
 .hkcc-card-actions .hkcc-btn {
@@ -244,30 +371,35 @@
 }
 
 /* ----------------------------------------------------------------
- * Listing card (expanded)
+ * Listing card (expanded) — detail sections
  * -------------------------------------------------------------- */
 .hkcc-card-expanded {
-	padding: 0 16px 16px;
-	border-top: 1px solid #eee;
+	padding: 0 20px 20px;
+	border-top: 1px solid var(--hkcc-border-light);
 }
 
 .hkcc-details-section {
 	margin-bottom: 16px;
 }
 
+/* Section icon */
+.hkcc-section-icon {
+	margin-right: 6px;
+}
+
 .hkcc-details-section h4 {
 	font-size: 15px;
 	font-weight: 700;
-	margin: 16px 0 8px;
+	margin: 18px 0 10px;
 	color: #222;
 }
 
 .hkcc-detail-row {
 	display: flex;
 	justify-content: space-between;
-	padding: 4px 0;
+	padding: 6px 0;
 	font-size: 14px;
-	border-bottom: 1px dotted #eee;
+	border-bottom: 1px dotted var(--hkcc-border-light);
 }
 
 .hkcc-detail-label {
@@ -281,6 +413,50 @@
 	font-weight: 500;
 }
 
+/* --- Rewards section: visually prominent --- */
+.hkcc-section-rewards {
+	background: var(--hkcc-reward-bg);
+	border-radius: 10px;
+	padding: 2px 16px 12px;
+	margin-top: 16px;
+}
+
+.hkcc-section-rewards h4 {
+	color: var(--hkcc-reward);
+}
+
+.hkcc-section-rewards .hkcc-detail-row {
+	border-bottom-color: rgba(0, 121, 107, 0.12);
+}
+
+.hkcc-section-rewards .hkcc-reward-value {
+	color: var(--hkcc-reward);
+	font-weight: 700;
+	font-size: 15px;
+}
+
+/* --- Welcome offer section: eye-catching banner --- */
+.hkcc-section-welcome {
+	background: var(--hkcc-welcome-bg);
+	border-radius: 10px;
+	padding: 2px 16px 12px;
+	border-left: 4px solid var(--hkcc-welcome);
+}
+
+.hkcc-section-welcome h4 {
+	color: var(--hkcc-welcome);
+}
+
+.hkcc-welcome-banner {
+	margin-bottom: 4px;
+}
+
+.hkcc-welcome-expiry {
+	font-weight: 400;
+	font-size: 13px;
+	color: var(--hkcc-text-muted);
+}
+
 .hkcc-welcome-desc {
 	font-size: 14px;
 	line-height: 1.7;
@@ -288,13 +464,65 @@
 
 .hkcc-cooling {
 	font-size: 13px;
-	color: #888;
+	color: var(--hkcc-text-muted);
 	margin-top: 4px;
 }
 
+/* --- Benefits section: clean accent --- */
+.hkcc-section-benefits {
+	background: var(--hkcc-benefit-bg);
+	border-radius: 10px;
+	padding: 2px 16px 12px;
+}
+
+.hkcc-section-benefits h4 {
+	color: var(--hkcc-benefit);
+}
+
+.hkcc-section-benefits .hkcc-detail-row {
+	border-bottom-color: rgba(21, 101, 192, 0.1);
+}
+
+/* --- Fees section: visually de-emphasized (last, muted) --- */
+.hkcc-section-fees {
+	background: var(--hkcc-fee-bg);
+	border-radius: 8px;
+	padding: 2px 16px 12px;
+	opacity: 0.85;
+}
+
+.hkcc-section-fees h4 {
+	font-size: 14px;
+	color: var(--hkcc-fee-text);
+	font-weight: 600;
+}
+
+.hkcc-section-fees .hkcc-detail-row {
+	font-size: 13px;
+	color: var(--hkcc-fee-text);
+}
+
+.hkcc-section-fees .hkcc-detail-label,
+.hkcc-section-fees .hkcc-detail-value {
+	color: var(--hkcc-fee-text);
+	font-weight: 400;
+}
+
+/* Meta section (bank / network) */
+.hkcc-section-meta {
+	padding-top: 4px;
+}
+
+.hkcc-section-meta p {
+	font-size: 13px;
+	color: var(--hkcc-text-muted);
+	margin: 2px 0;
+}
+
+/* Bottom actions in expanded view */
 .hkcc-card-actions-bottom {
-	padding-top: 12px;
-	border-top: 1px solid #eee;
+	padding-top: 16px;
+	border-top: 1px solid var(--hkcc-border-light);
 }
 
 /* ----------------------------------------------------------------
@@ -313,14 +541,23 @@
 
 .hkcc-suggest-card {
 	background: #fff;
-	border: 1px solid #e0e0e0;
-	border-radius: 10px;
-	padding: 16px;
+	border: 1px solid var(--hkcc-border);
+	border-radius: var(--hkcc-radius);
+	padding: 20px;
 	text-align: center;
+	box-shadow: var(--hkcc-shadow);
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.hkcc-suggest-card:hover {
+	box-shadow: var(--hkcc-shadow-hover);
+	transform: translateY(-2px);
 }
 
 .hkcc-suggest-card .hkcc-card-image img {
 	max-width: 200px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	border-radius: 8px;
 }
 
 .hkcc-suggest-card .hkcc-card-name {
@@ -339,7 +576,7 @@
 /* No results */
 .hkcc-no-results {
 	text-align: center;
-	color: #888;
+	color: var(--hkcc-text-muted);
 	padding: 40px 16px;
 	font-size: 15px;
 }
@@ -354,18 +591,13 @@
  * Desktop (min-width: 768px)
  * -------------------------------------------------------------- */
 @media (min-width: 768px) {
-	/* Desktop: single column, filters row at top */
+	/* Desktop: single column, centered */
 	.hkcc-comparison {
 		max-width: 800px;
 		margin-left: auto;
 		margin-right: auto;
 	}
 
-	.hkcc-filters-body {
-		display: block !important;
-	}
-
-	/* Filters displayed inline on desktop */
 	.hkcc-filters-body {
 		display: flex !important;
 		flex-wrap: wrap;
@@ -386,6 +618,48 @@
 	/* Single column card list */
 	.hkcc-card-list {
 		display: block;
+	}
+
+	/* Collapsed card: horizontal layout on desktop */
+	.hkcc-card-collapsed {
+		display: grid;
+		grid-template-columns: 200px 1fr;
+		grid-template-rows: auto auto auto auto;
+		gap: 0 20px;
+		align-items: start;
+	}
+
+	.hkcc-card-collapsed .hkcc-card-image {
+		grid-column: 1;
+		grid-row: 1 / 5;
+		margin-bottom: 0;
+		display: flex;
+		align-items: center;
+	}
+
+	.hkcc-card-collapsed .hkcc-card-header {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.hkcc-card-collapsed .hkcc-card-tagline {
+		grid-column: 2;
+		grid-row: 2;
+	}
+
+	.hkcc-card-collapsed .hkcc-featured-params {
+		grid-column: 2;
+		grid-row: 3;
+	}
+
+	.hkcc-card-collapsed .hkcc-welcome-preview {
+		grid-column: 2;
+		grid-row: 4;
+	}
+
+	.hkcc-card-collapsed .hkcc-card-actions {
+		grid-column: 2;
+		grid-row: 5;
 	}
 
 	/* Suggest: single column */
