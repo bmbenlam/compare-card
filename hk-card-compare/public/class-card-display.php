@@ -44,28 +44,40 @@ class HKCC_Card_Display {
 	}
 
 	/**
+	 * Get the display name for a card (card_name meta or fallback to post title).
+	 *
+	 * @param WP_Post $card Card post object.
+	 * @return string
+	 */
+	public static function get_card_name( $card ) {
+		$name = get_post_meta( $card->ID, 'card_name', true );
+		return $name ? $name : $card->post_title;
+	}
+
+	/**
 	 * Render a card for the [cc_suggest] shortcode.
 	 *
 	 * @param WP_Post $card Card post object.
 	 */
 	public static function render_suggest_card( $card ) {
+		$card_name = self::get_card_name( $card );
 		$tagline   = get_post_meta( $card->ID, 'tagline', true );
 		$aff_link  = get_post_meta( $card->ID, 'affiliate_link', true );
-		$blog_link = get_post_meta( $card->ID, 'blog_post_link', true );
+		$permalink = get_permalink( $card->ID );
 		?>
 		<div class="hkcc-suggest-card">
 			<?php if ( has_post_thumbnail( $card->ID ) ) : ?>
 				<div class="hkcc-card-image">
-					<?php echo get_the_post_thumbnail( $card->ID, 'card-thumb', array( 'loading' => 'lazy', 'alt' => esc_attr( $card->post_title ) ) ); ?>
+					<?php echo get_the_post_thumbnail( $card->ID, 'card-thumb', array( 'loading' => 'lazy', 'alt' => esc_attr( $card_name ) ) ); ?>
 				</div>
 			<?php endif; ?>
-			<h4 class="hkcc-card-name"><?php echo esc_html( $card->post_title ); ?></h4>
+			<h4 class="hkcc-card-name"><?php echo esc_html( $card_name ); ?></h4>
 			<?php if ( $tagline ) : ?>
 				<p class="hkcc-card-tagline"><?php echo esc_html( $tagline ); ?></p>
 			<?php endif; ?>
 			<div class="hkcc-card-actions">
-				<?php if ( $blog_link ) : ?>
-					<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary" target="_blank" rel="noopener">了解更多</a>
+				<?php if ( $permalink ) : ?>
+					<a href="<?php echo esc_url( $permalink ); ?>" class="hkcc-btn hkcc-btn-secondary">了解更多</a>
 				<?php endif; ?>
 				<?php if ( $aff_link ) : ?>
 					<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
@@ -82,9 +94,10 @@ class HKCC_Card_Display {
 	 * @param string  $view 'miles' or 'cash'.
 	 */
 	public static function render_listing_card( $card, $view = 'miles' ) {
+		$card_name = self::get_card_name( $card );
 		$tagline   = get_post_meta( $card->ID, 'tagline', true );
 		$aff_link  = get_post_meta( $card->ID, 'affiliate_link', true );
-		$blog_link = get_post_meta( $card->ID, 'blog_post_link', true );
+		$permalink = get_permalink( $card->ID );
 		$system_id = (int) get_post_meta( $card->ID, 'points_system_id', true );
 
 		// Featured parameters.
@@ -95,16 +108,18 @@ class HKCC_Card_Display {
 		$network_terms = get_the_terms( $card->ID, 'card_network' );
 		$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
 		$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
-		?>
-		<?php
+
 		// Check for free annual fee badge.
 		$annual_fee_sortable = (float) get_post_meta( $card->ID, 'annual_fee_sortable', true );
 
 		// Get welcome offer for collapsed preview.
-		$welcome_short = get_post_meta( $card->ID, 'welcome_offer_description', true );
-		$welcome_short = $welcome_short ? wp_strip_all_tags( $welcome_short ) : '';
-		if ( strlen( $welcome_short ) > 60 ) {
-			$welcome_short = mb_substr( $welcome_short, 0, 57 ) . '...';
+		$welcome_short = get_post_meta( $card->ID, 'welcome_offer_short', true );
+		if ( ! $welcome_short ) {
+			$welcome_short = get_post_meta( $card->ID, 'welcome_offer_description', true );
+			$welcome_short = $welcome_short ? wp_strip_all_tags( $welcome_short ) : '';
+			if ( mb_strlen( $welcome_short ) > 60 ) {
+				$welcome_short = mb_substr( $welcome_short, 0, 57 ) . '...';
+			}
 		}
 		?>
 		<div class="hkcc-listing-card" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
@@ -112,12 +127,12 @@ class HKCC_Card_Display {
 			<div class="hkcc-card-collapsed">
 				<?php if ( has_post_thumbnail( $card->ID ) ) : ?>
 					<div class="hkcc-card-image">
-						<?php echo get_the_post_thumbnail( $card->ID, 'card-thumb', array( 'loading' => 'lazy', 'alt' => esc_attr( $card->post_title ) ) ); ?>
+						<?php echo get_the_post_thumbnail( $card->ID, 'card-thumb', array( 'loading' => 'lazy', 'alt' => esc_attr( $card_name ) ) ); ?>
 					</div>
 				<?php endif; ?>
 
 				<div class="hkcc-card-header">
-					<h3 class="hkcc-card-name"><?php echo esc_html( $card->post_title ); ?></h3>
+					<h3 class="hkcc-card-name"><?php echo esc_html( $card_name ); ?></h3>
 					<div class="hkcc-card-badges">
 						<?php if ( $annual_fee_sortable <= 0 ) : ?>
 							<span class="hkcc-badge hkcc-badge-free">免年費</span>
@@ -160,8 +175,8 @@ class HKCC_Card_Display {
 				<?php self::render_expanded_details( $card, $view, $bank_name, $network_name ); ?>
 
 				<div class="hkcc-card-actions hkcc-card-actions-bottom">
-					<?php if ( $blog_link ) : ?>
-						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary" target="_blank" rel="noopener">了解更多</a>
+					<?php if ( $permalink ) : ?>
+						<a href="<?php echo esc_url( $permalink ); ?>" class="hkcc-btn hkcc-btn-secondary">了解更多</a>
 					<?php endif; ?>
 					<?php if ( $aff_link ) : ?>
 						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
@@ -180,11 +195,7 @@ class HKCC_Card_Display {
 	 * @return array Array of ['label' => ..., 'value' => ...].
 	 */
 	private static function get_featured_values( $post_id, $view ) {
-		$all_fields = HKCC_Card_Meta::get_fields();
-		$flat       = array();
-		foreach ( $all_fields as $group ) {
-			$flat = array_merge( $flat, $group );
-		}
+		$featurable = HKCC_Card_Meta::get_featurable_fields();
 
 		$results = array();
 		for ( $i = 1; $i <= 4; $i++ ) {
@@ -193,18 +204,22 @@ class HKCC_Card_Display {
 				continue;
 			}
 
+			// Use clean label from featurable fields.
+			$label = $featurable[ $key ] ?? $key;
+
 			// If view is miles and a miles-display variant exists, prefer it.
 			$display_key = $key;
 			if ( 'miles' === $view ) {
-				$miles_key = str_replace( array( '_cash_display', '_points' ), '_miles_display', $key );
-				$miles_val = get_post_meta( $post_id, $miles_key, true );
-				if ( $miles_val ) {
-					$display_key = $miles_key;
+				$miles_key = str_replace( '_cash_display', '_miles_display', $key );
+				if ( $miles_key !== $key ) {
+					$miles_val = get_post_meta( $post_id, $miles_key, true );
+					if ( $miles_val ) {
+						$display_key = $miles_key;
+					}
 				}
 			}
 
 			$value = get_post_meta( $post_id, $display_key, true );
-			$label = $flat[ $key ]['label'] ?? $key;
 
 			$results[] = array(
 				'label' => $label,
@@ -213,6 +228,23 @@ class HKCC_Card_Display {
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Get footnote HTML if a footnote exists for the given meta key.
+	 *
+	 * @param int    $post_id   Card ID.
+	 * @param string $meta_key  Meta key.
+	 * @param array  $footnotes Collected footnotes (passed by reference).
+	 * @return string Superscript HTML or empty string.
+	 */
+	private static function get_footnote_html( $post_id, $meta_key, &$footnotes ) {
+		$footnote = get_post_meta( $post_id, $meta_key . '_footnote', true );
+		if ( ! $footnote ) {
+			return '';
+		}
+		$footnotes[] = $footnote;
+		return '<sup class="hkcc-fn-ref">' . count( $footnotes ) . '</sup>';
 	}
 
 	/**
@@ -225,36 +257,38 @@ class HKCC_Card_Display {
 	 */
 	private static function render_expanded_details( $card, $view, $bank_name, $network_name ) {
 		$id = $card->ID;
+		$footnotes = array();
 
-		$fees = array(
-			'年費'       => self::display_with_waiver( $id ),
-			'外幣兌換手續費' => get_post_meta( $id, 'fx_fee_display', true ),
-			'跨境結算手續費' => get_post_meta( $id, 'cross_border_fee_display', true ),
-			'逾期還款費'    => get_post_meta( $id, 'late_fee_display', true ),
-			'免息還款期'    => get_post_meta( $id, 'interest_free_period_display', true ),
+		$fee_keys = array(
+			'annual_fee_display'           => '年費',
+			'fx_fee_display'               => '外幣兌換手續費',
+			'cross_border_fee_display'     => '跨境結算手續費',
+			'late_fee_display'             => '逾期還款費',
+			'interest_free_period_display' => '免息還款期',
 		);
 
-		$txn_labels = array(
-			'local_retail'          => '本地零售簽賬',
-			'overseas_retail'       => '海外零售簽賬',
-			'online_hkd'            => '網上港幣簽賬',
-			'online_fx'             => '網上外幣簽賬',
-			'local_dining'          => '本地餐飲簽賬',
-			'online_bill_payment'   => '網上繳費',
-			'payme_reload'          => 'PayMe 增值',
-			'alipay_reload'         => 'AlipayHK 增值',
-			'wechat_reload'         => 'WeChat Pay 增值',
-			'octopus_reload'        => '八達通增值',
-		);
+		$fees = array();
+		foreach ( $fee_keys as $fk => $fl ) {
+			$val = ( $fk === 'annual_fee_display' ) ? self::display_with_waiver( $id ) : get_post_meta( $id, $fk, true );
+			if ( $val ) {
+				$fn = self::get_footnote_html( $id, $fk, $footnotes );
+				$fees[] = array( 'label' => $fl, 'value' => $val, 'fn' => $fn );
+			}
+		}
 
-		$system_id = (int) get_post_meta( $id, 'points_system_id', true );
+		$txn_labels = HKCC_Points_System::get_transaction_labels();
+		$system_id  = (int) get_post_meta( $id, 'points_system_id', true );
 
 		// Rewards section.
 		$rewards = array();
-		foreach ( $txn_labels as $txn => $label ) {
-			$val = self::get_reward_display( $id, $txn, $view, $system_id );
+		foreach ( HKCC_Points_System::get_transaction_types() as $txn ) {
+			$label = $txn_labels[ $txn ] ?? $txn;
+			$val   = self::get_reward_display( $id, $txn, $view, $system_id );
 			if ( $val ) {
-				$rewards[ $label ] = $val;
+				$fn_key = ( 'miles' === $view && $system_id > 0 ) ? "{$txn}_miles_display" : "{$txn}_cash_display";
+				$fn_points = self::get_footnote_html( $id, "{$txn}_points", $footnotes );
+				$fn = $fn_points ?: self::get_footnote_html( $id, $fn_key, $footnotes );
+				$rewards[] = array( 'label' => $label, 'value' => $val, 'fn' => $fn );
 			}
 		}
 
@@ -266,18 +300,24 @@ class HKCC_Card_Display {
 		// Benefits.
 		$lounge    = get_post_meta( $id, 'lounge_access_display', true );
 		$insurance = get_post_meta( $id, 'travel_insurance', true );
+		$lounge_fn    = $lounge ? self::get_footnote_html( $id, 'lounge_access_display', $footnotes ) : '';
+		$insurance_fn = $insurance ? self::get_footnote_html( $id, 'travel_insurance', $footnotes ) : '';
+
+		// Eligibility.
+		$min_age    = get_post_meta( $id, 'min_age_display', true );
+		$min_income = get_post_meta( $id, 'min_income_display', true );
 		?>
 
 		<div class="hkcc-details-section hkcc-section-meta">
-			<p><strong>發卡銀行:</strong> <?php echo esc_html( $bank_name ); ?></p>
+			<p><strong>發卡機構:</strong> <?php echo esc_html( $bank_name ); ?></p>
 			<p><strong>結算機構:</strong> <?php echo esc_html( $network_name ); ?></p>
 		</div>
 
 		<?php if ( ! empty( $rewards ) ) : ?>
 		<div class="hkcc-details-section hkcc-section-rewards">
 			<h4><span class="hkcc-section-icon">&#9733;</span> 回贈</h4>
-			<?php foreach ( $rewards as $label => $val ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value hkcc-reward-value"><?php echo esc_html( $val ); ?></span></div>
+			<?php foreach ( $rewards as $r ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $r['label'] ); ?>:</span> <span class="hkcc-detail-value hkcc-reward-value"><?php echo esc_html( $r['value'] ); ?><?php echo $r['fn']; ?></span></div>
 			<?php endforeach; ?>
 		</div>
 		<?php endif; ?>
@@ -298,27 +338,45 @@ class HKCC_Card_Display {
 		<div class="hkcc-details-section hkcc-section-benefits">
 			<h4><span class="hkcc-section-icon">&#10004;</span> 福利</h4>
 			<?php if ( $lounge ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費使用機場貴賓室:</span> <span class="hkcc-detail-value"><?php echo esc_html( $lounge ); ?></span></div>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費使用機場貴賓室:</span> <span class="hkcc-detail-value"><?php echo esc_html( $lounge ); ?><?php echo $lounge_fn; ?></span></div>
 			<?php endif; ?>
 			<?php if ( $insurance ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費旅遊保險:</span> <span class="hkcc-detail-value"><?php echo esc_html( $insurance ); ?></span></div>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費旅遊保險:</span> <span class="hkcc-detail-value"><?php echo esc_html( $insurance ); ?><?php echo $insurance_fn; ?></span></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
 
-		<?php if ( array_filter( $fees ) ) : ?>
+		<?php if ( $min_age || $min_income ) : ?>
+		<div class="hkcc-details-section hkcc-section-eligibility">
+			<h4>申請資格</h4>
+			<?php if ( $min_age ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">最低年齡:</span> <span class="hkcc-detail-value"><?php echo esc_html( $min_age ); ?></span></div>
+			<?php endif; ?>
+			<?php if ( $min_income ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">最低收入:</span> <span class="hkcc-detail-value"><?php echo esc_html( $min_income ); ?></span></div>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $fees ) ) : ?>
 		<div class="hkcc-details-section hkcc-section-fees">
 			<h4>費用</h4>
 			<?php
-			// Check if annual fee is waived / free.
 			$annual_fee_sortable = (float) get_post_meta( $id, 'annual_fee_sortable', true );
 			if ( $annual_fee_sortable <= 0 ) : ?>
 				<span class="hkcc-badge hkcc-badge-free">免年費</span>
 			<?php endif; ?>
-			<?php foreach ( $fees as $label => $val ) : ?>
-				<?php if ( $val ) : ?>
-					<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $label ); ?>:</span> <span class="hkcc-detail-value"><?php echo esc_html( $val ); ?></span></div>
-				<?php endif; ?>
+			<?php foreach ( $fees as $f ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label"><?php echo esc_html( $f['label'] ); ?>:</span> <span class="hkcc-detail-value"><?php echo esc_html( $f['value'] ); ?><?php echo $f['fn']; ?></span></div>
+			<?php endforeach; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $footnotes ) ) : ?>
+		<div class="hkcc-details-section hkcc-section-footnotes">
+			<h4>備註</h4>
+			<?php foreach ( $footnotes as $i => $fn_text ) : ?>
+				<p class="hkcc-footnote"><sup><?php echo ( $i + 1 ); ?></sup> <?php echo esc_html( $fn_text ); ?></p>
 			<?php endforeach; ?>
 		</div>
 		<?php endif;
@@ -348,7 +406,7 @@ class HKCC_Card_Display {
 		}
 
 		$points = get_post_meta( $post_id, "{$txn}_points", true );
-		if ( ! $points ) {
+		if ( $points === '' || $points === false ) {
 			return '';
 		}
 

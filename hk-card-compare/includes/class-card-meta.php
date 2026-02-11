@@ -213,6 +213,29 @@ class HKCC_Card_Meta {
 			}
 		}
 
+		// Save footnotes for all defined fields.
+		foreach ( $all_fields as $group_fields ) {
+			foreach ( $group_fields as $key => $def ) {
+				$fn_key = 'hkcc_' . $key . '_footnote';
+				if ( isset( $_POST[ $fn_key ] ) ) {
+					update_post_meta( $post_id, $key . '_footnote', sanitize_text_field( $_POST[ $fn_key ] ) );
+				}
+			}
+		}
+
+		// Save footnotes for custom transaction type fields.
+		if ( ! empty( $custom_types ) ) {
+			foreach ( $custom_types as $type ) {
+				$slug = $type['slug'];
+				foreach ( array( '_points', '_cash_display' ) as $suffix ) {
+					$fn_key = 'hkcc_' . $slug . $suffix . '_footnote';
+					if ( isset( $_POST[ $fn_key ] ) ) {
+						update_post_meta( $post_id, $slug . $suffix . '_footnote', sanitize_text_field( $_POST[ $fn_key ] ) );
+					}
+				}
+			}
+		}
+
 		HKCC_Points_System::auto_calculate_rebates( $post_id );
 	}
 }

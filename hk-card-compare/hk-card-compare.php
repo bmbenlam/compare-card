@@ -124,6 +124,20 @@ function hkcc_init() {
 add_action( 'plugins_loaded', 'hkcc_init' );
 
 /**
+ * Load single-card template from plugin when viewing a card post.
+ */
+function hkcc_template_include( $template ) {
+	if ( is_singular( 'card' ) ) {
+		$plugin_template = HKCC_PLUGIN_DIR . 'templates/single-card.php';
+		if ( file_exists( $plugin_template ) ) {
+			return $plugin_template;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'hkcc_template_include' );
+
+/**
  * Enable PublishPress Revisions support for the card post type.
  */
 add_filter( 'publishpress_revisions_post_types', function ( $post_types ) {

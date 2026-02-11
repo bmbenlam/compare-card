@@ -34,7 +34,7 @@ class HKCC_Points_Admin {
 	}
 
 	/**
-	 * Handle form submissions (add / edit / delete).
+	 * Handle form submissions (add / edit / delete systems, custom txn types).
 	 */
 	public static function handle_form() {
 		if ( ! isset( $_POST['hkcc_points_action'] ) ) {
@@ -89,6 +89,37 @@ class HKCC_Points_Admin {
 			if ( $system_id ) {
 				HKCC_Points_System::delete( $system_id );
 			}
+			wp_safe_redirect( admin_url( 'edit.php?post_type=card&page=card-points-systems&msg=deleted' ) );
+			exit;
+		}
+
+		// Custom transaction type management.
+		if ( 'add_custom_txn' === $action ) {
+			$slug  = sanitize_key( $_POST['custom_txn_slug'] ?? '' );
+			$label = sanitize_text_field( $_POST['custom_txn_label'] ?? '' );
+
+			if ( $slug && $label ) {
+				$custom = get_option( 'hkcc_custom_txn_types', array() );
+				if ( ! is_array( $custom ) ) {
+					$custom = array();
+				}
+				$custom[] = array( 'slug' => $slug, 'label' => $label );
+				update_option( 'hkcc_custom_txn_types', $custom );
+			}
+
+			wp_safe_redirect( admin_url( 'edit.php?post_type=card&page=card-points-systems&msg=saved' ) );
+			exit;
+		}
+
+		if ( 'delete_custom_txn' === $action ) {
+			$index = intval( $_POST['custom_txn_index'] ?? -1 );
+			$custom = get_option( 'hkcc_custom_txn_types', array() );
+
+			if ( is_array( $custom ) && isset( $custom[ $index ] ) ) {
+				array_splice( $custom, $index, 1 );
+				update_option( 'hkcc_custom_txn_types', $custom );
+			}
+
 			wp_safe_redirect( admin_url( 'edit.php?post_type=card&page=card-points-systems&msg=deleted' ) );
 			exit;
 		}
@@ -258,6 +289,54 @@ class HKCC_Points_Admin {
 					</tbody>
 				</table>
 			<?php endif; ?>
+
+			<hr />
+
+			<!-- Custom Transaction Types -->
+			<h2>Custom Transaction Types</h2>
+			<p>Add custom reward categories that will appear in card reward fields globally.</p>
+
+			<?php
+			$custom_types = get_option( 'hkcc_custom_txn_types', array() );
+			if ( ! empty( $custom_types ) && is_array( $custom_types ) ) : ?>
+				<table class="widefat striped hkcc-custom-txn-table">
+					<thead>
+						<tr><th>Slug</th><th>Label</th><th></th></tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $custom_types as $i => $type ) : ?>
+							<tr>
+								<td><code><?php echo esc_html( $type['slug'] ); ?></code></td>
+								<td><?php echo esc_html( $type['label'] ); ?></td>
+								<td>
+									<form method="post" style="display:inline;">
+										<?php wp_nonce_field( 'hkcc_points_manage' ); ?>
+										<input type="hidden" name="hkcc_points_action" value="delete_custom_txn" />
+										<input type="hidden" name="custom_txn_index" value="<?php echo esc_attr( $i ); ?>" />
+										<button type="submit" class="button button-small button-link-delete" onclick="return confirm('Delete this custom type?');">&times;</button>
+									</form>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+
+			<form method="post">
+				<?php wp_nonce_field( 'hkcc_points_manage' ); ?>
+				<input type="hidden" name="hkcc_points_action" value="add_custom_txn" />
+				<table class="form-table">
+					<tr>
+						<th><label for="custom_txn_slug">Slug (English, lowercase)</label></th>
+						<td><input type="text" id="custom_txn_slug" name="custom_txn_slug" class="regular-text" pattern="[a-z_]+" required /></td>
+					</tr>
+					<tr>
+						<th><label for="custom_txn_label">Label (Chinese)</label></th>
+						<td><input type="text" id="custom_txn_label" name="custom_txn_label" class="regular-text" required /></td>
+					</tr>
+				</table>
+				<p class="submit"><input type="submit" class="button-secondary" value="Add Custom Type" /></p>
+			</form>
 		</div>
 		<?php
 	}

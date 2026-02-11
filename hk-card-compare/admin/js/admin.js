@@ -38,6 +38,16 @@
 	});
 
 	/* ----------------------------------------------------------------
+	 * Single-select enforcement for taxonomy checkboxes.
+	 * Converts category-style multi-checkbox into single-select.
+	 * -------------------------------------------------------------- */
+	$(document).on('change', '#card_bankchecklist input[type="checkbox"], #card_networkchecklist input[type="checkbox"]', function () {
+		if (this.checked) {
+			$(this).closest('ul').find('input[type="checkbox"]').not(this).prop('checked', false);
+		}
+	});
+
+	/* ----------------------------------------------------------------
 	 * Points Systems page – add / remove conversion rows.
 	 * -------------------------------------------------------------- */
 	$(document).on('click', '#hkcc-add-conversion', function () {

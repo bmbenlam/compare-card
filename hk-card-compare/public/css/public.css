@@ -2,18 +2,26 @@
  * HK Card Compare – Public (frontend) styles.
  * Mobile-first design for a 65% mobile / 35% desktop audience.
  *
- * Design psychology: perks first, fees last. Visual emphasis on
- * rewards & welcome offers; CTA buttons stand out; fees are muted.
+ * FlyAsia branding with psychology-driven UX:
+ * perks first, fees last, visual emphasis on rewards & welcome offers.
  */
 
 /* ----------------------------------------------------------------
- * Variables
+ * Google Fonts
+ * -------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+
+/* ----------------------------------------------------------------
+ * Variables – FlyAsia Branding
  * -------------------------------------------------------------- */
 :root {
-	--hkcc-accent: #0066cc;
-	--hkcc-accent-dark: #004d99;
-	--hkcc-cta: #e65100;
-	--hkcc-cta-hover: #bf4400;
+	--hkcc-primary: #b38850;
+	--hkcc-primary-dark: #998263;
+	--hkcc-accent: #5099b3;
+	--hkcc-accent-dark: #3d7a8f;
+	--hkcc-cta: #b20000;
+	--hkcc-cta-hover: #981e1e;
+	--hkcc-bg: #F7F6F0;
 	--hkcc-reward: #00796b;
 	--hkcc-reward-bg: #e0f2f1;
 	--hkcc-welcome: #6a1b9a;
@@ -39,14 +47,16 @@
  * Base & Reset
  * -------------------------------------------------------------- */
 .hkcc-comparison,
-.hkcc-suggest {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+.hkcc-suggest,
+.hkcc-single-card {
+	font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	color: var(--hkcc-text);
 	line-height: 1.6;
 }
 
 .hkcc-comparison *,
-.hkcc-suggest * {
+.hkcc-suggest *,
+.hkcc-single-card * {
 	box-sizing: border-box;
 }
 
@@ -56,6 +66,7 @@
 .hkcc-btn {
 	display: inline-block;
 	padding: 10px 20px;
+	font-family: 'Lato', sans-serif;
 	font-size: 14px;
 	font-weight: 600;
 	text-decoration: none;
@@ -82,19 +93,18 @@
 	background: var(--hkcc-border);
 }
 
-/* Main CTA – high-contrast orange, stands out from everything else */
 .hkcc-btn-cta {
 	background: var(--hkcc-cta);
 	color: #fff;
 	font-size: 15px;
 	font-weight: 700;
 	letter-spacing: 0.02em;
-	box-shadow: 0 2px 8px rgba(230, 81, 0, 0.3);
+	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3);
 }
 
 .hkcc-btn-cta:hover {
 	background: var(--hkcc-cta-hover);
-	box-shadow: 0 4px 14px rgba(230, 81, 0, 0.4);
+	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4);
 	transform: translateY(-1px);
 }
 
@@ -102,14 +112,13 @@
 	transform: translateY(0);
 }
 
-/* Keep old .hkcc-btn-primary as an alias for backwards compat */
 .hkcc-btn-primary {
-	background: var(--hkcc-accent);
+	background: var(--hkcc-primary);
 	color: #fff;
 }
 
 .hkcc-btn-primary:hover {
-	background: var(--hkcc-accent-dark);
+	background: var(--hkcc-primary-dark);
 }
 
 /* ----------------------------------------------------------------
@@ -218,7 +227,7 @@
 }
 
 /* ----------------------------------------------------------------
- * Listing card (collapsed) – the main card container
+ * Listing card (collapsed)
  * -------------------------------------------------------------- */
 .hkcc-listing-card {
 	background: #fff;
@@ -239,7 +248,6 @@
 	padding: 20px;
 }
 
-/* Card image – premium feel with shadow */
 .hkcc-card-image {
 	margin-bottom: 14px;
 	text-align: center;
@@ -253,11 +261,15 @@
 	transition: transform 0.2s ease;
 }
 
+/* Mobile: limit card face size */
+.hkcc-card-collapsed .hkcc-card-image img {
+	max-width: 260px;
+}
+
 .hkcc-listing-card:hover .hkcc-card-image img {
 	transform: scale(1.02);
 }
 
-/* Card header (name + badges) */
 .hkcc-card-header {
 	margin-bottom: 6px;
 }
@@ -269,7 +281,6 @@
 	color: #111;
 }
 
-/* Badges */
 .hkcc-card-badges {
 	display: flex;
 	flex-wrap: wrap;
@@ -297,7 +308,6 @@
 	background: var(--hkcc-badge-welcome-bg);
 }
 
-/* Tagline */
 .hkcc-card-tagline {
 	font-size: 13px;
 	color: var(--hkcc-text-muted);
@@ -305,9 +315,8 @@
 	font-style: italic;
 }
 
-/* Featured parameters — reward values highlighted */
 .hkcc-featured-params {
-	background: #f8f9fa;
+	background: var(--hkcc-bg);
 	border-radius: 8px;
 	padding: 10px 14px;
 	margin-bottom: 14px;
@@ -330,11 +339,10 @@
 
 .hkcc-featured-value {
 	font-weight: 700;
-	color: var(--hkcc-reward);
+	color: var(--hkcc-primary);
 	font-size: 15px;
 }
 
-/* Welcome offer preview on collapsed card */
 .hkcc-welcome-preview {
 	display: flex;
 	align-items: center;
@@ -357,7 +365,6 @@
 	line-height: 1.4;
 }
 
-/* Card actions */
 .hkcc-card-actions {
 	display: flex;
 	gap: 10px;
@@ -382,7 +389,6 @@
 	margin-bottom: 16px;
 }
 
-/* Section icon */
 .hkcc-section-icon {
 	margin-right: 6px;
 }
@@ -413,7 +419,6 @@
 	font-weight: 500;
 }
 
-/* --- Rewards section: visually prominent --- */
 .hkcc-section-rewards {
 	background: var(--hkcc-reward-bg);
 	border-radius: 10px;
@@ -435,7 +440,6 @@
 	font-size: 15px;
 }
 
-/* --- Welcome offer section: eye-catching banner --- */
 .hkcc-section-welcome {
 	background: var(--hkcc-welcome-bg);
 	border-radius: 10px;
@@ -468,7 +472,6 @@
 	margin-top: 4px;
 }
 
-/* --- Benefits section: clean accent --- */
 .hkcc-section-benefits {
 	background: var(--hkcc-benefit-bg);
 	border-radius: 10px;
@@ -483,7 +486,17 @@
 	border-bottom-color: rgba(21, 101, 192, 0.1);
 }
 
-/* --- Fees section: visually de-emphasized (last, muted) --- */
+.hkcc-section-eligibility {
+	background: #f5f5f5;
+	border-radius: 8px;
+	padding: 2px 16px 12px;
+}
+
+.hkcc-section-eligibility h4 {
+	font-size: 14px;
+	color: #555;
+}
+
 .hkcc-section-fees {
 	background: var(--hkcc-fee-bg);
 	border-radius: 8px;
@@ -508,7 +521,40 @@
 	font-weight: 400;
 }
 
-/* Meta section (bank / network) */
+/* Footnotes */
+.hkcc-section-footnotes {
+	background: #f9f9f6;
+	border-radius: 8px;
+	padding: 2px 16px 12px;
+	border-top: 1px solid var(--hkcc-border-light);
+}
+
+.hkcc-section-footnotes h4 {
+	font-size: 13px;
+	color: var(--hkcc-text-muted);
+	font-weight: 600;
+}
+
+.hkcc-footnote {
+	font-size: 12px;
+	color: var(--hkcc-text-muted);
+	margin: 4px 0;
+	line-height: 1.5;
+}
+
+.hkcc-footnote sup {
+	color: var(--hkcc-primary);
+	font-weight: 700;
+	margin-right: 2px;
+}
+
+.hkcc-fn-ref {
+	color: var(--hkcc-primary);
+	font-weight: 700;
+	font-size: 11px;
+	margin-left: 2px;
+}
+
 .hkcc-section-meta {
 	padding-top: 4px;
 }
@@ -519,7 +565,6 @@
 	margin: 2px 0;
 }
 
-/* Bottom actions in expanded view */
 .hkcc-card-actions-bottom {
 	padding-top: 16px;
 	border-top: 1px solid var(--hkcc-border-light);
@@ -573,7 +618,6 @@
 	justify-content: center;
 }
 
-/* No results */
 .hkcc-no-results {
 	text-align: center;
 	color: var(--hkcc-text-muted);
@@ -581,17 +625,81 @@
 	font-size: 15px;
 }
 
-/* Loading overlay */
 .hkcc-loading .hkcc-card-list {
 	opacity: 0.5;
 	pointer-events: none;
 }
 
 /* ----------------------------------------------------------------
+ * Single card template
+ * -------------------------------------------------------------- */
+.hkcc-single-card {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+.hkcc-single-header {
+	text-align: center;
+	margin-bottom: 32px;
+}
+
+.hkcc-single-image {
+	margin-bottom: 20px;
+}
+
+.hkcc-single-image img {
+	max-width: 320px;
+	border-radius: 10px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.hkcc-single-title {
+	font-size: 28px;
+	font-weight: 900;
+	color: #111;
+	margin: 0 0 8px;
+}
+
+.hkcc-single-tagline {
+	font-size: 15px;
+	color: var(--hkcc-text-muted);
+	font-style: italic;
+	margin: 0 0 12px;
+}
+
+.hkcc-single-meta {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	font-size: 14px;
+	color: var(--hkcc-text-muted);
+}
+
+.hkcc-single-body {
+	margin-bottom: 32px;
+}
+
+.hkcc-single-body .entry-content {
+	margin-bottom: 32px;
+}
+
+.hkcc-single-card-details {
+	margin-top: 32px;
+}
+
+.hkcc-single-footer {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	padding: 20px 0;
+	border-top: 1px solid var(--hkcc-border);
+}
+
+/* ----------------------------------------------------------------
  * Desktop (min-width: 768px)
  * -------------------------------------------------------------- */
 @media (min-width: 768px) {
-	/* Desktop: single column, centered */
 	.hkcc-comparison {
 		max-width: 800px;
 		margin-left: auto;
@@ -615,15 +723,13 @@
 		display: none;
 	}
 
-	/* Single column card list */
 	.hkcc-card-list {
 		display: block;
 	}
 
-	/* Collapsed card: horizontal layout on desktop */
 	.hkcc-card-collapsed {
 		display: grid;
-		grid-template-columns: 200px 1fr;
+		grid-template-columns: 180px 1fr;
 		grid-template-rows: auto auto auto auto;
 		gap: 0 20px;
 		align-items: start;
@@ -635,6 +741,11 @@
 		margin-bottom: 0;
 		display: flex;
 		align-items: center;
+		justify-content: center;
+	}
+
+	.hkcc-card-collapsed .hkcc-card-image img {
+		max-width: 170px;
 	}
 
 	.hkcc-card-collapsed .hkcc-card-header {
@@ -662,7 +773,6 @@
 		grid-row: 5;
 	}
 
-	/* Suggest: single column */
 	.hkcc-suggest {
 		max-width: 800px;
 		margin-left: auto;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Card admin edit screen: tabbed meta boxes, eligibility sidebar, and asset enqueuing.
+ * Card admin edit screen: tabbed meta boxes and asset enqueuing.
  *
  * @package HK_Card_Compare
  */
@@ -31,15 +31,6 @@ class HKCC_Card_Admin {
 			'card',
 			'normal',
 			'high'
-		);
-
-		add_meta_box(
-			'hkcc_card_eligibility',
-			'Eligibility Requirements',
-			array( __CLASS__, 'render_eligibility_meta_box' ),
-			'card',
-			'side',
-			'default'
 		);
 	}
 
@@ -84,12 +75,13 @@ class HKCC_Card_Admin {
 		wp_nonce_field( 'hkcc_save_meta', 'hkcc_meta_nonce' );
 
 		$tabs = array(
-			'basic'    => 'Basic Info',
-			'fees'     => 'Fees',
-			'rewards'  => 'Rewards',
-			'welcome'  => 'Welcome Offer',
-			'benefits' => 'Benefits',
-			'featured' => 'Featured',
+			'basic'       => 'Basic Info',
+			'fees'        => 'Fees',
+			'rewards'     => 'Rewards',
+			'welcome'     => 'Welcome Offer',
+			'benefits'    => 'Benefits',
+			'eligibility' => 'Eligibility',
+			'featured'    => 'Featured',
 		);
 
 		$all_fields = HKCC_Card_Meta::get_fields();
@@ -119,7 +111,7 @@ class HKCC_Card_Admin {
 	}
 
 	/**
-	 * Render a group of standard fields.
+	 * Render a group of standard fields with optional footnote inputs.
 	 *
 	 * @param WP_Post $post   Current post.
 	 * @param array   $fields Field definitions.
@@ -127,7 +119,7 @@ class HKCC_Card_Admin {
 	private static function render_fields( $post, $fields ) {
 		echo '<table class="form-table hkcc-fields">';
 		foreach ( $fields as $key => $def ) {
-			$value = get_post_meta( $post->ID, $key, true );
+			$value      = get_post_meta( $post->ID, $key, true );
 			$input_name = 'hkcc_' . $key;
 
 			echo '<tr>';
@@ -180,6 +172,16 @@ class HKCC_Card_Admin {
 					break;
 			}
 
+			// Footnote field for display-type fields (not sortable, not html/array/select).
+			if ( ! in_array( $def['type'], array( 'select', 'html', 'array' ), true ) && ! str_ends_with( $key, '_sortable' ) ) {
+				$fn_val = get_post_meta( $post->ID, $key . '_footnote', true );
+				printf(
+					'<div class="hkcc-footnote-field"><label>Footnote: <input type="text" name="hkcc_%s_footnote" value="%s" class="regular-text" placeholder="可選備註" /></label></div>',
+					esc_attr( $key ),
+					esc_attr( $fn_val )
+				);
+			}
+
 			echo '</td></tr>';
 		}
 		echo '</table>';
@@ -196,7 +198,8 @@ class HKCC_Card_Admin {
 		$reward_type_val = $system_id > 0 ? 'points' : 'cash';
 		$systems         = HKCC_Points_System::get_all();
 
-		$txn_types = HKCC_Points_System::get_transaction_types();
+		$txn_types  = HKCC_Points_System::get_transaction_types();
+		$txn_labels = HKCC_Points_System::get_transaction_labels();
 		?>
 
 		<h3>Rewards Type</h3>
@@ -225,12 +228,14 @@ class HKCC_Card_Admin {
 				<?php foreach ( $txn_types as $txn ) :
 					$key   = "{$txn}_points";
 					$value = get_post_meta( $post->ID, $key, true );
-					$label = $fields[ $key ]['label'] ?? $key;
+					$label = $txn_labels[ $txn ] ?? $txn;
+					$fn_val = get_post_meta( $post->ID, $key . '_footnote', true );
 					?>
 					<tr>
-						<th><label for="hkcc_<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label></th>
+						<th><label for="hkcc_<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?> (積分)</label></th>
 						<td>
 							<input type="text" id="hkcc_<?php echo esc_attr( $key ); ?>" name="hkcc_<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="HK$1 = X points" />
+							<div class="hkcc-footnote-field"><label>Footnote: <input type="text" name="hkcc_<?php echo esc_attr( $key ); ?>_footnote" value="<?php echo esc_attr( $fn_val ); ?>" class="regular-text" placeholder="可選備註" /></label></div>
 						</td>
 					</tr>
 				<?php endforeach; ?>
@@ -246,15 +251,16 @@ class HKCC_Card_Admin {
 					$s_key = "{$txn}_cash_sortable";
 					$d_val = get_post_meta( $post->ID, $d_key, true );
 					$s_val = get_post_meta( $post->ID, $s_key, true );
-					$d_label = $fields[ $d_key ]['label'] ?? $d_key;
-					$s_label = $fields[ $s_key ]['label'] ?? $s_key;
+					$label = $txn_labels[ $txn ] ?? $txn;
+					$fn_val = get_post_meta( $post->ID, $d_key . '_footnote', true );
 					?>
 					<tr>
-						<th><?php echo esc_html( $d_label ); ?></th>
+						<th><?php echo esc_html( $label ); ?> 現金回贈</th>
 						<td>
 							<input type="text" name="hkcc_<?php echo esc_attr( $d_key ); ?>" value="<?php echo esc_attr( $d_val ); ?>" class="regular-text" placeholder="e.g. 1%，不設上限" />
 							<br />
 							<label>Sortable: <input type="number" step="0.01" name="hkcc_<?php echo esc_attr( $s_key ); ?>" value="<?php echo esc_attr( $s_val ); ?>" class="small-text" /> %</label>
+							<div class="hkcc-footnote-field"><label>Footnote: <input type="text" name="hkcc_<?php echo esc_attr( $d_key ); ?>_footnote" value="<?php echo esc_attr( $fn_val ); ?>" class="regular-text" placeholder="可選備註" /></label></div>
 						</td>
 					</tr>
 				<?php endforeach; ?>
@@ -371,16 +377,6 @@ class HKCC_Card_Admin {
 		<?php endfor; ?>
 		</table>
 		<?php
-	}
-
-	/**
-	 * Render the eligibility sidebar meta box.
-	 *
-	 * @param WP_Post $post Current post.
-	 */
-	public static function render_eligibility_meta_box( $post ) {
-		$fields = HKCC_Card_Meta::get_fields()['eligibility'];
-		self::render_fields( $post, $fields );
 	}
 
 	/**

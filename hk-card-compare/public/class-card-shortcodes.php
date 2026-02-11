@@ -26,12 +26,6 @@ class HKCC_Card_Shortcodes {
 	 * [cc_suggest]
 	 * ================================================================ */
 
-	/**
-	 * Render the cc_suggest shortcode.
-	 *
-	 * @param array $atts Shortcode attributes.
-	 * @return string HTML output.
-	 */
 	public static function shortcode_suggest( $atts ) {
 		$atts = shortcode_atts( array(
 			'category' => '',
@@ -68,12 +62,6 @@ class HKCC_Card_Shortcodes {
 	 * [cc_comparison]
 	 * ================================================================ */
 
-	/**
-	 * Render the cc_comparison shortcode.
-	 *
-	 * @param array $atts Shortcode attributes.
-	 * @return string HTML output.
-	 */
 	public static function shortcode_comparison( $atts ) {
 		$atts = shortcode_atts( array(
 			'category'      => '',
@@ -114,7 +102,6 @@ class HKCC_Card_Shortcodes {
 			</div>
 
 			<?php if ( 'true' === $atts['show_toggle'] ) : ?>
-			<!-- Miles / Cash toggle -->
 			<div class="hkcc-rebate-toggle">
 				<span>顯示回贈方式：</span>
 				<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> 飛行里數</label>
@@ -122,12 +109,10 @@ class HKCC_Card_Shortcodes {
 			</div>
 			<?php endif; ?>
 
-			<!-- Card count -->
 			<div class="hkcc-card-count">
 				共 <span class="hkcc-count"><?php echo count( $cards ); ?></span> 張信用卡
 			</div>
 
-			<!-- Card listing -->
 			<div class="hkcc-card-list">
 				<?php
 				if ( empty( $cards ) ) {
@@ -148,9 +133,6 @@ class HKCC_Card_Shortcodes {
 	 * AJAX handler for real-time filtering.
 	 * ================================================================ */
 
-	/**
-	 * Return filtered card HTML via AJAX.
-	 */
 	public static function ajax_filter_cards() {
 		check_ajax_referer( 'hkcc_public_nonce', 'nonce' );
 
@@ -159,10 +141,8 @@ class HKCC_Card_Shortcodes {
 			$atts = array();
 		}
 
-		// Merge runtime filters.
 		$filters = isset( $_POST['filters'] ) ? (array) $_POST['filters'] : array();
 
-		// Override atts with active filters.
 		if ( ! empty( $filters['bank'] ) ) {
 			$atts['bank'] = implode( ',', array_map( 'sanitize_text_field', (array) $filters['bank'] ) );
 		}
@@ -170,12 +150,9 @@ class HKCC_Card_Shortcodes {
 			$atts['network'] = implode( ',', array_map( 'sanitize_text_field', (array) $filters['network'] ) );
 		}
 
-		// Annual fee filter.
 		$annual_fee_filter = sanitize_text_field( $filters['annual_fee'] ?? '' );
-
 		$query_args = self::build_query_args( $atts );
 
-		// Additional meta queries for special filters.
 		if ( $annual_fee_filter ) {
 			if ( ! isset( $query_args['meta_query'] ) ) {
 				$query_args['meta_query'] = array();
@@ -196,7 +173,6 @@ class HKCC_Card_Shortcodes {
 			}
 		}
 
-		// Sort.
 		$sort  = sanitize_text_field( $_POST['sort'] ?? 'local_retail_cash_sortable' );
 		$order = sanitize_text_field( $_POST['order'] ?? 'desc' );
 		$query_args['meta_key'] = $sort;
@@ -225,12 +201,6 @@ class HKCC_Card_Shortcodes {
 	 * Helpers.
 	 * ================================================================ */
 
-	/**
-	 * Build WP_Query args from shortcode attributes.
-	 *
-	 * @param array $atts Normalised shortcode attributes.
-	 * @return array
-	 */
 	private static function build_query_args( $atts ) {
 		$args = array(
 			'post_type'      => 'card',
@@ -242,7 +212,6 @@ class HKCC_Card_Shortcodes {
 			$args['posts_per_page'] = -1;
 		}
 
-		// Taxonomy filters.
 		$tax_query = array();
 
 		if ( ! empty( $atts['category'] ) ) {
@@ -272,12 +241,10 @@ class HKCC_Card_Shortcodes {
 			$args['tax_query']     = $tax_query;
 		}
 
-		// Exclude.
 		if ( ! empty( $atts['exclude'] ) ) {
 			$args['post__not_in'] = array_map( 'intval', explode( ',', $atts['exclude'] ) );
 		}
 
-		// Sorting.
 		$sort = $atts['sort'] ?? $atts['default_sort'] ?? '';
 		if ( $sort ) {
 			$args['meta_key'] = $sort;
@@ -288,11 +255,6 @@ class HKCC_Card_Shortcodes {
 		return $args;
 	}
 
-	/**
-	 * Render filter sections.
-	 *
-	 * @param array $filter_keys Which filters to display.
-	 */
 	private static function render_filters( $filter_keys ) {
 		foreach ( $filter_keys as $key ) {
 			switch ( $key ) {
@@ -300,7 +262,7 @@ class HKCC_Card_Shortcodes {
 					$terms = get_terms( array( 'taxonomy' => 'card_bank', 'hide_empty' => true ) );
 					if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
 						echo '<div class="hkcc-filter-group" data-filter="bank">';
-						echo '<h4 class="hkcc-filter-heading">發卡銀行</h4>';
+						echo '<h4 class="hkcc-filter-heading">發卡機構</h4>';
 						echo '<div class="hkcc-filter-options">';
 						foreach ( $terms as $term ) {
 							printf(
