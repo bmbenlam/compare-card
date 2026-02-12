@@ -113,9 +113,9 @@
 }
 
 /* ----------------------------------------------------------------
- * Filters
+ * Unified toolbar (filters + sort + toggle + clear)
  * -------------------------------------------------------------- */
-.hkcc-filters {
+.hkcc-toolbar {
 	background: #fff;
 	border: 1px solid var(--hkcc-border);
 	border-radius: var(--hkcc-radius);
@@ -123,13 +123,13 @@
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.hkcc-filters-header {
+.hkcc-toolbar-header {
 	padding: 12px 16px;
 	cursor: pointer;
 	user-select: none;
 }
 
-.hkcc-filters-toggle {
+.hkcc-toolbar-toggle {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -142,7 +142,7 @@
 	transition: transform 0.2s;
 }
 
-.hkcc-filters.open .hkcc-toggle-arrow {
+.hkcc-toolbar.open .hkcc-toggle-arrow {
 	transform: rotate(180deg);
 }
 
@@ -152,7 +152,7 @@
 	color: var(--hkcc-text-muted);
 }
 
-.hkcc-filters-body {
+.hkcc-toolbar-body {
 	padding: 0 16px 16px;
 }
 
@@ -178,26 +178,21 @@
 	min-height: 44px;
 }
 
-.hkcc-clear-filters {
-	background: none;
-	border: none;
-	color: var(--hkcc-accent);
-	font-size: 13px;
-	cursor: pointer;
-	padding: 4px 0;
-	text-decoration: underline;
+.hkcc-toolbar-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: center;
+	padding-top: 12px;
+	border-top: 1px solid var(--hkcc-border-light);
+	margin-top: 4px;
 }
 
-/* ----------------------------------------------------------------
- * Sort bar
- * -------------------------------------------------------------- */
 .hkcc-sort-bar {
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	padding: 8px 0;
 	font-size: 14px;
-	margin-bottom: 4px;
 }
 
 .hkcc-sort-bar label {
@@ -216,16 +211,11 @@
 	min-height: 36px;
 }
 
-/* ----------------------------------------------------------------
- * Rebate toggle
- * -------------------------------------------------------------- */
 .hkcc-rebate-toggle {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	padding: 10px 0;
 	font-size: 14px;
-	margin-bottom: 8px;
 }
 
 .hkcc-rebate-toggle label {
@@ -234,6 +224,17 @@
 	align-items: center;
 	gap: 4px;
 	min-height: 44px;
+}
+
+.hkcc-clear-filters {
+	background: none;
+	border: none;
+	color: var(--hkcc-accent);
+	font-size: 13px;
+	cursor: pointer;
+	padding: 4px 0;
+	text-decoration: underline;
+	margin-top: 8px;
 }
 
 /* ----------------------------------------------------------------
@@ -289,9 +290,18 @@
 	text-overflow: ellipsis;
 }
 
+/* When no card face image: push content down so bookmark doesn't overlap title */
+.hkcc-no-cardface .hkcc-card-collapsed {
+	padding-top: 42px;
+}
+
 .hkcc-card-image {
 	margin-bottom: 14px;
 	text-align: center;
+}
+
+.hkcc-card-image a {
+	display: inline-block;
 }
 
 .hkcc-card-image img {
@@ -442,10 +452,16 @@
 	margin-bottom: 4px;
 }
 
-.hkcc-welcome-expiry {
-	font-weight: 400;
+/* Welcome expiry date — prominent display */
+.hkcc-welcome-expiry-date {
 	font-size: 13px;
-	color: var(--hkcc-text-muted);
+	font-weight: 600;
+	color: var(--hkcc-primary);
+	background: rgba(179, 136, 80, 0.1);
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	margin: 0 0 8px;
 }
 
 .hkcc-welcome-desc {
@@ -496,7 +512,7 @@
 	border-bottom-color: rgba(80, 153, 179, 0.1);
 }
 
-/* Minor info sections — unified for 申請資格, 費用, 備註 */
+/* Minor info sections — unified for 發卡/結算機構, 申請資格, 費用, 備註 */
 .hkcc-section-minor {
 	background: var(--hkcc-minor-bg);
 	border-radius: 8px;
@@ -541,16 +557,6 @@
 	margin-left: 2px;
 }
 
-.hkcc-section-meta {
-	padding-top: 4px;
-}
-
-.hkcc-section-meta p {
-	font-size: 13px;
-	color: var(--hkcc-text-muted);
-	margin: 2px 0;
-}
-
 .hkcc-card-actions-bottom {
 	padding-top: 16px;
 	border-top: 1px solid var(--hkcc-border-light);
@@ -560,7 +566,7 @@
  * cc_suggest title
  * -------------------------------------------------------------- */
 .hkcc-suggest-title {
-	font-size: 20px;
+	font-size: 22px;
 	font-weight: 700;
 	margin: 0 0 16px;
 }
@@ -586,45 +592,12 @@
 	padding: 20px;
 }
 
-.hkcc-single-header {
-	text-align: center;
+.hkcc-single-card-preview {
 	margin-bottom: 32px;
 }
 
-.hkcc-single-image {
-	margin-bottom: 20px;
-}
-
-.hkcc-single-image img {
-	max-width: 320px;
-	border-radius: 10px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
-
-.hkcc-single-title {
-	font-size: 28px;
-	font-weight: 900;
-	color: #111;
-	margin: 0 0 8px;
-}
-
-.hkcc-single-tagline {
-	font-size: 15px;
-	color: var(--hkcc-text-muted);
-	font-style: italic;
-	margin: 0 0 12px;
-}
-
-.hkcc-single-body {
-	margin-bottom: 32px;
-}
-
-.hkcc-single-body .entry-content {
-	margin-bottom: 32px;
-}
-
-.hkcc-single-card-details {
-	margin-top: 32px;
+.hkcc-single-card-preview .hkcc-listing-card {
+	margin-bottom: 0;
 }
 
 .hkcc-single-footer {
@@ -645,7 +618,7 @@
 		margin-right: auto;
 	}
 
-	.hkcc-filters-body {
+	.hkcc-toolbar-body {
 		display: flex !important;
 		flex-wrap: wrap;
 		gap: 24px;
@@ -656,6 +629,10 @@
 		flex: 1;
 		min-width: 150px;
 		margin-bottom: 0;
+	}
+
+	.hkcc-toolbar-row {
+		width: 100%;
 	}
 
 	.hkcc-toggle-arrow {
@@ -704,7 +681,11 @@
 		grid-row: 4;
 	}
 
-	/* Tagline bookmark stays top-left via absolute positioning */
+	/* No-cardface cards: single column layout on desktop */
+	.hkcc-no-cardface .hkcc-card-collapsed {
+		display: block;
+		padding-top: 42px;
+	}
 
 	.hkcc-suggest {
 		max-width: 800px;

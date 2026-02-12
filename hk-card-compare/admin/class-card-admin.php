@@ -135,6 +135,13 @@ class HKCC_Card_Admin {
 						'media_buttons' => false,
 					) );
 					break;
+				case 'textarea':
+					printf(
+						'<textarea id="%1$s" name="%1$s" rows="4" class="large-text">%2$s</textarea>',
+						esc_attr( $input_name ),
+						esc_textarea( $value )
+					);
+					break;
 				case 'date':
 					printf(
 						'<input type="date" id="%1$s" name="%1$s" value="%2$s" class="regular-text" />',

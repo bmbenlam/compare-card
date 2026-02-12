@@ -45,9 +45,6 @@ class HKCC_Card_Display {
 
 	/**
 	 * Get the display name for a card (card_name meta or fallback to post title).
-	 *
-	 * @param WP_Post $card Card post object.
-	 * @return string
 	 */
 	public static function get_card_name( $card ) {
 		$name = get_post_meta( $card->ID, 'card_name', true );
@@ -57,11 +54,6 @@ class HKCC_Card_Display {
 	/**
 	 * Get the card face image HTML using card_face_image meta field.
 	 * No fallback — returns empty string if not set.
-	 *
-	 * @param int    $card_id   Card post ID.
-	 * @param string $card_name Card display name (for alt text).
-	 * @param string $size      Image size.
-	 * @return string HTML or empty string.
 	 */
 	private static function get_card_face_html( $card_id, $card_name, $size = 'card-thumb' ) {
 		$img_id = (int) get_post_meta( $card_id, 'card_face_image', true );
@@ -75,10 +67,21 @@ class HKCC_Card_Display {
 	}
 
 	/**
+	 * Format welcome_offer_expiry date as "優惠有效期為即日至 yyyy 年 mm 月 dd 日".
+	 */
+	private static function format_expiry_date( $date_str ) {
+		if ( ! $date_str ) {
+			return '';
+		}
+		$ts = strtotime( $date_str );
+		if ( ! $ts ) {
+			return $date_str;
+		}
+		return '優惠有效期為即日至 ' . date( 'Y', $ts ) . ' 年 ' . date( 'n', $ts ) . ' 月 ' . date( 'j', $ts ) . ' 日';
+	}
+
+	/**
 	 * Render a card for the [cc_suggest] shortcode.
-	 * Synced with cc_comparison style — delegates to render_listing_card.
-	 *
-	 * @param WP_Post $card Card post object.
 	 */
 	public static function render_suggest_card( $card ) {
 		self::render_listing_card( $card, 'miles' );
@@ -86,25 +89,16 @@ class HKCC_Card_Display {
 
 	/**
 	 * Render a card for the [cc_comparison] listing.
-	 *
-	 * @param WP_Post $card Card post object.
-	 * @param string  $view 'miles' or 'cash'.
 	 */
 	public static function render_listing_card( $card, $view = 'miles' ) {
 		$card_name = self::get_card_name( $card );
 		$tagline   = get_post_meta( $card->ID, 'tagline', true );
 		$aff_link  = get_post_meta( $card->ID, 'affiliate_link', true );
-		$permalink = get_permalink( $card->ID );
+		$blog_link = get_post_meta( $card->ID, 'blog_post_link', true );
 		$system_id = (int) get_post_meta( $card->ID, 'points_system_id', true );
 
 		// Featured parameters (with footnotes).
 		$featured_values = self::get_featured_values( $card->ID, $view );
-
-		// Expanded detail data.
-		$bank_terms    = get_the_terms( $card->ID, 'card_bank' );
-		$network_terms = get_the_terms( $card->ID, 'card_network' );
-		$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
-		$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
 
 		// Get welcome offer for collapsed preview.
 		$welcome_short = get_post_meta( $card->ID, 'welcome_offer_short', true );
@@ -118,17 +112,22 @@ class HKCC_Card_Display {
 
 		// Card face image (no fallback to featured image).
 		$card_face_html = self::get_card_face_html( $card->ID, $card_name );
+		$has_cardface   = ! empty( $card_face_html );
 		?>
-		<div class="hkcc-listing-card" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
+		<div class="hkcc-listing-card<?php echo $has_cardface ? '' : ' hkcc-no-cardface'; ?>" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
 			<!-- Collapsed view -->
 			<div class="hkcc-card-collapsed">
 				<?php if ( $tagline ) : ?>
 					<div class="hkcc-tagline-bookmark"><?php echo esc_html( $tagline ); ?></div>
 				<?php endif; ?>
 
-				<?php if ( $card_face_html ) : ?>
+				<?php if ( $has_cardface ) : ?>
 					<div class="hkcc-card-image">
-						<?php echo $card_face_html; ?>
+						<?php if ( $aff_link ) : ?>
+							<a href="<?php echo esc_url( $aff_link ); ?>" class="card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow"><?php echo $card_face_html; ?></a>
+						<?php else : ?>
+							<?php echo $card_face_html; ?>
+						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 
@@ -162,11 +161,11 @@ class HKCC_Card_Display {
 
 			<!-- Expanded view -->
 			<div class="hkcc-card-expanded" style="display:none;">
-				<?php self::render_expanded_details( $card, $view, $bank_name, $network_name ); ?>
+				<?php self::render_expanded_details( $card, $view ); ?>
 
 				<div class="hkcc-card-actions hkcc-card-actions-bottom">
-					<?php if ( $permalink ) : ?>
-						<a href="<?php echo esc_url( $permalink ); ?>" class="hkcc-btn hkcc-btn-secondary">了解更多</a>
+					<?php if ( $blog_link ) : ?>
+						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary">詳細玩法</a>
 					<?php endif; ?>
 					<?php if ( $aff_link ) : ?>
 						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
@@ -179,24 +178,13 @@ class HKCC_Card_Display {
 
 	/**
 	 * Render card details for the single-card template (expanded, no toggle).
-	 *
-	 * @param WP_Post $card Card post.
-	 * @param string  $view 'miles' or 'cash'.
 	 */
 	public static function render_single_card_details( $card, $view = 'cash' ) {
-		$bank_terms    = get_the_terms( $card->ID, 'card_bank' );
-		$network_terms = get_the_terms( $card->ID, 'card_network' );
-		$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
-		$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
-		self::render_expanded_details( $card, $view, $bank_name, $network_name );
+		self::render_expanded_details( $card, $view );
 	}
 
 	/**
 	 * Return featured parameter label/value pairs with footnote markers.
-	 *
-	 * @param int    $post_id Card ID.
-	 * @param string $view    'miles' or 'cash'.
-	 * @return array Array of ['label' => ..., 'value' => ..., 'fn' => ...].
 	 */
 	private static function get_featured_values( $post_id, $view ) {
 		$featurable = HKCC_Card_Meta::get_featurable_fields();
@@ -208,7 +196,6 @@ class HKCC_Card_Display {
 				continue;
 			}
 
-			// Use clean label from featurable fields.
 			$label = $featurable[ $key ] ?? $key;
 
 			// If view is miles and a miles-display variant exists, prefer it.
@@ -225,7 +212,6 @@ class HKCC_Card_Display {
 
 			$value = get_post_meta( $post_id, $display_key, true );
 
-			// Footnote on featured param — show * with tooltip.
 			$footnote = get_post_meta( $post_id, $key . '_footnote', true );
 			$fn_html  = $footnote ? '<sup class="hkcc-fn-ref" title="' . esc_attr( $footnote ) . '">*</sup>' : '';
 
@@ -241,11 +227,6 @@ class HKCC_Card_Display {
 
 	/**
 	 * Get footnote HTML if a footnote exists for the given meta key.
-	 *
-	 * @param int    $post_id   Card ID.
-	 * @param string $meta_key  Meta key.
-	 * @param array  $footnotes Collected footnotes (passed by reference).
-	 * @return string Superscript HTML or empty string.
 	 */
 	private static function get_footnote_html( $post_id, $meta_key, &$footnotes ) {
 		$footnote = get_post_meta( $post_id, $meta_key . '_footnote', true );
@@ -259,17 +240,17 @@ class HKCC_Card_Display {
 	/**
 	 * Render expanded detail sections for a listing card.
 	 *
-	 * Order: meta → welcome → rewards → benefits → eligibility → fees → footnotes.
-	 * Minor sections (eligibility, fees, footnotes) share unified styling.
-	 *
-	 * @param WP_Post $card         Card post.
-	 * @param string  $view         'miles' or 'cash'.
-	 * @param string  $bank_name    Bank taxonomy term name.
-	 * @param string  $network_name Network taxonomy term name.
+	 * Order: welcome → rewards → benefits → issuer/network (minor) → eligibility (minor) → fees (minor) → footnotes (minor).
 	 */
-	private static function render_expanded_details( $card, $view, $bank_name, $network_name ) {
+	private static function render_expanded_details( $card, $view ) {
 		$id = $card->ID;
 		$footnotes = array();
+
+		// Taxonomy terms.
+		$bank_terms    = get_the_terms( $id, 'card_bank' );
+		$network_terms = get_the_terms( $id, 'card_network' );
+		$bank_name     = ( $bank_terms && ! is_wp_error( $bank_terms ) ) ? $bank_terms[0]->name : '';
+		$network_name  = ( $network_terms && ! is_wp_error( $network_terms ) ) ? $network_terms[0]->name : '';
 
 		// Fee data — split 年費 & 豁免 into separate rows.
 		$annual_fee_display = get_post_meta( $id, 'annual_fee_display', true );
@@ -331,17 +312,15 @@ class HKCC_Card_Display {
 		$min_income = get_post_meta( $id, 'min_income_display', true );
 		?>
 
-		<div class="hkcc-details-section hkcc-section-meta">
-			<p><strong>發卡機構:</strong> <?php echo esc_html( $bank_name ); ?></p>
-			<p><strong>結算機構:</strong> <?php echo esc_html( $network_name ); ?></p>
-		</div>
-
 		<?php /* Welcome BEFORE rewards */ ?>
 		<?php if ( $welcome_desc ) : ?>
 		<div class="hkcc-details-section hkcc-section-welcome">
 			<div class="hkcc-welcome-banner">
-				<h4><span class="hkcc-section-icon">&#127873;</span> 迎新優惠<?php echo $welcome_expiry ? ' <span class="hkcc-welcome-expiry">(至 ' . esc_html( $welcome_expiry ) . ')</span>' : ''; ?></h4>
+				<h4><span class="hkcc-section-icon">&#127873;</span> 迎新優惠</h4>
 			</div>
+			<?php if ( $welcome_expiry ) : ?>
+				<p class="hkcc-welcome-expiry-date"><?php echo esc_html( self::format_expiry_date( $welcome_expiry ) ); ?></p>
+			<?php endif; ?>
 			<div class="hkcc-welcome-desc"><?php echo wp_kses_post( $welcome_desc ); ?></div>
 			<?php if ( $cooling ) : ?>
 				<p class="hkcc-cooling">冷河期: <?php echo esc_html( $cooling ); ?></p>
@@ -371,6 +350,18 @@ class HKCC_Card_Display {
 		<?php endif; ?>
 
 		<?php /* Minor info sections — unified background & text */ ?>
+		<?php if ( $bank_name || $network_name ) : ?>
+		<div class="hkcc-details-section hkcc-section-minor">
+			<h4>發卡 / 結算機構</h4>
+			<?php if ( $bank_name ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">發卡機構:</span> <span class="hkcc-detail-value"><?php echo esc_html( $bank_name ); ?></span></div>
+			<?php endif; ?>
+			<?php if ( $network_name ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">結算機構:</span> <span class="hkcc-detail-value"><?php echo esc_html( $network_name ); ?></span></div>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
 		<?php if ( $min_age || $min_income ) : ?>
 		<div class="hkcc-details-section hkcc-section-minor">
 			<h4>申請資格</h4>
@@ -404,12 +395,6 @@ class HKCC_Card_Display {
 
 	/**
 	 * Get the display value for a transaction type considering view mode.
-	 *
-	 * @param int    $post_id   Card ID.
-	 * @param string $txn       Transaction type slug.
-	 * @param string $view      'miles' or 'cash'.
-	 * @param int    $system_id Points system ID.
-	 * @return string
 	 */
 	private static function get_reward_display( $post_id, $txn, $view, $system_id ) {
 		if ( 'miles' === $view && $system_id > 0 ) {
@@ -419,7 +404,6 @@ class HKCC_Card_Display {
 			}
 		}
 
-		// Fallback to cash or points text.
 		$cash = get_post_meta( $post_id, "{$txn}_cash_display", true );
 		if ( $cash ) {
 			return $cash;
@@ -430,7 +414,6 @@ class HKCC_Card_Display {
 			return '';
 		}
 
-		// If the earning rate is 0, show 不適用.
 		$rate = HKCC_Points_System::extract_earning_rate( $points );
 		if ( $rate <= 0 ) {
 			return '不適用';

@@ -3,7 +3,7 @@
  *
  * Handles:
  * - Click tracking
- * - Filter toggle (mobile accordion)
+ * - Unified toolbar toggle (filters + sort + toggle)
  * - AJAX filtering with debounce
  * - Miles / Cash toggle
  * - Sort dropdown
@@ -52,26 +52,26 @@
 	});
 
 	/* ----------------------------------------------------------------
-	 * Filter toggle (mobile).
+	 * Unified toolbar toggle (replaces old filter toggle).
 	 * -------------------------------------------------------------- */
 	document.addEventListener('click', function (e) {
-		var header = e.target.closest('.hkcc-filters-header');
+		var header = e.target.closest('.hkcc-toolbar-header');
 		if (!header) return;
 
-		var filters = header.closest('.hkcc-filters');
-		var body = filters.querySelector('.hkcc-filters-body');
+		var toolbar = header.closest('.hkcc-toolbar');
+		var body = toolbar.querySelector('.hkcc-toolbar-body');
 
 		if (body.style.display === 'none') {
 			body.style.display = '';
-			filters.classList.add('open');
+			toolbar.classList.add('open');
 		} else {
 			body.style.display = 'none';
-			filters.classList.remove('open');
+			toolbar.classList.remove('open');
 		}
 	});
 
 	/* ----------------------------------------------------------------
-	 * Clear all filters.
+	 * Clear all filters (also resets sort dropdown & view toggle).
 	 * -------------------------------------------------------------- */
 	document.addEventListener('click', function (e) {
 		if (!e.target.classList.contains('hkcc-clear-filters')) return;
@@ -83,6 +83,14 @@
 		wrapper.querySelectorAll('.hkcc-filter-options input[type="radio"]').forEach(function (rb) {
 			if (rb.value === '') rb.checked = true;
 		});
+
+		// Reset sort dropdown.
+		var sortSelect = wrapper.querySelector('.hkcc-sort-select');
+		if (sortSelect) {
+			sortSelect.value = '|';
+			wrapper.setAttribute('data-sort', '');
+			wrapper.setAttribute('data-order', 'desc');
+		}
 
 		triggerFilter(wrapper);
 	});
@@ -121,8 +129,6 @@
 
 	/**
 	 * Collect current filter state and request filtered cards.
-	 *
-	 * @param {HTMLElement} wrapper .hkcc-comparison element.
 	 */
 	function triggerFilter(wrapper) {
 		var filters = {};
@@ -158,9 +164,10 @@
 
 		// Active count.
 		var activeCount = Object.keys(filters).length;
+		if (sort) activeCount++;
 		var countEl = wrapper.querySelector('.hkcc-active-count');
 		if (countEl) {
-			countEl.textContent = activeCount > 0 ? '(' + activeCount + ' 個篩選)' : '';
+			countEl.textContent = activeCount > 0 ? '(' + activeCount + ' 個條件)' : '';
 		}
 
 		wrapper.classList.add('hkcc-loading');

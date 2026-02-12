@@ -20,7 +20,8 @@ class HKCC_Card_Meta {
 				'card_name'       => array( 'label' => 'Card Name (前端顯示名稱)', 'type' => 'text', 'max' => 200 ),
 				'card_face_image' => array( 'label' => 'Card Face Image', 'type' => 'image' ),
 				'tagline'        => array( 'label' => 'Tagline', 'type' => 'text', 'max' => 200 ),
-				'affiliate_link' => array( 'label' => 'Affiliate Link', 'type' => 'url' ),
+				'affiliate_link' => array( 'label' => 'Affiliate Link (申請連結)', 'type' => 'url' ),
+				'blog_post_link' => array( 'label' => 'Blog Post Link (詳細玩法連結)', 'type' => 'url' ),
 			),
 			'fees'     => array(
 				'annual_fee_display'           => array( 'label' => '年費 (Display)', 'type' => 'text' ),
@@ -76,7 +77,7 @@ class HKCC_Card_Meta {
 				'transferable_hotels'          => array( 'label' => '可轉換酒店積分', 'type' => 'array' ),
 			),
 			'welcome'  => array(
-				'welcome_offer_short'             => array( 'label' => '迎新優惠簡述 (Preview)', 'type' => 'text', 'max' => 120 ),
+				'welcome_offer_short'             => array( 'label' => '迎新優惠簡述 (Preview)', 'type' => 'textarea' ),
 				'welcome_cooling_period_display'  => array( 'label' => '迎新冷河期 (Display)', 'type' => 'text' ),
 				'welcome_cooling_period_sortable' => array( 'label' => '迎新冷河期 (Sortable)', 'type' => 'int' ),
 				'welcome_offer_description'       => array( 'label' => '迎新優惠詳細描述', 'type' => 'html' ),
@@ -181,6 +182,9 @@ class HKCC_Card_Meta {
 						break;
 					case 'html':
 						$value = wp_kses_post( $raw );
+						break;
+					case 'textarea':
+						$value = sanitize_textarea_field( $raw );
 						break;
 					case 'date':
 						$value = sanitize_text_field( $raw );

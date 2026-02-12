@@ -47,7 +47,7 @@ class HKCC_Card_Shortcodes {
 
 		ob_start();
 		echo '<div class="hkcc-comparison hkcc-suggest">';
-		echo '<h3 class="hkcc-suggest-title">相關信用卡推薦</h3>';
+		echo '<h2 class="hkcc-suggest-title">相關信用卡推薦</h2>';
 		echo '<div class="hkcc-card-list">';
 
 		foreach ( $cards as $card ) {
@@ -86,42 +86,44 @@ class HKCC_Card_Shortcodes {
 			 data-view="<?php echo esc_attr( $atts['default_view'] ); ?>"
 			 data-shortcode-atts="<?php echo esc_attr( wp_json_encode( $atts ) ); ?>">
 
-			<!-- Filters -->
-			<div class="hkcc-filters">
-				<div class="hkcc-filters-header">
-					<span class="hkcc-filters-toggle">
+			<!-- Unified toolbar: filters + sort + toggle + clear -->
+			<div class="hkcc-toolbar">
+				<div class="hkcc-toolbar-header">
+					<span class="hkcc-toolbar-toggle">
 						<span class="hkcc-filter-icon">&#x1F50D;</span>
-						篩選條件 <span class="hkcc-active-count"></span>
+						篩選 &amp; 排序 <span class="hkcc-active-count"></span>
 						<span class="hkcc-toggle-arrow">&#9660;</span>
 					</span>
 				</div>
-				<div class="hkcc-filters-body" style="display:none;">
+				<div class="hkcc-toolbar-body" style="display:none;">
 					<?php self::render_filters( $filter_keys ); ?>
+
+					<div class="hkcc-toolbar-row">
+						<div class="hkcc-sort-bar">
+							<label for="hkcc_sort">排序：</label>
+							<select class="hkcc-sort-select" id="hkcc_sort">
+								<option value="|">推薦排序</option>
+								<option value="local_retail_cash_sortable|desc">本地簽賬回贈 (%)</option>
+								<option value="local_retail_miles_sortable|asc">本地簽賬回贈 (里數)</option>
+								<option value="overseas_retail_cash_sortable|desc">海外簽賬回贈 (%)</option>
+								<option value="overseas_retail_miles_sortable|asc">海外簽賬回贈 (里數)</option>
+								<option value="min_income_sortable|asc">最低年薪要求</option>
+								<option value="annual_fee_sortable|asc">年費</option>
+							</select>
+						</div>
+
+						<?php if ( 'true' === $atts['show_toggle'] ) : ?>
+						<div class="hkcc-rebate-toggle">
+							<span>回贈方式：</span>
+							<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> 飛行里數</label>
+							<label><input type="radio" name="hkcc_view_mode" value="cash" <?php checked( $atts['default_view'], 'cash' ); ?> /> 現金回贈</label>
+						</div>
+						<?php endif; ?>
+					</div>
+
 					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>
 				</div>
 			</div>
-
-			<!-- Sort -->
-			<div class="hkcc-sort-bar">
-				<label for="hkcc_sort">排序：</label>
-				<select class="hkcc-sort-select" id="hkcc_sort">
-					<option value="|">推薦排序</option>
-					<option value="local_retail_cash_sortable|desc">本地簽賬回贈 (%)</option>
-					<option value="local_retail_miles_sortable|asc">本地簽賬回贈 (里數)</option>
-					<option value="overseas_retail_cash_sortable|desc">海外簽賬回贈 (%)</option>
-					<option value="overseas_retail_miles_sortable|asc">海外簽賬回贈 (里數)</option>
-					<option value="min_income_sortable|asc">最低年薪要求</option>
-					<option value="annual_fee_sortable|asc">年費</option>
-				</select>
-			</div>
-
-			<?php if ( 'true' === $atts['show_toggle'] ) : ?>
-			<div class="hkcc-rebate-toggle">
-				<span>顯示回贈方式：</span>
-				<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> 飛行里數</label>
-				<label><input type="radio" name="hkcc_view_mode" value="cash" <?php checked( $atts['default_view'], 'cash' ); ?> /> 現金回贈</label>
-			</div>
-			<?php endif; ?>
 
 			<div class="hkcc-card-count">
 				共 <span class="hkcc-count"><?php echo count( $cards ); ?></span> 張信用卡
@@ -198,9 +200,21 @@ class HKCC_Card_Shortcodes {
 		$order = sanitize_text_field( $_POST['order'] ?? 'desc' );
 
 		if ( $sort ) {
-			$query_args['meta_key'] = $sort;
-			$query_args['orderby']  = 'meta_value_num';
-			$query_args['order']    = strtoupper( $order );
+			// Use EXISTS/NOT EXISTS so cards without the meta key still appear (sorted last).
+			if ( ! isset( $query_args['meta_query'] ) ) {
+				$query_args['meta_query'] = array();
+			}
+			$query_args['meta_query']['hkcc_sort'] = array(
+				'key'     => $sort,
+				'compare' => 'EXISTS',
+				'type'    => 'NUMERIC',
+			);
+			$query_args['meta_query'][] = array(
+				'relation' => 'OR',
+				array( 'key' => $sort, 'compare' => 'EXISTS' ),
+				array( 'key' => $sort, 'compare' => 'NOT EXISTS' ),
+			);
+			$query_args['orderby'] = array( 'hkcc_sort' => strtoupper( $order ) );
 		}
 
 		$view  = sanitize_text_field( $_POST['view'] ?? 'miles' );
@@ -271,9 +285,18 @@ class HKCC_Card_Shortcodes {
 
 		$sort = $atts['sort'] ?? $atts['default_sort'] ?? '';
 		if ( $sort ) {
-			$args['meta_key'] = $sort;
-			$args['orderby']  = 'meta_value_num';
-			$args['order']    = strtoupper( $atts['order'] ?? $atts['default_order'] ?? 'DESC' );
+			$args['meta_query']['hkcc_sort'] = array(
+				'key'     => $sort,
+				'compare' => 'EXISTS',
+				'type'    => 'NUMERIC',
+			);
+			$args['meta_query'][] = array(
+				'relation' => 'OR',
+				array( 'key' => $sort, 'compare' => 'EXISTS' ),
+				array( 'key' => $sort, 'compare' => 'NOT EXISTS' ),
+			);
+			$order = strtoupper( $atts['order'] ?? $atts['default_order'] ?? 'DESC' );
+			$args['orderby'] = array( 'hkcc_sort' => $order );
 		}
 
 		return $args;
