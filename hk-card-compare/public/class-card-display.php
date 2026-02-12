@@ -126,11 +126,12 @@ class HKCC_Card_Display {
 		}
 		?>
 		<div class="<?php echo esc_attr( $card_classes ); ?>" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
+			<?php if ( $tagline ) : ?>
+				<div class="hkcc-tagline-bookmark"><?php echo esc_html( $tagline ); ?></div>
+			<?php endif; ?>
+
 			<!-- Collapsed view -->
 			<div class="hkcc-card-collapsed">
-				<?php if ( $tagline ) : ?>
-					<div class="hkcc-tagline-bookmark"><?php echo esc_html( $tagline ); ?></div>
-				<?php endif; ?>
 
 				<?php if ( $has_cardface ) : ?>
 					<div class="hkcc-card-image">

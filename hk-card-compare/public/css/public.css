@@ -268,14 +268,12 @@
 	min-height: 36px;
 }
 
-/* Feature-based filter chips */
+/* Filter chips (shared by feature filters, bank, network) */
 .hkcc-filter-chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
-	margin-bottom: 14px;
-	padding-bottom: 14px;
-	border-bottom: 1px solid var(--hkcc-border-light);
+	margin-bottom: 10px;
 }
 
 .hkcc-filter-chip {
@@ -326,21 +324,7 @@
 	letter-spacing: 0.03em;
 }
 
-.hkcc-filter-options {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px 12px;
-}
-
-.hkcc-filter-options label {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 0;
-	cursor: pointer;
-	font-size: 14px;
-	min-height: 36px;
-}
+/* Filter groups use .hkcc-filter-chips for chip-style layout */
 
 .hkcc-clear-filters {
 	background: none;
@@ -383,26 +367,41 @@
 
 .hkcc-card-collapsed {
 	padding: 20px;
-	padding-top: 24px;
+	padding-top: 42px;
 }
 
-/* Tagline bookmark — positioned ABOVE the card, not overlaying */
+/* Tagline bookmark — ribbon style, positioned top-left but OUTSIDE card-collapsed
+   so it never overlays card face image or content */
 .hkcc-tagline-bookmark {
+	position: absolute;
+	top: 14px;
+	left: 0;
 	background: var(--hkcc-primary);
 	color: #fff;
 	font-size: 12px;
 	font-weight: 600;
-	padding: 6px 14px 6px 10px;
-	border-radius: 0 0 4px 0;
+	padding: 4px 14px 4px 10px;
+	border-radius: 0 4px 4px 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	z-index: 2;
+	max-width: 70%;
 	line-height: 1.4;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 100%;
 }
 
-/* When no card face image: no extra padding needed since bookmark is in flow */
+/* Cards without tagline don't need the extra top padding */
+.hkcc-listing-card:not(:has(.hkcc-tagline-bookmark)) .hkcc-card-collapsed {
+	padding-top: 20px;
+}
+
+/* When no card face image: same padding since bookmark is outside collapsed */
 .hkcc-no-cardface .hkcc-card-collapsed {
+	padding-top: 42px;
+}
+
+.hkcc-no-cardface:not(:has(.hkcc-tagline-bookmark)) .hkcc-card-collapsed {
 	padding-top: 20px;
 }
 
@@ -793,26 +792,18 @@
 	.hkcc-card-collapsed {
 		display: grid;
 		grid-template-columns: 180px 1fr;
-		grid-template-rows: auto auto auto auto auto;
+		grid-template-rows: auto auto auto auto;
 		gap: 0 20px;
 		align-items: start;
-		padding-top: 0;
-	}
-
-	/* Tagline spans full width on desktop grid too */
-	.hkcc-card-collapsed .hkcc-tagline-bookmark {
-		grid-column: 1 / -1;
-		grid-row: 1;
 	}
 
 	.hkcc-card-collapsed .hkcc-card-image {
 		grid-column: 1;
-		grid-row: 2 / 6;
+		grid-row: 1 / 5;
 		margin-bottom: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding-top: 10px;
 	}
 
 	.hkcc-card-collapsed .hkcc-card-image img {
@@ -821,29 +812,27 @@
 
 	.hkcc-card-collapsed .hkcc-card-header {
 		grid-column: 2;
-		grid-row: 2;
-		padding-top: 10px;
+		grid-row: 1;
 	}
 
 	.hkcc-card-collapsed .hkcc-welcome-preview {
 		grid-column: 2;
-		grid-row: 3;
+		grid-row: 2;
 	}
 
 	.hkcc-card-collapsed .hkcc-featured-params {
 		grid-column: 2;
-		grid-row: 4;
+		grid-row: 3;
 	}
 
 	.hkcc-card-collapsed .hkcc-card-actions {
 		grid-column: 2;
-		grid-row: 5;
+		grid-row: 4;
 	}
 
 	/* No-cardface cards: single column layout on desktop */
 	.hkcc-no-cardface .hkcc-card-collapsed {
 		display: block;
-		padding-top: 0;
 	}
 
 	.hkcc-suggest {

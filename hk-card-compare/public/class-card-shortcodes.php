@@ -102,7 +102,6 @@ class HKCC_Card_Shortcodes {
 					<div class="hkcc-toolbar-primary">
 						<?php if ( 'true' === $atts['show_toggle'] ) : ?>
 						<div class="hkcc-view-toggle">
-							<span class="hkcc-view-toggle-label">回贈方式</span>
 							<span class="hkcc-toggle-option hkcc-toggle-miles<?php echo $is_miles ? ' active' : ''; ?>">飛行里數</span>
 							<label class="hkcc-toggle-switch">
 								<input type="checkbox" class="hkcc-view-toggle-input" <?php echo $is_miles ? '' : 'checked'; ?> />
@@ -349,11 +348,14 @@ class HKCC_Card_Shortcodes {
 					if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
 						echo '<div class="hkcc-filter-group" data-filter="bank">';
 						echo '<h4 class="hkcc-filter-heading">發卡機構</h4>';
-						echo '<div class="hkcc-filter-options">';
+						echo '<div class="hkcc-filter-chips">';
 						foreach ( $terms as $term ) {
+							$id = 'hkcc_bank_' . esc_attr( $term->slug );
 							printf(
-								'<label><input type="checkbox" name="hkcc_filter_bank" value="%s" /> %s</label>',
+								'<input type="checkbox" class="hkcc-filter-chip" id="%s" name="hkcc_filter_bank" value="%s" /><label for="%s">%s</label>',
+								$id,
 								esc_attr( $term->slug ),
+								$id,
 								esc_html( $term->name )
 							);
 						}
@@ -366,11 +368,14 @@ class HKCC_Card_Shortcodes {
 					if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
 						echo '<div class="hkcc-filter-group" data-filter="network">';
 						echo '<h4 class="hkcc-filter-heading">結算機構</h4>';
-						echo '<div class="hkcc-filter-options">';
+						echo '<div class="hkcc-filter-chips">';
 						foreach ( $terms as $term ) {
+							$id = 'hkcc_network_' . esc_attr( $term->slug );
 							printf(
-								'<label><input type="checkbox" name="hkcc_filter_network" value="%s" /> %s</label>',
+								'<input type="checkbox" class="hkcc-filter-chip" id="%s" name="hkcc_filter_network" value="%s" /><label for="%s">%s</label>',
+								$id,
 								esc_attr( $term->slug ),
+								$id,
 								esc_html( $term->name )
 							);
 						}

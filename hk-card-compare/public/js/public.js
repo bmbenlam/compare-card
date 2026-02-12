@@ -122,11 +122,8 @@
 		if (!e.target.classList.contains('hkcc-clear-filters')) return;
 
 		var wrapper = e.target.closest('.hkcc-comparison');
-		wrapper.querySelectorAll('.hkcc-filter-options input[type="checkbox"]').forEach(function (cb) {
-			cb.checked = false;
-		});
 
-		// Reset feature chips.
+		// Reset all filter chips (feature, bank, network).
 		wrapper.querySelectorAll('.hkcc-filter-chip').forEach(function (chip) {
 			chip.checked = false;
 		});
@@ -172,9 +169,8 @@
 			return;
 		}
 
-		// Handle filter checkboxes and feature chips.
+		// Handle filter chips (feature, bank, network).
 		if (
-			!input.closest('.hkcc-filter-options') &&
 			!input.classList.contains('hkcc-filter-chip') &&
 			!input.classList.contains('hkcc-view-toggle-input')
 		) {
