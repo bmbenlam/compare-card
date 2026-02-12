@@ -67,7 +67,7 @@ class HKCC_Card_Shortcodes {
 			'category'      => '',
 			'bank'          => '',
 			'network'       => '',
-			'filters'       => 'bank,network,annual_fee',
+			'filters'       => 'bank,network',
 			'default_sort'  => '',
 			'default_order' => 'desc',
 			'show_toggle'   => 'true',
@@ -78,6 +78,7 @@ class HKCC_Card_Shortcodes {
 		$cards      = get_posts( $query_args );
 		$filter_keys = array_map( 'trim', explode( ',', $atts['filters'] ) );
 
+		$is_miles = ( 'miles' === $atts['default_view'] );
 		ob_start();
 		?>
 		<div class="hkcc-comparison"
@@ -86,7 +87,7 @@ class HKCC_Card_Shortcodes {
 			 data-view="<?php echo esc_attr( $atts['default_view'] ); ?>"
 			 data-shortcode-atts="<?php echo esc_attr( wp_json_encode( $atts ) ); ?>">
 
-			<!-- Unified toolbar: filters + sort + toggle + clear -->
+			<!-- Unified toolbar: toggle + sort + feature chips + filters + clear -->
 			<div class="hkcc-toolbar">
 				<div class="hkcc-toolbar-header">
 					<span class="hkcc-toolbar-toggle">
@@ -96,11 +97,23 @@ class HKCC_Card_Shortcodes {
 					</span>
 				</div>
 				<div class="hkcc-toolbar-body" style="display:none;">
-					<?php self::render_filters( $filter_keys ); ?>
 
-					<div class="hkcc-toolbar-row">
+					<!-- Primary: View toggle + Sort (most important controls on top) -->
+					<div class="hkcc-toolbar-primary">
+						<?php if ( 'true' === $atts['show_toggle'] ) : ?>
+						<div class="hkcc-view-toggle">
+							<span class="hkcc-view-toggle-label">回贈方式</span>
+							<span class="hkcc-toggle-option hkcc-toggle-miles<?php echo $is_miles ? ' active' : ''; ?>">飛行里數</span>
+							<label class="hkcc-toggle-switch">
+								<input type="checkbox" class="hkcc-view-toggle-input" <?php echo $is_miles ? '' : 'checked'; ?> />
+								<span class="hkcc-toggle-slider"></span>
+							</label>
+							<span class="hkcc-toggle-option hkcc-toggle-cash<?php echo $is_miles ? '' : ' active'; ?>">現金回贈</span>
+						</div>
+						<?php endif; ?>
+
 						<div class="hkcc-sort-bar">
-							<label for="hkcc_sort">排序：</label>
+							<label for="hkcc_sort">排序</label>
 							<select class="hkcc-sort-select" id="hkcc_sort">
 								<option value="|">推薦排序</option>
 								<option value="local_retail_cash_sortable|desc">本地簽賬回贈 (%)</option>
@@ -111,15 +124,22 @@ class HKCC_Card_Shortcodes {
 								<option value="annual_fee_sortable|asc">年費</option>
 							</select>
 						</div>
-
-						<?php if ( 'true' === $atts['show_toggle'] ) : ?>
-						<div class="hkcc-rebate-toggle">
-							<span>回贈方式：</span>
-							<label><input type="radio" name="hkcc_view_mode" value="miles" <?php checked( $atts['default_view'], 'miles' ); ?> /> 飛行里數</label>
-							<label><input type="radio" name="hkcc_view_mode" value="cash" <?php checked( $atts['default_view'], 'cash' ); ?> /> 現金回贈</label>
-						</div>
-						<?php endif; ?>
 					</div>
+
+					<!-- Feature-based filter chips -->
+					<div class="hkcc-filter-chips">
+						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_free_annual" name="hkcc_feature_filter" value="free_annual_fee" />
+						<label for="hkcc_chip_free_annual">永久免年費</label>
+
+						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_lounge" name="hkcc_feature_filter" value="has_lounge" />
+						<label for="hkcc_chip_lounge">可用貴賓室</label>
+
+						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_insurance" name="hkcc_feature_filter" value="has_travel_insurance" />
+						<label for="hkcc_chip_insurance">免費旅遊保險</label>
+					</div>
+
+					<!-- Taxonomy filters (bank + network) -->
+					<?php self::render_filters( $filter_keys ); ?>
 
 					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>
 				</div>
@@ -173,26 +193,45 @@ class HKCC_Card_Shortcodes {
 			$atts['network'] = implode( ',', array_map( 'sanitize_text_field', (array) $filters['network'] ) );
 		}
 
-		$annual_fee_filter = sanitize_text_field( $filters['annual_fee'] ?? '' );
 		$query_args = self::build_query_args( $atts );
 
-		if ( $annual_fee_filter ) {
+		// Feature-based filters.
+		if ( ! empty( $filters['features'] ) ) {
 			if ( ! isset( $query_args['meta_query'] ) ) {
 				$query_args['meta_query'] = array();
 			}
-			if ( 'free' === $annual_fee_filter ) {
-				$query_args['meta_query'][] = array(
-					'key'     => 'annual_fee_sortable',
-					'value'   => 0,
-					'compare' => '=',
-					'type'    => 'NUMERIC',
-				);
-			} elseif ( 'first_year_free' === $annual_fee_filter ) {
-				$query_args['meta_query'][] = array(
-					'key'     => 'annual_fee_waiver',
-					'value'   => '',
-					'compare' => '!=',
-				);
+
+			$features = array_map( 'sanitize_text_field', (array) $filters['features'] );
+
+			foreach ( $features as $feature ) {
+				switch ( $feature ) {
+					case 'free_annual_fee':
+						$query_args['meta_query'][] = array(
+							'key'     => 'annual_fee_sortable',
+							'value'   => 0,
+							'compare' => '=',
+							'type'    => 'NUMERIC',
+						);
+						break;
+
+					case 'has_lounge':
+						$query_args['meta_query'][] = array(
+							'key'     => 'lounge_access_sortable',
+							'value'   => 1,
+							'compare' => '>=',
+							'type'    => 'NUMERIC',
+						);
+						break;
+
+					case 'has_travel_insurance':
+						$query_args['meta_query'][] = array(
+							'key'     => 'has_travel_insurance',
+							'value'   => 1,
+							'compare' => '=',
+							'type'    => 'NUMERIC',
+						);
+						break;
+				}
 			}
 		}
 
@@ -337,16 +376,6 @@ class HKCC_Card_Shortcodes {
 						}
 						echo '</div></div>';
 					}
-					break;
-
-				case 'annual_fee':
-					echo '<div class="hkcc-filter-group" data-filter="annual_fee">';
-					echo '<h4 class="hkcc-filter-heading">年費</h4>';
-					echo '<div class="hkcc-filter-options">';
-					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="" checked /> 任何</label>';
-					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="free" /> 永久免年費</label>';
-					echo '<label><input type="radio" name="hkcc_filter_annual_fee" value="first_year_free" /> 首年免年費</label>';
-					echo '</div></div>';
 					break;
 			}
 		}

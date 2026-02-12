@@ -113,8 +113,19 @@ class HKCC_Card_Display {
 		// Card face image (no fallback to featured image).
 		$card_face_html = self::get_card_face_html( $card->ID, $card_name );
 		$has_cardface   = ! empty( $card_face_html );
+
+		// Dim cards without both affiliate link AND blog post link.
+		$is_dimmed = empty( $aff_link ) && empty( $blog_link );
+
+		$card_classes = 'hkcc-listing-card';
+		if ( ! $has_cardface ) {
+			$card_classes .= ' hkcc-no-cardface';
+		}
+		if ( $is_dimmed ) {
+			$card_classes .= ' hkcc-card-dimmed';
+		}
 		?>
-		<div class="hkcc-listing-card<?php echo $has_cardface ? '' : ' hkcc-no-cardface'; ?>" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
+		<div class="<?php echo esc_attr( $card_classes ); ?>" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-points-system="<?php echo esc_attr( $system_id ); ?>">
 			<!-- Collapsed view -->
 			<div class="hkcc-card-collapsed">
 				<?php if ( $tagline ) : ?>

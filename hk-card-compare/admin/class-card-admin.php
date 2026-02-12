@@ -170,6 +170,13 @@ class HKCC_Card_Admin {
 					printf( '<button type="button" class="button hkcc-remove-image" %s>移除</button>', $img_id ? '' : 'style="display:none;"' );
 					echo '</div>';
 					break;
+				case 'boolean':
+					printf(
+						'<label><input type="checkbox" id="%1$s" name="%1$s" value="1" %2$s /> 是</label>',
+						esc_attr( $input_name ),
+						checked( $value, 1, false )
+					);
+					break;
 				case 'int':
 					printf(
 						'<input type="number" step="1" id="%1$s" name="%1$s" value="%2$s" class="small-text" />',

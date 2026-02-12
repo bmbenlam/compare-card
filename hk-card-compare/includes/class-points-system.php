@@ -123,6 +123,10 @@ class HKCC_Points_System {
 			'online_hkd',
 			'online_fx',
 			'local_dining',
+			'designated_supermarket',
+			'public_transport',
+			'designated_merchant',
+			'contactless_mobile',
 			'online_bill_payment',
 			'payme_reload',
 			'alipay_reload',
@@ -158,16 +162,20 @@ class HKCC_Points_System {
 	 */
 	public static function get_transaction_labels() {
 		$labels = array(
-			'local_retail'        => '本地零售簽賬',
-			'overseas_retail'     => '海外零售簽賬',
-			'online_hkd'         => '網上港幣簽賬',
-			'online_fx'          => '網上外幣簽賬',
-			'local_dining'       => '本地餐飲簽賬',
-			'online_bill_payment'=> '網上繳費',
-			'payme_reload'       => 'PayMe 增值',
-			'alipay_reload'      => 'AlipayHK 增值',
-			'wechat_reload'      => 'WeChat Pay 增值',
-			'octopus_reload'     => '八達通增值',
+			'local_retail'           => '本地零售簽賬',
+			'overseas_retail'        => '海外零售簽賬',
+			'online_hkd'             => '網上港幣簽賬',
+			'online_fx'              => '網上外幣簽賬',
+			'local_dining'           => '本地餐飲簽賬',
+			'designated_supermarket' => '指定超市簽賬',
+			'public_transport'       => '公共交通簽賬',
+			'designated_merchant'    => '指定商戶簽賬',
+			'contactless_mobile'     => '手機感應式支付',
+			'online_bill_payment'    => '網上繳費',
+			'payme_reload'           => 'PayMe 增值',
+			'alipay_reload'          => 'AlipayHK 增值',
+			'wechat_reload'          => 'WeChat Pay 增值',
+			'octopus_reload'         => '八達通增值',
 		);
 
 		$custom = get_option( 'hkcc_custom_txn_types', array() );

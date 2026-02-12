@@ -43,6 +43,10 @@ class HKCC_Card_Meta {
 				'online_hkd_points'            => array( 'label' => '網上港幣簽賬 (積分)', 'type' => 'text' ),
 				'online_fx_points'             => array( 'label' => '網上外幣簽賬 (積分)', 'type' => 'text' ),
 				'local_dining_points'          => array( 'label' => '本地餐飲簽賬 (積分)', 'type' => 'text' ),
+				'designated_supermarket_points' => array( 'label' => '指定超市簽賬 (積分)', 'type' => 'text' ),
+				'public_transport_points'       => array( 'label' => '公共交通簽賬 (積分)', 'type' => 'text' ),
+				'designated_merchant_points'    => array( 'label' => '指定商戶簽賬 (積分)', 'type' => 'text' ),
+				'contactless_mobile_points'     => array( 'label' => '手機感應式支付 (積分)', 'type' => 'text' ),
 				'online_bill_payment_points'   => array( 'label' => '網上繳費 (積分)', 'type' => 'text' ),
 				'payme_reload_points'          => array( 'label' => 'PayMe 增值 (積分)', 'type' => 'text' ),
 				'alipay_reload_points'         => array( 'label' => 'AlipayHK 增值 (積分)', 'type' => 'text' ),
@@ -58,6 +62,14 @@ class HKCC_Card_Meta {
 				'online_fx_cash_sortable'      => array( 'label' => '網上外幣簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
 				'local_dining_cash_display'    => array( 'label' => '本地餐飲簽賬 現金回贈 (Display)', 'type' => 'text' ),
 				'local_dining_cash_sortable'   => array( 'label' => '本地餐飲簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
+				'designated_supermarket_cash_display'  => array( 'label' => '指定超市簽賬 現金回贈 (Display)', 'type' => 'text' ),
+				'designated_supermarket_cash_sortable' => array( 'label' => '指定超市簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
+				'public_transport_cash_display'        => array( 'label' => '公共交通簽賬 現金回贈 (Display)', 'type' => 'text' ),
+				'public_transport_cash_sortable'       => array( 'label' => '公共交通簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
+				'designated_merchant_cash_display'     => array( 'label' => '指定商戶簽賬 現金回贈 (Display)', 'type' => 'text' ),
+				'designated_merchant_cash_sortable'    => array( 'label' => '指定商戶簽賬 現金回贈 (Sortable)', 'type' => 'float' ),
+				'contactless_mobile_cash_display'      => array( 'label' => '手機感應式支付 現金回贈 (Display)', 'type' => 'text' ),
+				'contactless_mobile_cash_sortable'     => array( 'label' => '手機感應式支付 現金回贈 (Sortable)', 'type' => 'float' ),
 				'online_bill_payment_cash_display'  => array( 'label' => '網上繳費 現金回贈 (Display)', 'type' => 'text' ),
 				'online_bill_payment_cash_sortable' => array( 'label' => '網上繳費 現金回贈 (Sortable)', 'type' => 'float' ),
 				'payme_reload_cash_display'    => array( 'label' => 'PayMe 增值 現金回贈 (Display)', 'type' => 'text' ),
@@ -86,7 +98,8 @@ class HKCC_Card_Meta {
 			'benefits' => array(
 				'lounge_access_display'  => array( 'label' => '免費貴賓室 (Display)', 'type' => 'text' ),
 				'lounge_access_sortable' => array( 'label' => '免費貴賓室 (Sortable)', 'type' => 'int' ),
-				'travel_insurance'       => array( 'label' => '旅遊保險', 'type' => 'text' ),
+				'travel_insurance'       => array( 'label' => '旅遊保險 (描述)', 'type' => 'text' ),
+				'has_travel_insurance'   => array( 'label' => '免費旅遊保險 (是/否)', 'type' => 'boolean' ),
 			),
 			'featured' => array(
 				'featured_param_1' => array( 'label' => 'Featured Parameter 1', 'type' => 'select' ),
@@ -164,6 +177,13 @@ class HKCC_Card_Meta {
 
 		foreach ( $all_fields as $group_fields ) {
 			foreach ( $group_fields as $key => $def ) {
+				// Boolean (checkbox) fields: unchecked = 0.
+				if ( 'boolean' === $def['type'] ) {
+					$value = isset( $_POST[ 'hkcc_' . $key ] ) ? 1 : 0;
+					update_post_meta( $post_id, $key, $value );
+					continue;
+				}
+
 				if ( ! isset( $_POST[ 'hkcc_' . $key ] ) ) {
 					continue;
 				}
@@ -171,6 +191,9 @@ class HKCC_Card_Meta {
 				$raw = $_POST[ 'hkcc_' . $key ];
 
 				switch ( $def['type'] ) {
+					case 'boolean':
+						$value = intval( $raw ) ? 1 : 0;
+						break;
 					case 'int':
 						$value = intval( $raw );
 						break;

@@ -5,8 +5,9 @@
  * - Click tracking
  * - Unified toolbar toggle (filters + sort + toggle)
  * - AJAX filtering with debounce
- * - Miles / Cash toggle
- * - Sort dropdown
+ * - Miles / Cash real toggle switch
+ * - Sort dropdown with auto view-mode switching
+ * - Feature-based filter chips
  * - Expand / collapse card details (zh-HK)
  */
 (function () {
@@ -71,6 +72,50 @@
 	});
 
 	/* ----------------------------------------------------------------
+	 * View toggle switch: update labels on change.
+	 * -------------------------------------------------------------- */
+	document.addEventListener('change', function (e) {
+		if (!e.target.classList.contains('hkcc-view-toggle-input')) return;
+
+		var wrapper = e.target.closest('.hkcc-comparison');
+		if (!wrapper) return;
+
+		updateToggleLabels(wrapper);
+		triggerFilter(wrapper);
+	});
+
+	function updateToggleLabels(wrapper) {
+		var input = wrapper.querySelector('.hkcc-view-toggle-input');
+		if (!input) return;
+
+		var milesLabel = wrapper.querySelector('.hkcc-toggle-miles');
+		var cashLabel = wrapper.querySelector('.hkcc-toggle-cash');
+
+		if (input.checked) {
+			// checked = cash
+			milesLabel && milesLabel.classList.remove('active');
+			cashLabel && cashLabel.classList.add('active');
+		} else {
+			// unchecked = miles
+			milesLabel && milesLabel.classList.add('active');
+			cashLabel && cashLabel.classList.remove('active');
+		}
+	}
+
+	function getViewMode(wrapper) {
+		var input = wrapper.querySelector('.hkcc-view-toggle-input');
+		if (!input) return wrapper.getAttribute('data-view') || 'miles';
+		return input.checked ? 'cash' : 'miles';
+	}
+
+	function setViewMode(wrapper, mode) {
+		var input = wrapper.querySelector('.hkcc-view-toggle-input');
+		if (!input) return;
+		input.checked = (mode === 'cash');
+		updateToggleLabels(wrapper);
+	}
+
+	/* ----------------------------------------------------------------
 	 * Clear all filters (also resets sort dropdown & view toggle).
 	 * -------------------------------------------------------------- */
 	document.addEventListener('click', function (e) {
@@ -80,8 +125,10 @@
 		wrapper.querySelectorAll('.hkcc-filter-options input[type="checkbox"]').forEach(function (cb) {
 			cb.checked = false;
 		});
-		wrapper.querySelectorAll('.hkcc-filter-options input[type="radio"]').forEach(function (rb) {
-			if (rb.value === '') rb.checked = true;
+
+		// Reset feature chips.
+		wrapper.querySelectorAll('.hkcc-filter-chip').forEach(function (chip) {
+			chip.checked = false;
 		});
 
 		// Reset sort dropdown.
@@ -92,35 +139,53 @@
 			wrapper.setAttribute('data-order', 'desc');
 		}
 
+		// Reset view toggle to miles.
+		setViewMode(wrapper, 'miles');
+
 		triggerFilter(wrapper);
 	});
 
 	/* ----------------------------------------------------------------
-	 * Filter / view / sort change → AJAX.
+	 * Sort change → auto-switch view mode + AJAX.
 	 * -------------------------------------------------------------- */
 	document.addEventListener('change', function (e) {
 		var input = e.target;
 
-		// Handle sort dropdown.
 		if (input.closest('.hkcc-sort-bar')) {
 			var wrapper = input.closest('.hkcc-comparison');
 			if (!wrapper) return;
 			var parts = input.value.split('|');
-			wrapper.setAttribute('data-sort', parts[0] || '');
-			wrapper.setAttribute('data-order', parts[1] || 'desc');
+			var sortField = parts[0] || '';
+			var sortOrder = parts[1] || 'desc';
+
+			wrapper.setAttribute('data-sort', sortField);
+			wrapper.setAttribute('data-order', sortOrder);
+
+			// Auto-switch view mode based on sort field.
+			if (sortField.indexOf('_cash_sortable') !== -1) {
+				setViewMode(wrapper, 'cash');
+			} else if (sortField.indexOf('_miles_sortable') !== -1) {
+				setViewMode(wrapper, 'miles');
+			}
+
 			triggerFilter(wrapper);
 			return;
 		}
 
+		// Handle filter checkboxes and feature chips.
 		if (
 			!input.closest('.hkcc-filter-options') &&
-			!input.closest('.hkcc-rebate-toggle')
+			!input.classList.contains('hkcc-filter-chip') &&
+			!input.classList.contains('hkcc-view-toggle-input')
 		) {
 			return;
 		}
 
 		var wrapper = input.closest('.hkcc-comparison');
 		if (!wrapper) return;
+
+		// Skip view toggle (handled separately above).
+		if (input.classList.contains('hkcc-view-toggle-input')) return;
 
 		debounce(function () {
 			triggerFilter(wrapper);
@@ -147,13 +212,15 @@
 		});
 		if (networks.length) filters.network = networks;
 
-		// Annual fee.
-		var annualFee = wrapper.querySelector('input[name="hkcc_filter_annual_fee"]:checked');
-		if (annualFee && annualFee.value) filters.annual_fee = annualFee.value;
+		// Feature-based filters (chips).
+		var features = [];
+		wrapper.querySelectorAll('.hkcc-filter-chip:checked').forEach(function (chip) {
+			features.push(chip.value);
+		});
+		if (features.length) filters.features = features;
 
-		// View mode.
-		var viewMode = wrapper.querySelector('input[name="hkcc_view_mode"]:checked');
-		var view = viewMode ? viewMode.value : wrapper.getAttribute('data-view') || 'miles';
+		// View mode (from toggle switch).
+		var view = getViewMode(wrapper);
 
 		// Sort.
 		var sort = wrapper.getAttribute('data-sort') || '';
