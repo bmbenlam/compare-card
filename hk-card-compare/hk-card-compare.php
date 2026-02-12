@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: HK Card Compare
- * Plugin URI:  https://example.com/hk-card-compare
+ * Plugin URI:  https://flyasia.co/hk-card-compare
  * Description: Credit card comparison plugin for Hong Kong travel & personal finance blogs. Supports Traditional Chinese, points conversion, miles/cash toggle, and affiliate click tracking.
- * Version:     1.0.2
+ * Version:     1.0.4
  * Author:      HK Card Compare
- * Author URI:  https://example.com
+ * Author URI:  https://flyasia.co
  * Text Domain: hk-card-compare
  * Domain Path: /languages
  * Requires at least: 6.9.1
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HKCC_VERSION', '1.0.3' );
+define( 'HKCC_VERSION', '1.0.4' );
 define( 'HKCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HKCC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
