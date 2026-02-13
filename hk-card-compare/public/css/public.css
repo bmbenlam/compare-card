@@ -57,17 +57,17 @@
  * -------------------------------------------------------------- */
 .hkcc-btn {
 	display: inline-block;
-	padding: 10px 20px;
-	font-family: 'Lato', sans-serif;
-	font-size: 14px;
-	font-weight: 600;
-	text-decoration: none;
-	border-radius: 8px;
-	border: none;
+	padding: 10px 20px !important;
+	font-family: 'Lato', sans-serif !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	text-decoration: none !important;
+	border-radius: 8px !important;
+	border: none !important;
 	cursor: pointer;
 	text-align: center;
 	min-height: 44px;
-	line-height: 24px;
+	line-height: 24px !important;
 	transition: all 0.2s ease;
 }
 
@@ -77,25 +77,26 @@
 }
 
 .hkcc-btn-secondary {
-	background: var(--hkcc-border-light);
-	color: var(--hkcc-text);
+	background: var(--hkcc-border-light) !important;
+	color: var(--hkcc-text) !important;
 }
 
 .hkcc-btn-secondary:hover {
-	background: var(--hkcc-border);
+	background: var(--hkcc-border) !important;
 }
 
 .hkcc-btn-cta {
-	background: var(--hkcc-cta);
-	color: #fff;
-	font-size: 15px;
-	font-weight: 700;
+	background: var(--hkcc-cta) !important;
+	color: #fff !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
 	letter-spacing: 0.02em;
 	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3);
 }
 
 .hkcc-btn-cta:hover {
-	background: var(--hkcc-cta-hover);
+	background: var(--hkcc-cta-hover) !important;
+	color: #fff !important;
 	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4);
 	transform: translateY(-1px);
 }
@@ -613,6 +614,16 @@
 	line-height: 1.7;
 }
 
+.hkcc-welcome-desc ul,
+.hkcc-welcome-desc ol {
+	padding-left: 1.5em;
+	margin: 6px 0;
+}
+
+.hkcc-welcome-desc li {
+	margin-bottom: 4px;
+}
+
 .hkcc-cooling {
 	font-size: 13px;
 	color: var(--hkcc-text-muted);
@@ -699,6 +710,11 @@
 	font-weight: 700;
 	font-size: 11px;
 	margin-left: 2px;
+}
+
+/* Mid-section action buttons (between welcome & rewards bubbles) */
+.hkcc-card-actions-mid {
+	margin: 16px 0;
 }
 
 .hkcc-card-actions-bottom {

@@ -85,4 +85,29 @@
 		$(this).hide();
 	});
 
+	/* ----------------------------------------------------------------
+	 * Points Systems: Add / Remove conversion rows.
+	 * -------------------------------------------------------------- */
+	$(document).on('click', '#hkcc-add-conversion', function () {
+		var $tbody = $('#hkcc-conversions tbody');
+		var $template = $tbody.find('tr:last').clone();
+		$template.find('select').val('');
+		$template.find('input').val('');
+		$template.find('input[name="conv_reward_currency[]"]').val('HKD');
+		$tbody.append($template);
+	});
+
+	$(document).on('click', '.hkcc-remove-row', function () {
+		var $tbody = $(this).closest('tbody');
+		if ($tbody.find('tr').length > 1) {
+			$(this).closest('tr').remove();
+		} else {
+			// Keep at least one row, just clear values.
+			var $row = $(this).closest('tr');
+			$row.find('select').val('');
+			$row.find('input').val('');
+			$row.find('input[name="conv_reward_currency[]"]').val('HKD');
+		}
+	});
+
 })(jQuery);

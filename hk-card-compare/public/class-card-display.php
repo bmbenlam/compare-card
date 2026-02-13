@@ -258,6 +258,9 @@ class HKCC_Card_Display {
 		$id = $card->ID;
 		$footnotes = array();
 
+		$aff_link  = get_post_meta( $id, 'affiliate_link', true );
+		$blog_link = get_post_meta( $id, 'blog_post_link', true );
+
 		// Taxonomy terms.
 		$bank_terms    = get_the_terms( $id, 'card_bank' );
 		$network_terms = get_the_terms( $id, 'card_network' );
@@ -336,6 +339,17 @@ class HKCC_Card_Display {
 			<div class="hkcc-welcome-desc"><?php echo wp_kses_post( $welcome_desc ); ?></div>
 			<?php if ( $cooling ) : ?>
 				<p class="hkcc-cooling">冷河期: <?php echo esc_html( $cooling ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( $blog_link || $aff_link ) : ?>
+		<div class="hkcc-card-actions hkcc-card-actions-mid">
+			<?php if ( $blog_link ) : ?>
+				<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary">詳細玩法</a>
+			<?php endif; ?>
+			<?php if ( $aff_link ) : ?>
+				<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $id ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
