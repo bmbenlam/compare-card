@@ -66,6 +66,8 @@ class HKCC_Card_Shortcodes {
 		$atts = shortcode_atts( array(
 			'category' => '',
 			'bank'     => '',
+			'airline'  => '',
+			'hotel'    => '',
 			'metric'   => '',
 			'sort'     => '',
 			'order'    => '',
@@ -170,6 +172,8 @@ class HKCC_Card_Shortcodes {
 			'category'      => '',
 			'bank'          => '',
 			'network'       => '',
+			'airline'       => '',
+			'hotel'         => '',
 			'filters'       => 'bank,network',
 			'default_sort'  => '',
 			'default_order' => 'desc',
@@ -491,6 +495,57 @@ class HKCC_Card_Shortcodes {
 
 		if ( ! empty( $atts['exclude'] ) ) {
 			$args['post__not_in'] = array_map( 'intval', explode( ',', $atts['exclude'] ) );
+		}
+
+		// Airline filter: match cards whose transferable_airlines serialized array contains the name.
+		// Accepts comma-separated partial names (e.g. airline="Avios,Qatar").
+		if ( ! empty( $atts['airline'] ) ) {
+			if ( ! isset( $args['meta_query'] ) ) {
+				$args['meta_query'] = array();
+			}
+			$airline_terms = array_map( 'trim', explode( ',', $atts['airline'] ) );
+			if ( count( $airline_terms ) === 1 ) {
+				$args['meta_query'][] = array(
+					'key'     => 'transferable_airlines',
+					'value'   => $airline_terms[0],
+					'compare' => 'LIKE',
+				);
+			} else {
+				$airline_group = array( 'relation' => 'AND' );
+				foreach ( $airline_terms as $at ) {
+					$airline_group[] = array(
+						'key'     => 'transferable_airlines',
+						'value'   => $at,
+						'compare' => 'LIKE',
+					);
+				}
+				$args['meta_query'][] = $airline_group;
+			}
+		}
+
+		// Hotel filter: same as airline but for transferable_hotels.
+		if ( ! empty( $atts['hotel'] ) ) {
+			if ( ! isset( $args['meta_query'] ) ) {
+				$args['meta_query'] = array();
+			}
+			$hotel_terms = array_map( 'trim', explode( ',', $atts['hotel'] ) );
+			if ( count( $hotel_terms ) === 1 ) {
+				$args['meta_query'][] = array(
+					'key'     => 'transferable_hotels',
+					'value'   => $hotel_terms[0],
+					'compare' => 'LIKE',
+				);
+			} else {
+				$hotel_group = array( 'relation' => 'AND' );
+				foreach ( $hotel_terms as $ht ) {
+					$hotel_group[] = array(
+						'key'     => 'transferable_hotels',
+						'value'   => $ht,
+						'compare' => 'LIKE',
+					);
+				}
+				$args['meta_query'][] = $hotel_group;
+			}
 		}
 
 		$sort = $atts['sort'] ?? $atts['default_sort'] ?? '';

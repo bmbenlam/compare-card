@@ -59,14 +59,19 @@
  * -------------------------------------------------------------- */
 .hkcc-comparison .hkcc-btn,
 .hkcc-spotlight .hkcc-btn,
+.hkcc-single-card .hkcc-btn,
 .hkcc-comparison a.hkcc-btn,
 .hkcc-spotlight a.hkcc-btn,
+.hkcc-single-card a.hkcc-btn,
 .hkcc-comparison button.hkcc-btn,
 .hkcc-spotlight button.hkcc-btn,
+.hkcc-single-card button.hkcc-btn,
 .hkcc-comparison a.hkcc-btn:link,
 .hkcc-spotlight a.hkcc-btn:link,
+.hkcc-single-card a.hkcc-btn:link,
 .hkcc-comparison a.hkcc-btn:visited,
-.hkcc-spotlight a.hkcc-btn:visited {
+.hkcc-spotlight a.hkcc-btn:visited,
+.hkcc-single-card a.hkcc-btn:visited {
 	all: unset !important;
 	display: inline-block !important;
 	padding: 10px 20px !important;
@@ -88,45 +93,59 @@
 }
 
 .hkcc-comparison .hkcc-btn:focus-visible,
-.hkcc-spotlight .hkcc-btn:focus-visible {
+.hkcc-spotlight .hkcc-btn:focus-visible,
+.hkcc-single-card .hkcc-btn:focus-visible {
 	outline: 2px solid var(--hkcc-accent) !important;
 	outline-offset: 2px !important;
 }
 
 .hkcc-comparison .hkcc-btn-secondary,
 .hkcc-spotlight .hkcc-btn-secondary,
+.hkcc-single-card .hkcc-btn-secondary,
 .hkcc-comparison a.hkcc-btn-secondary,
 .hkcc-spotlight a.hkcc-btn-secondary,
+.hkcc-single-card a.hkcc-btn-secondary,
 .hkcc-comparison a.hkcc-btn-secondary:link,
 .hkcc-spotlight a.hkcc-btn-secondary:link,
+.hkcc-single-card a.hkcc-btn-secondary:link,
 .hkcc-comparison a.hkcc-btn-secondary:visited,
 .hkcc-spotlight a.hkcc-btn-secondary:visited,
+.hkcc-single-card a.hkcc-btn-secondary:visited,
 .hkcc-comparison button.hkcc-btn-secondary,
-.hkcc-spotlight button.hkcc-btn-secondary {
+.hkcc-spotlight button.hkcc-btn-secondary,
+.hkcc-single-card button.hkcc-btn-secondary {
 	background: var(--hkcc-border-light) !important;
 	color: var(--hkcc-text) !important;
 }
 
 .hkcc-comparison .hkcc-btn-secondary:hover,
 .hkcc-spotlight .hkcc-btn-secondary:hover,
+.hkcc-single-card .hkcc-btn-secondary:hover,
 .hkcc-comparison a.hkcc-btn-secondary:hover,
 .hkcc-spotlight a.hkcc-btn-secondary:hover,
+.hkcc-single-card a.hkcc-btn-secondary:hover,
 .hkcc-comparison button.hkcc-btn-secondary:hover,
-.hkcc-spotlight button.hkcc-btn-secondary:hover {
+.hkcc-spotlight button.hkcc-btn-secondary:hover,
+.hkcc-single-card button.hkcc-btn-secondary:hover {
 	background: var(--hkcc-border) !important;
 	color: var(--hkcc-text) !important;
 }
 
 .hkcc-comparison .hkcc-btn-cta,
 .hkcc-spotlight .hkcc-btn-cta,
+.hkcc-single-card .hkcc-btn-cta,
 .hkcc-comparison a.hkcc-btn-cta,
 .hkcc-spotlight a.hkcc-btn-cta,
+.hkcc-single-card a.hkcc-btn-cta,
 .hkcc-comparison a.hkcc-btn-cta:link,
 .hkcc-spotlight a.hkcc-btn-cta:link,
+.hkcc-single-card a.hkcc-btn-cta:link,
 .hkcc-comparison a.hkcc-btn-cta:visited,
 .hkcc-spotlight a.hkcc-btn-cta:visited,
+.hkcc-single-card a.hkcc-btn-cta:visited,
 .hkcc-comparison button.hkcc-btn-cta,
-.hkcc-spotlight button.hkcc-btn-cta {
+.hkcc-spotlight button.hkcc-btn-cta,
+.hkcc-single-card button.hkcc-btn-cta {
 	background: var(--hkcc-cta) !important;
 	color: #fff !important;
 	font-size: 15px !important;
@@ -137,10 +156,13 @@
 
 .hkcc-comparison .hkcc-btn-cta:hover,
 .hkcc-spotlight .hkcc-btn-cta:hover,
+.hkcc-single-card .hkcc-btn-cta:hover,
 .hkcc-comparison a.hkcc-btn-cta:hover,
 .hkcc-spotlight a.hkcc-btn-cta:hover,
+.hkcc-single-card a.hkcc-btn-cta:hover,
 .hkcc-comparison button.hkcc-btn-cta:hover,
-.hkcc-spotlight button.hkcc-btn-cta:hover {
+.hkcc-spotlight button.hkcc-btn-cta:hover,
+.hkcc-single-card button.hkcc-btn-cta:hover {
 	background: var(--hkcc-cta-hover) !important;
 	color: #fff !important;
 	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4) !important;
@@ -148,18 +170,21 @@
 }
 
 .hkcc-comparison .hkcc-btn-cta:active,
-.hkcc-spotlight .hkcc-btn-cta:active {
+.hkcc-spotlight .hkcc-btn-cta:active,
+.hkcc-single-card .hkcc-btn-cta:active {
 	transform: translateY(0) !important;
 }
 
 .hkcc-comparison .hkcc-btn-primary,
-.hkcc-spotlight .hkcc-btn-primary {
+.hkcc-spotlight .hkcc-btn-primary,
+.hkcc-single-card .hkcc-btn-primary {
 	background: var(--hkcc-primary) !important;
 	color: #fff !important;
 }
 
 .hkcc-comparison .hkcc-btn-primary:hover,
-.hkcc-spotlight .hkcc-btn-primary:hover {
+.hkcc-spotlight .hkcc-btn-primary:hover,
+.hkcc-single-card .hkcc-btn-primary:hover {
 	background: var(--hkcc-primary-dark) !important;
 	color: #fff !important;
 }
