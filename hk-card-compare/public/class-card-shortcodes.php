@@ -21,11 +21,46 @@ class HKCC_Card_Shortcodes {
 
 		add_action( 'wp_ajax_hkcc_filter_cards', array( __CLASS__, 'ajax_filter_cards' ) );
 		add_action( 'wp_ajax_nopriv_hkcc_filter_cards', array( __CLASS__, 'ajax_filter_cards' ) );
+
+		// Fix multiline shortcodes: WordPress shortcode regex can fail with
+		// newlines inside the tag. Collapse to single line before parsing.
+		add_filter( 'the_content', array( __CLASS__, 'fix_multiline_shortcodes' ), 5 );
+	}
+
+	/**
+	 * Collapse multiline [cc_suggest], [cc_comparison], [cc_card] shortcodes
+	 * into single-line so WordPress regex parses attributes correctly.
+	 */
+	public static function fix_multiline_shortcodes( $content ) {
+		// Match our shortcodes that may span multiple lines.
+		$content = preg_replace_callback(
+			'/\[(cc_suggest|cc_comparison|cc_card)\b([^\]]*)\]/s',
+			function ( $m ) {
+				// Replace newlines/tabs with a single space, collapse multiple spaces.
+				$attrs = preg_replace( '/\s+/', ' ', $m[2] );
+				return '[' . $m[1] . $attrs . ']';
+			},
+			$content
+		);
+		return $content;
 	}
 
 	/* ==================================================================
 	 * [cc_suggest] — same card style as cc_comparison, no filters/sort.
 	 * ================================================================ */
+
+	/**
+	 * Metric → meta_key mapping for [cc_suggest metric="..."].
+	 */
+	private static function get_metric_map() {
+		return array(
+			'cashback_local'    => array( 'key' => 'local_retail_cash_sortable',    'order' => 'DESC' ),
+			'cashback_overseas' => array( 'key' => 'overseas_retail_cash_sortable', 'order' => 'DESC' ),
+			'asia_miles_local'  => array( 'key' => 'local_retail_miles_sortable',   'order' => 'ASC' ),
+			'lounge_access'     => array( 'key' => 'lounge_access_sortable',        'order' => 'DESC' ),
+			'annual_fee_low'    => array( 'key' => 'annual_fee_sortable',           'order' => 'ASC' ),
+		);
+	}
 
 	public static function shortcode_suggest( $atts ) {
 		$atts = shortcode_atts( array(
@@ -33,14 +68,49 @@ class HKCC_Card_Shortcodes {
 			'bank'     => '',
 			'metric'   => '',
 			'sort'     => '',
-			'order'    => 'desc',
+			'order'    => '',
 			'limit'    => 5,
 			'exclude'  => '',
 			'layout'   => 'grid',
 		), $atts, 'cc_suggest' );
 
+		// Resolve metric to sort key + order if no explicit sort provided.
+		$metric_map = self::get_metric_map();
+		if ( empty( $atts['sort'] ) && ! empty( $atts['metric'] ) && isset( $metric_map[ $atts['metric'] ] ) ) {
+			$resolved     = $metric_map[ $atts['metric'] ];
+			$atts['sort'] = $resolved['key'];
+			if ( empty( $atts['order'] ) ) {
+				$atts['order'] = strtolower( $resolved['order'] );
+			}
+		}
+
+		// Default order to desc if still empty.
+		if ( empty( $atts['order'] ) ) {
+			$atts['order'] = 'desc';
+		}
+
 		$query_args = self::build_query_args( $atts );
-		$cards      = get_posts( $query_args );
+
+		// For metric-based queries, filter out cards with 0 or missing values.
+		if ( ! empty( $atts['metric'] ) && isset( $metric_map[ $atts['metric'] ] ) ) {
+			$sort_key = $metric_map[ $atts['metric'] ]['key'];
+			if ( ! isset( $query_args['meta_query'] ) ) {
+				$query_args['meta_query'] = array();
+			}
+			$query_args['meta_query'][] = array(
+				'key'     => $sort_key,
+				'value'   => 0,
+				'compare' => '>',
+				'type'    => 'NUMERIC',
+			);
+		}
+
+		$cards = get_posts( $query_args );
+
+		// Default: recommendation sort when no sort/metric specified.
+		if ( empty( $atts['sort'] ) && empty( $atts['metric'] ) ) {
+			$cards = self::recommendation_sort( $cards );
+		}
 
 		if ( empty( $cards ) ) {
 			return '<p class="hkcc-no-results">暫無相關信用卡推薦。</p>';

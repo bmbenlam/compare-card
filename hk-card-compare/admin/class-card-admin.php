@@ -336,23 +336,47 @@ class HKCC_Card_Admin {
 		<h4>Transferable Airlines</h4>
 		<?php
 		$airlines = array(
-			'Asia Miles (亞洲萬里通)',
-			'Avios (英國航空)',
-			'Emirates Skywards (阿聯酋航空)',
-			'Etihad Guest (阿提哈德航空)',
-			'Flying Blue (法荷航)',
-			'KrisFlyer (新加坡航空)',
-			'Qantas Frequent Flyer (澳洲航空)',
-			'Virgin Atlantic Flying Club (維珍航空)',
-			'Finnair Plus (芬蘭航空)',
-			'Enrich (馬來西亞航空)',
-			'Infinity MileageLands (長榮航空)',
-			'Royal Orchid Plus (泰國航空)',
-			'Qatar Privilege Club (卡塔爾航空)',
-			'鳳凰知音 (中國國航)',
-			'Aeroplan (加拿大航空)',
+			'國泰航空 Asia Miles',
+			'英國航空 BA Avios',
+			'芬蘭航空 Finnair Plus',
+			'馬來西亞航空 Enrich Frequent Flyer',
+			'澳洲航空 Qantas Frequent Flyer',
+			'新加坡航空 KrisFlyer',
+			'長榮航空 無限萬哩遊',
+			'阿聯酋航空 Skywards',
+			'維珍航空 Virgin Flying Club',
+			'阿堤哈德航空 Etihad Guest Miles',
+			'KLM Flying Blue',
+			'卡塔爾航空 Qatar Privilege Club',
+			'泰國航空 Royal Orchid Plus',
+			'中國國航 鳳凰知音',
+			'加拿大航空 Aeroplan',
+			'越南航空 Lotusmiles',
+			'土耳其航空 Miles & Smiles',
+		);
+		// Map old names → new names for backward compatibility.
+		$airline_migration = array(
+			'Asia Miles (亞洲萬里通)'              => '國泰航空 Asia Miles',
+			'Avios (英國航空)'                     => '英國航空 BA Avios',
+			'Finnair Plus (芬蘭航空)'              => '芬蘭航空 Finnair Plus',
+			'Enrich (馬來西亞航空)'                => '馬來西亞航空 Enrich Frequent Flyer',
+			'Qantas Frequent Flyer (澳洲航空)'    => '澳洲航空 Qantas Frequent Flyer',
+			'KrisFlyer (新加坡航空)'               => '新加坡航空 KrisFlyer',
+			'Infinity MileageLands (長榮航空)'     => '長榮航空 無限萬哩遊',
+			'Emirates Skywards (阿聯酋航空)'       => '阿聯酋航空 Skywards',
+			'Virgin Atlantic Flying Club (維珍航空)' => '維珍航空 Virgin Flying Club',
+			'Etihad Guest (阿提哈德航空)'          => '阿堤哈德航空 Etihad Guest Miles',
+			'Flying Blue (法荷航)'                 => 'KLM Flying Blue',
+			'Qatar Privilege Club (卡塔爾航空)'    => '卡塔爾航空 Qatar Privilege Club',
+			'Royal Orchid Plus (泰國航空)'         => '泰國航空 Royal Orchid Plus',
+			'鳳凰知音 (中國國航)'                  => '中國國航 鳳凰知音',
+			'Aeroplan (加拿大航空)'                => '加拿大航空 Aeroplan',
 		);
 		$saved_airlines = (array) get_post_meta( $post->ID, 'transferable_airlines', true );
+		// Migrate old saved values to new names.
+		$saved_airlines = array_map( function( $v ) use ( $airline_migration ) {
+			return $airline_migration[ $v ] ?? $v;
+		}, $saved_airlines );
 		foreach ( $airlines as $airline ) :
 			?>
 			<label>
@@ -365,11 +389,20 @@ class HKCC_Card_Admin {
 		<h4>Transferable Hotels</h4>
 		<?php
 		$hotels = array(
-			'Marriott Bonvoy (萬豪)',
-			'Hilton Honors (希爾頓)',
-			'IHG Rewards (洲際酒店)',
+			'萬豪 Marriott Bonvoy',
+			'希爾頓 Hilton Honors',
+			'洲際 IHG Reward Club',
+			'雅高 Accor Live Limitless',
+		);
+		$hotel_migration = array(
+			'Marriott Bonvoy (萬豪)'    => '萬豪 Marriott Bonvoy',
+			'Hilton Honors (希爾頓)'    => '希爾頓 Hilton Honors',
+			'IHG Rewards (洲際酒店)'    => '洲際 IHG Reward Club',
 		);
 		$saved_hotels = (array) get_post_meta( $post->ID, 'transferable_hotels', true );
+		$saved_hotels = array_map( function( $v ) use ( $hotel_migration ) {
+			return $hotel_migration[ $v ] ?? $v;
+		}, $saved_hotels );
 		foreach ( $hotels as $hotel ) :
 			?>
 			<label>

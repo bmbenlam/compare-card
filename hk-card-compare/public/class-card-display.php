@@ -407,7 +407,7 @@ class HKCC_Card_Display {
 	/**
 	 * Render expanded detail sections for a listing card.
 	 *
-	 * Order: welcome → CTA → rewards → points system → benefits → issuer/network → eligibility → fees → footnotes.
+	 * Order: welcome → CTA → rewards → benefits → points system → issuer/network → eligibility → fees → footnotes.
 	 */
 	private static function render_expanded_details( $card, $view, &$footnotes = null ) {
 		$id = $card->ID;
@@ -474,6 +474,10 @@ class HKCC_Card_Display {
 		$transferable_air    = get_post_meta( $id, 'transferable_airlines', true );
 		$transferable_hotel  = get_post_meta( $id, 'transferable_hotels', true );
 
+		// Migrate old program names to standardized names.
+		$transferable_air   = self::migrate_program_names( $transferable_air, 'airlines' );
+		$transferable_hotel = self::migrate_program_names( $transferable_hotel, 'hotels' );
+
 		// Welcome offer.
 		$welcome_desc   = get_post_meta( $id, 'welcome_offer_description', true );
 		$welcome_expiry = get_post_meta( $id, 'welcome_offer_expiry', true );
@@ -526,7 +530,19 @@ class HKCC_Card_Display {
 		</div>
 		<?php endif; ?>
 
-		<?php /* Points system & redemption info */ ?>
+		<?php if ( $lounge || $insurance ) : ?>
+		<div class="hkcc-details-section hkcc-section-benefits">
+			<h4><span class="hkcc-section-icon">&#10004;</span> 福利</h4>
+			<?php if ( $lounge ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費使用機場貴賓室:</span> <span class="hkcc-detail-value"><?php echo esc_html( $lounge ); ?><?php echo $lounge_fn; ?></span></div>
+			<?php endif; ?>
+			<?php if ( $insurance ) : ?>
+				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費旅遊保險:</span> <span class="hkcc-detail-value"><?php echo esc_html( $insurance ); ?><?php echo $insurance_fn; ?></span></div>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+
+		<?php /* Points system & redemption info — after 福利 */ ?>
 		<?php if ( $points_system_name || $redemption_fee || ( is_array( $transferable_air ) && ! empty( $transferable_air ) ) || ( is_array( $transferable_hotel ) && ! empty( $transferable_hotel ) ) ) : ?>
 		<div class="hkcc-details-section hkcc-section-minor">
 			<h4>積分系統</h4>
@@ -541,18 +557,6 @@ class HKCC_Card_Display {
 			<?php endif; ?>
 			<?php if ( is_array( $transferable_hotel ) && ! empty( $transferable_hotel ) ) : ?>
 				<div class="hkcc-detail-row"><span class="hkcc-detail-label">可轉換酒店積分:</span> <span class="hkcc-detail-value"><?php echo esc_html( implode( ', ', $transferable_hotel ) ); ?></span></div>
-			<?php endif; ?>
-		</div>
-		<?php endif; ?>
-
-		<?php if ( $lounge || $insurance ) : ?>
-		<div class="hkcc-details-section hkcc-section-benefits">
-			<h4><span class="hkcc-section-icon">&#10004;</span> 福利</h4>
-			<?php if ( $lounge ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費使用機場貴賓室:</span> <span class="hkcc-detail-value"><?php echo esc_html( $lounge ); ?><?php echo $lounge_fn; ?></span></div>
-			<?php endif; ?>
-			<?php if ( $insurance ) : ?>
-				<div class="hkcc-detail-row"><span class="hkcc-detail-label">免費旅遊保險:</span> <span class="hkcc-detail-value"><?php echo esc_html( $insurance ); ?><?php echo $insurance_fn; ?></span></div>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>
@@ -674,6 +678,44 @@ class HKCC_Card_Display {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Migrate old airline/hotel program names to standardized names.
+	 */
+	private static function migrate_program_names( $values, $type ) {
+		if ( ! is_array( $values ) || empty( $values ) ) {
+			return $values;
+		}
+		$map = array();
+		if ( 'airlines' === $type ) {
+			$map = array(
+				'Asia Miles (亞洲萬里通)'              => '國泰航空 Asia Miles',
+				'Avios (英國航空)'                     => '英國航空 BA Avios',
+				'Finnair Plus (芬蘭航空)'              => '芬蘭航空 Finnair Plus',
+				'Enrich (馬來西亞航空)'                => '馬來西亞航空 Enrich Frequent Flyer',
+				'Qantas Frequent Flyer (澳洲航空)'    => '澳洲航空 Qantas Frequent Flyer',
+				'KrisFlyer (新加坡航空)'               => '新加坡航空 KrisFlyer',
+				'Infinity MileageLands (長榮航空)'     => '長榮航空 無限萬哩遊',
+				'Emirates Skywards (阿聯酋航空)'       => '阿聯酋航空 Skywards',
+				'Virgin Atlantic Flying Club (維珍航空)' => '維珍航空 Virgin Flying Club',
+				'Etihad Guest (阿提哈德航空)'          => '阿堤哈德航空 Etihad Guest Miles',
+				'Flying Blue (法荷航)'                 => 'KLM Flying Blue',
+				'Qatar Privilege Club (卡塔爾航空)'    => '卡塔爾航空 Qatar Privilege Club',
+				'Royal Orchid Plus (泰國航空)'         => '泰國航空 Royal Orchid Plus',
+				'鳳凰知音 (中國國航)'                  => '中國國航 鳳凰知音',
+				'Aeroplan (加拿大航空)'                => '加拿大航空 Aeroplan',
+			);
+		} elseif ( 'hotels' === $type ) {
+			$map = array(
+				'Marriott Bonvoy (萬豪)'    => '萬豪 Marriott Bonvoy',
+				'Hilton Honors (希爾頓)'    => '希爾頓 Hilton Honors',
+				'IHG Rewards (洲際酒店)'    => '洲際 IHG Reward Club',
+			);
+		}
+		return array_map( function( $v ) use ( $map ) {
+			return $map[ $v ] ?? $v;
+		}, $values );
 	}
 
 	/**

@@ -53,10 +53,22 @@
 }
 
 /* ----------------------------------------------------------------
- * Buttons
+ * Buttons — aggressive reset to override site-wide (Flatsome) CSS.
+ * Uses all:unset + !important to ensure uniform look on both
+ * <button> and <a> elements regardless of theme styles.
  * -------------------------------------------------------------- */
-.hkcc-btn {
-	display: inline-block;
+.hkcc-comparison .hkcc-btn,
+.hkcc-spotlight .hkcc-btn,
+.hkcc-comparison a.hkcc-btn,
+.hkcc-spotlight a.hkcc-btn,
+.hkcc-comparison button.hkcc-btn,
+.hkcc-spotlight button.hkcc-btn,
+.hkcc-comparison a.hkcc-btn:link,
+.hkcc-spotlight a.hkcc-btn:link,
+.hkcc-comparison a.hkcc-btn:visited,
+.hkcc-spotlight a.hkcc-btn:visited {
+	all: unset !important;
+	display: inline-block !important;
 	padding: 10px 20px !important;
 	font-family: 'Lato', sans-serif !important;
 	font-size: 14px !important;
@@ -64,63 +76,92 @@
 	text-decoration: none !important;
 	border-radius: 8px !important;
 	border: none !important;
-	cursor: pointer;
-	text-align: center;
-	min-height: 44px;
+	cursor: pointer !important;
+	text-align: center !important;
+	min-height: 44px !important;
 	line-height: 24px !important;
-	transition: all 0.2s ease;
+	transition: all 0.2s ease !important;
+	box-sizing: border-box !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	appearance: none !important;
 }
 
-.hkcc-btn:focus-visible {
-	outline: 2px solid var(--hkcc-accent);
-	outline-offset: 2px;
+.hkcc-comparison .hkcc-btn:focus-visible,
+.hkcc-spotlight .hkcc-btn:focus-visible {
+	outline: 2px solid var(--hkcc-accent) !important;
+	outline-offset: 2px !important;
 }
 
-.hkcc-btn-secondary,
-a.hkcc-btn-secondary,
-a.hkcc-btn-secondary:link,
-a.hkcc-btn-secondary:visited {
+.hkcc-comparison .hkcc-btn-secondary,
+.hkcc-spotlight .hkcc-btn-secondary,
+.hkcc-comparison a.hkcc-btn-secondary,
+.hkcc-spotlight a.hkcc-btn-secondary,
+.hkcc-comparison a.hkcc-btn-secondary:link,
+.hkcc-spotlight a.hkcc-btn-secondary:link,
+.hkcc-comparison a.hkcc-btn-secondary:visited,
+.hkcc-spotlight a.hkcc-btn-secondary:visited,
+.hkcc-comparison button.hkcc-btn-secondary,
+.hkcc-spotlight button.hkcc-btn-secondary {
 	background: var(--hkcc-border-light) !important;
 	color: var(--hkcc-text) !important;
 }
 
-.hkcc-btn-secondary:hover,
-a.hkcc-btn-secondary:hover {
+.hkcc-comparison .hkcc-btn-secondary:hover,
+.hkcc-spotlight .hkcc-btn-secondary:hover,
+.hkcc-comparison a.hkcc-btn-secondary:hover,
+.hkcc-spotlight a.hkcc-btn-secondary:hover,
+.hkcc-comparison button.hkcc-btn-secondary:hover,
+.hkcc-spotlight button.hkcc-btn-secondary:hover {
 	background: var(--hkcc-border) !important;
 	color: var(--hkcc-text) !important;
 }
 
-.hkcc-btn-cta,
-a.hkcc-btn-cta,
-a.hkcc-btn-cta:link,
-a.hkcc-btn-cta:visited {
+.hkcc-comparison .hkcc-btn-cta,
+.hkcc-spotlight .hkcc-btn-cta,
+.hkcc-comparison a.hkcc-btn-cta,
+.hkcc-spotlight a.hkcc-btn-cta,
+.hkcc-comparison a.hkcc-btn-cta:link,
+.hkcc-spotlight a.hkcc-btn-cta:link,
+.hkcc-comparison a.hkcc-btn-cta:visited,
+.hkcc-spotlight a.hkcc-btn-cta:visited,
+.hkcc-comparison button.hkcc-btn-cta,
+.hkcc-spotlight button.hkcc-btn-cta {
 	background: var(--hkcc-cta) !important;
 	color: #fff !important;
 	font-size: 15px !important;
 	font-weight: 700 !important;
-	letter-spacing: 0.02em;
-	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3);
+	letter-spacing: 0.02em !important;
+	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3) !important;
 }
 
-.hkcc-btn-cta:hover,
-a.hkcc-btn-cta:hover {
+.hkcc-comparison .hkcc-btn-cta:hover,
+.hkcc-spotlight .hkcc-btn-cta:hover,
+.hkcc-comparison a.hkcc-btn-cta:hover,
+.hkcc-spotlight a.hkcc-btn-cta:hover,
+.hkcc-comparison button.hkcc-btn-cta:hover,
+.hkcc-spotlight button.hkcc-btn-cta:hover {
 	background: var(--hkcc-cta-hover) !important;
 	color: #fff !important;
-	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4);
-	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4) !important;
+	transform: translateY(-1px) !important;
 }
 
-.hkcc-btn-cta:active {
-	transform: translateY(0);
+.hkcc-comparison .hkcc-btn-cta:active,
+.hkcc-spotlight .hkcc-btn-cta:active {
+	transform: translateY(0) !important;
 }
 
-.hkcc-btn-primary {
-	background: var(--hkcc-primary);
-	color: #fff;
+.hkcc-comparison .hkcc-btn-primary,
+.hkcc-spotlight .hkcc-btn-primary {
+	background: var(--hkcc-primary) !important;
+	color: #fff !important;
 }
 
-.hkcc-btn-primary:hover {
-	background: var(--hkcc-primary-dark);
+.hkcc-comparison .hkcc-btn-primary:hover,
+.hkcc-spotlight .hkcc-btn-primary:hover {
+	background: var(--hkcc-primary-dark) !important;
+	color: #fff !important;
 }
 
 /* ----------------------------------------------------------------
@@ -729,6 +770,11 @@ a.hkcc-btn-cta:hover {
 /* Mid-section action buttons (between welcome & rewards bubbles) */
 .hkcc-card-actions-mid {
 	margin: 16px 0;
+}
+
+/* In spotlight cards, extra spacing between action buttons and footnotes */
+.hkcc-spotlight-card .hkcc-card-actions-mid {
+	margin-bottom: 24px;
 }
 
 .hkcc-card-actions-bottom {
