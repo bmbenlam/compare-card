@@ -76,16 +76,24 @@
 	outline-offset: 2px;
 }
 
-.hkcc-btn-secondary {
+.hkcc-btn-secondary,
+a.hkcc-btn-secondary,
+a.hkcc-btn-secondary:link,
+a.hkcc-btn-secondary:visited {
 	background: var(--hkcc-border-light) !important;
 	color: var(--hkcc-text) !important;
 }
 
-.hkcc-btn-secondary:hover {
+.hkcc-btn-secondary:hover,
+a.hkcc-btn-secondary:hover {
 	background: var(--hkcc-border) !important;
+	color: var(--hkcc-text) !important;
 }
 
-.hkcc-btn-cta {
+.hkcc-btn-cta,
+a.hkcc-btn-cta,
+a.hkcc-btn-cta:link,
+a.hkcc-btn-cta:visited {
 	background: var(--hkcc-cta) !important;
 	color: #fff !important;
 	font-size: 15px !important;
@@ -94,7 +102,8 @@
 	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3);
 }
 
-.hkcc-btn-cta:hover {
+.hkcc-btn-cta:hover,
+a.hkcc-btn-cta:hover {
 	background: var(--hkcc-cta-hover) !important;
 	color: #fff !important;
 	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4);
@@ -278,7 +287,12 @@
 }
 
 .hkcc-filter-chip {
-	display: none;
+	display: none !important;
+	position: absolute !important;
+	width: 0 !important;
+	height: 0 !important;
+	opacity: 0 !important;
+	pointer-events: none !important;
 }
 
 .hkcc-filter-chip + label {
@@ -445,7 +459,7 @@
 
 .hkcc-welcome-preview {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 8px;
 	background: var(--hkcc-primary-light);
 	border-radius: 8px;

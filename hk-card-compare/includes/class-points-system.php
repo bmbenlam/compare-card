@@ -249,6 +249,9 @@ class HKCC_Points_System {
 				$cash_pct = round( $earning_rate * $cash_vpp * 100, 2 );
 				update_post_meta( $post_id, "{$txn}_cash_sortable", $cash_pct );
 				update_post_meta( $post_id, "{$txn}_cash_display", $cash_pct . '% 現金回贈' );
+			} else {
+				update_post_meta( $post_id, "{$txn}_cash_sortable", 0 );
+				update_post_meta( $post_id, "{$txn}_cash_display", '不適用' );
 			}
 
 			if ( $miles_vpp > 0 ) {
@@ -258,6 +261,9 @@ class HKCC_Points_System {
 					update_post_meta( $post_id, "{$txn}_miles_display", 'HK$' . $hkd_per_mile . '/里' );
 					update_post_meta( $post_id, "{$txn}_miles_sortable", $hkd_per_mile );
 				}
+			} else {
+				update_post_meta( $post_id, "{$txn}_miles_display", '不適用' );
+				update_post_meta( $post_id, "{$txn}_miles_sortable", 0 );
 			}
 
 			foreach ( $value_per_point as $rtype => $vpp ) {

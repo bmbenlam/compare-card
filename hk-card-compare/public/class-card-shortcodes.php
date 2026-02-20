@@ -1,6 +1,6 @@
 <?php
 /**
- * Shortcode implementations: [cc_suggest] and [cc_comparison].
+ * Shortcode implementations: [cc_suggest], [cc_comparison], and [cc_card].
  *
  * @package HK_Card_Compare
  */
@@ -17,6 +17,7 @@ class HKCC_Card_Shortcodes {
 	public static function init() {
 		add_shortcode( 'cc_suggest', array( __CLASS__, 'shortcode_suggest' ) );
 		add_shortcode( 'cc_comparison', array( __CLASS__, 'shortcode_comparison' ) );
+		add_shortcode( 'cc_card', array( __CLASS__, 'shortcode_card' ) );
 
 		add_action( 'wp_ajax_hkcc_filter_cards', array( __CLASS__, 'ajax_filter_cards' ) );
 		add_action( 'wp_ajax_nopriv_hkcc_filter_cards', array( __CLASS__, 'ajax_filter_cards' ) );
@@ -59,6 +60,38 @@ class HKCC_Card_Shortcodes {
 	}
 
 	/* ==================================================================
+	 * [cc_card] — Spotlight single-card shortcode.
+	 * Shows: tagline, card face, name, short welcome, 4-pack,
+	 *        apply button, long welcome bubble, blog + apply, footnotes.
+	 * No rewards, perks, issuer, etc.
+	 * ================================================================ */
+
+	public static function shortcode_card( $atts ) {
+		$atts = shortcode_atts( array(
+			'id'   => 0,
+			'slug' => '',
+			'view' => 'miles',
+		), $atts, 'cc_card' );
+
+		$card = null;
+		if ( $atts['id'] ) {
+			$card = get_post( absint( $atts['id'] ) );
+		} elseif ( $atts['slug'] ) {
+			$card = get_page_by_path( $atts['slug'], OBJECT, 'card' );
+		}
+
+		if ( ! $card || 'card' !== $card->post_type ) {
+			return '<p class="hkcc-no-results">找不到指定的信用卡。</p>';
+		}
+
+		ob_start();
+		echo '<div class="hkcc-comparison hkcc-spotlight">';
+		HKCC_Card_Display::render_spotlight_card( $card, $atts['view'] );
+		echo '</div>';
+		return ob_get_clean();
+	}
+
+	/* ==================================================================
 	 * [cc_comparison]
 	 * ================================================================ */
 
@@ -77,6 +110,12 @@ class HKCC_Card_Shortcodes {
 		$query_args = self::build_query_args( $atts );
 		$cards      = get_posts( $query_args );
 		$filter_keys = array_map( 'trim', explode( ',', $atts['filters'] ) );
+
+		// Apply recommendation sort for initial load when no sort specified.
+		$sort = $atts['default_sort'] ?? '';
+		if ( empty( $sort ) ) {
+			$cards = self::recommendation_sort( $cards );
+		}
 
 		$is_miles = ( 'miles' === $atts['default_view'] );
 		ob_start();
@@ -258,6 +297,11 @@ class HKCC_Card_Shortcodes {
 		$view  = sanitize_text_field( $_POST['view'] ?? 'miles' );
 		$cards = get_posts( $query_args );
 
+		// Recommendation sort when no sort field specified.
+		if ( empty( $sort ) ) {
+			$cards = self::recommendation_sort( $cards );
+		}
+
 		ob_start();
 		if ( empty( $cards ) ) {
 			echo '<p class="hkcc-no-results">沒有符合條件的信用卡。</p>';
@@ -271,6 +315,64 @@ class HKCC_Card_Shortcodes {
 			'html'  => ob_get_clean(),
 			'count' => count( $cards ),
 		) );
+	}
+
+	/* ==================================================================
+	 * Recommendation sort.
+	 * Batch 1: cards WITH affiliate_link → sort by overseas miles ASC,
+	 *          then pure-cash cards by overseas cash DESC.
+	 * Batch 2: cards WITHOUT affiliate_link → same sub-sort.
+	 * ================================================================ */
+
+	private static function recommendation_sort( $cards ) {
+		if ( empty( $cards ) ) {
+			return $cards;
+		}
+
+		// Pre-fetch meta to avoid repeated queries.
+		$meta = array();
+		foreach ( $cards as $card ) {
+			$id = $card->ID;
+			$meta[ $id ] = array(
+				'has_link'  => ! empty( get_post_meta( $id, 'affiliate_link', true ) ),
+				'miles'     => (float) get_post_meta( $id, 'overseas_retail_miles_sortable', true ),
+				'cash'      => (float) get_post_meta( $id, 'overseas_retail_cash_sortable', true ),
+			);
+		}
+
+		usort( $cards, function ( $a, $b ) use ( $meta ) {
+			$am = $meta[ $a->ID ];
+			$bm = $meta[ $b->ID ];
+
+			// 1. Cards with affiliate link first.
+			if ( $am['has_link'] !== $bm['has_link'] ) {
+				return $am['has_link'] ? -1 : 1;
+			}
+
+			// 2. Cards with miles data before pure-cash cards.
+			$a_has_miles = ( $am['miles'] > 0 );
+			$b_has_miles = ( $bm['miles'] > 0 );
+
+			if ( $a_has_miles && ! $b_has_miles ) return -1;
+			if ( ! $a_has_miles && $b_has_miles ) return 1;
+
+			// 3a. Both have miles → ascending (lower HK$/mile is better).
+			if ( $a_has_miles && $b_has_miles ) {
+				if ( $am['miles'] !== $bm['miles'] ) {
+					return $am['miles'] < $bm['miles'] ? -1 : 1;
+				}
+				return 0;
+			}
+
+			// 3b. Both pure-cash → descending (higher % is better).
+			if ( $am['cash'] !== $bm['cash'] ) {
+				return $am['cash'] > $bm['cash'] ? -1 : 1;
+			}
+
+			return 0;
+		} );
+
+		return $cards;
 	}
 
 	/* ==================================================================

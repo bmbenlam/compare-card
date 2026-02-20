@@ -282,4 +282,16 @@
 		}
 	});
 
+	/* ----------------------------------------------------------------
+	 * Single-card preview toggle — reload page with view param.
+	 * -------------------------------------------------------------- */
+	document.addEventListener('change', function (e) {
+		if (!e.target.classList.contains('hkcc-single-view-toggle')) return;
+
+		var mode = e.target.checked ? 'cash' : 'miles';
+		var url = new URL(window.location.href);
+		url.searchParams.set('view', mode);
+		window.location.href = url.toString();
+	});
+
 })();
