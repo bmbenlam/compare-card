@@ -93,6 +93,16 @@ class HKCC_Card_Shortcodes {
 
 		$query_args = self::build_query_args( $atts );
 
+		// Only show cards that have an application link.
+		if ( ! isset( $query_args['meta_query'] ) ) {
+			$query_args['meta_query'] = array();
+		}
+		$query_args['meta_query'][] = array(
+			'key'     => 'affiliate_link',
+			'value'   => '',
+			'compare' => '!=',
+		);
+
 		// For metric-based queries, filter out cards with 0 or missing values.
 		if ( ! empty( $atts['metric'] ) && isset( $metric_map[ $atts['metric'] ] ) ) {
 			$sort_key = $metric_map[ $atts['metric'] ]['key'];
@@ -109,9 +119,11 @@ class HKCC_Card_Shortcodes {
 
 		$cards = get_posts( $query_args );
 
-		// Default: recommendation sort when no sort/metric specified.
+		// Sort: recommendation when no sort/metric, tie-breaker when sorted.
 		if ( empty( $atts['sort'] ) && empty( $atts['metric'] ) ) {
 			$cards = self::recommendation_sort( $cards );
+		} elseif ( ! empty( $atts['sort'] ) ) {
+			$cards = self::tie_breaker_sort( $cards, $atts['sort'], $atts['order'] );
 		}
 
 		if ( empty( $cards ) ) {
@@ -185,10 +197,12 @@ class HKCC_Card_Shortcodes {
 		$cards      = get_posts( $query_args );
 		$filter_keys = array_map( 'trim', explode( ',', $atts['filters'] ) );
 
-		// Apply recommendation sort for initial load when no sort specified.
+		// Sort: recommendation when no sort, tie-breaker when sorted.
 		$sort = $atts['default_sort'] ?? '';
 		if ( empty( $sort ) ) {
 			$cards = self::recommendation_sort( $cards );
+		} else {
+			$cards = self::tie_breaker_sort( $cards, $sort, $atts['default_order'] );
 		}
 
 		$is_miles = ( 'miles' === $atts['default_view'] );
@@ -238,20 +252,58 @@ class HKCC_Card_Shortcodes {
 						</div>
 					</div>
 
-					<!-- Feature-based filter chips -->
-					<div class="hkcc-filter-chips">
-						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_free_annual" name="hkcc_feature_filter" value="free_annual_fee" />
-						<label for="hkcc_chip_free_annual">永久免年費</label>
+					<!-- Card feature chips -->
+					<div class="hkcc-filter-chip-section">
+						<h4 class="hkcc-filter-heading">卡片特色</h4>
+						<div class="hkcc-filter-chips">
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_free_annual" name="hkcc_feature_filter" value="free_annual_fee" />
+							<label for="hkcc_chip_free_annual">永久免年費</label>
 
-						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_lounge" name="hkcc_feature_filter" value="has_lounge" />
-						<label for="hkcc_chip_lounge">可用貴賓室</label>
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_lounge" name="hkcc_feature_filter" value="has_lounge" />
+							<label for="hkcc_chip_lounge">可用貴賓室</label>
 
-						<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_insurance" name="hkcc_feature_filter" value="has_travel_insurance" />
-						<label for="hkcc_chip_insurance">免費旅遊保險</label>
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_insurance" name="hkcc_feature_filter" value="has_travel_insurance" />
+							<label for="hkcc_chip_insurance">免費旅遊保險</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_cashback" name="hkcc_feature_filter" value="cashback_only" />
+							<label for="hkcc_chip_cashback">只顯示現金回贈</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_dining" name="hkcc_feature_filter" value="good_dining" />
+							<label for="hkcc_chip_dining">餐飲優惠</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_supermarket" name="hkcc_feature_filter" value="good_supermarket" />
+							<label for="hkcc_chip_supermarket">超市優惠</label>
+						</div>
+					</div>
+
+					<!-- Airline & Hotel program chips -->
+					<div class="hkcc-filter-chip-section">
+						<h4 class="hkcc-filter-heading">里程 / 酒店計劃</h4>
+						<div class="hkcc-filter-chips">
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_asia_miles" name="hkcc_feature_filter" value="has_asia_miles" />
+							<label for="hkcc_chip_asia_miles">Asia Miles</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_avios" name="hkcc_feature_filter" value="has_avios" />
+							<label for="hkcc_chip_avios">Avios 系列</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_virgin" name="hkcc_feature_filter" value="has_virgin" />
+							<label for="hkcc_chip_virgin">Virgin Atlantic</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_krisflyer" name="hkcc_feature_filter" value="has_krisflyer" />
+							<label for="hkcc_chip_krisflyer">KrisFlyer</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_marriott" name="hkcc_feature_filter" value="has_marriott" />
+							<label for="hkcc_chip_marriott">Marriott Bonvoy</label>
+
+							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_hilton" name="hkcc_feature_filter" value="has_hilton" />
+							<label for="hkcc_chip_hilton">Hilton Honors</label>
+						</div>
 					</div>
 
 					<!-- Taxonomy filters (bank + network) -->
-					<?php self::render_filters( $filter_keys ); ?>
+					<div class="hkcc-filter-groups-row">
+						<?php self::render_filters( $filter_keys ); ?>
+					</div>
 
 					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>
 				</div>
@@ -343,6 +395,82 @@ class HKCC_Card_Shortcodes {
 							'type'    => 'NUMERIC',
 						);
 						break;
+
+					case 'cashback_only':
+						$query_args['meta_query'][] = array(
+							'relation' => 'OR',
+							array( 'key' => 'points_system_id', 'value' => '0', 'compare' => '=' ),
+							array( 'key' => 'points_system_id', 'compare' => 'NOT EXISTS' ),
+						);
+						break;
+
+					case 'good_dining':
+						$query_args['meta_query'][] = array(
+							'key'     => 'local_dining_cash_sortable',
+							'value'   => 0,
+							'compare' => '>',
+							'type'    => 'NUMERIC',
+						);
+						break;
+
+					case 'good_supermarket':
+						$query_args['meta_query'][] = array(
+							'key'     => 'designated_supermarket_cash_sortable',
+							'value'   => 0,
+							'compare' => '>',
+							'type'    => 'NUMERIC',
+						);
+						break;
+
+					case 'has_asia_miles':
+						$query_args['meta_query'][] = array(
+							'key'     => 'transferable_airlines',
+							'value'   => 'Asia Miles',
+							'compare' => 'LIKE',
+						);
+						break;
+
+					case 'has_avios':
+						// Avios family: BA Avios, Qatar, or Finnair (OR logic).
+						$query_args['meta_query'][] = array(
+							'relation' => 'OR',
+							array( 'key' => 'transferable_airlines', 'value' => 'Avios', 'compare' => 'LIKE' ),
+							array( 'key' => 'transferable_airlines', 'value' => 'Qatar', 'compare' => 'LIKE' ),
+							array( 'key' => 'transferable_airlines', 'value' => 'Finnair', 'compare' => 'LIKE' ),
+						);
+						break;
+
+					case 'has_virgin':
+						$query_args['meta_query'][] = array(
+							'key'     => 'transferable_airlines',
+							'value'   => 'Virgin',
+							'compare' => 'LIKE',
+						);
+						break;
+
+					case 'has_krisflyer':
+						$query_args['meta_query'][] = array(
+							'key'     => 'transferable_airlines',
+							'value'   => 'KrisFlyer',
+							'compare' => 'LIKE',
+						);
+						break;
+
+					case 'has_marriott':
+						$query_args['meta_query'][] = array(
+							'key'     => 'transferable_hotels',
+							'value'   => 'Marriott',
+							'compare' => 'LIKE',
+						);
+						break;
+
+					case 'has_hilton':
+						$query_args['meta_query'][] = array(
+							'key'     => 'transferable_hotels',
+							'value'   => 'Hilton',
+							'compare' => 'LIKE',
+						);
+						break;
 				}
 			}
 		}
@@ -371,9 +499,11 @@ class HKCC_Card_Shortcodes {
 		$view  = sanitize_text_field( $_POST['view'] ?? 'miles' );
 		$cards = get_posts( $query_args );
 
-		// Recommendation sort when no sort field specified.
+		// Sort: recommendation when no sort, tie-breaker when sorted.
 		if ( empty( $sort ) ) {
 			$cards = self::recommendation_sort( $cards );
+		} else {
+			$cards = self::tie_breaker_sort( $cards, $sort, $order );
 		}
 
 		ob_start();
@@ -439,6 +569,68 @@ class HKCC_Card_Shortcodes {
 			}
 
 			// 3b. Both pure-cash → descending (higher % is better).
+			if ( $am['cash'] !== $bm['cash'] ) {
+				return $am['cash'] > $bm['cash'] ? -1 : 1;
+			}
+
+			return 0;
+		} );
+
+		return $cards;
+	}
+
+	/* ==================================================================
+	 * Tie-breaker sort.
+	 * Primary sort by the selected field; for equal values, fall back
+	 * to recommendation logic (affiliate first → miles ASC → cash DESC).
+	 * ================================================================ */
+
+	private static function tie_breaker_sort( $cards, $sort_field, $sort_order ) {
+		if ( empty( $cards ) || empty( $sort_field ) ) {
+			return $cards;
+		}
+
+		$meta = array();
+		foreach ( $cards as $card ) {
+			$id = $card->ID;
+			$meta[ $id ] = array(
+				'sort_val' => (float) get_post_meta( $id, $sort_field, true ),
+				'has_link' => ! empty( get_post_meta( $id, 'affiliate_link', true ) ),
+				'miles'    => (float) get_post_meta( $id, 'overseas_retail_miles_sortable', true ),
+				'cash'     => (float) get_post_meta( $id, 'overseas_retail_cash_sortable', true ),
+			);
+		}
+
+		$asc = ( 'asc' === strtolower( $sort_order ) );
+
+		usort( $cards, function ( $a, $b ) use ( $meta, $asc ) {
+			$am = $meta[ $a->ID ];
+			$bm = $meta[ $b->ID ];
+
+			// Primary: sort by the selected field.
+			if ( $am['sort_val'] !== $bm['sort_val'] ) {
+				$diff = $am['sort_val'] - $bm['sort_val'];
+				return $asc ? ( $diff < 0 ? -1 : 1 ) : ( $diff > 0 ? -1 : 1 );
+			}
+
+			// Tie-breaker: affiliate link first.
+			if ( $am['has_link'] !== $bm['has_link'] ) {
+				return $am['has_link'] ? -1 : 1;
+			}
+
+			// Tie-breaker: miles cards before pure-cash.
+			$a_has_miles = ( $am['miles'] > 0 );
+			$b_has_miles = ( $bm['miles'] > 0 );
+			if ( $a_has_miles && ! $b_has_miles ) return -1;
+			if ( ! $a_has_miles && $b_has_miles ) return 1;
+
+			if ( $a_has_miles && $b_has_miles ) {
+				if ( $am['miles'] !== $bm['miles'] ) {
+					return $am['miles'] < $bm['miles'] ? -1 : 1;
+				}
+				return 0;
+			}
+
 			if ( $am['cash'] !== $bm['cash'] ) {
 				return $am['cash'] > $bm['cash'] ? -1 : 1;
 			}

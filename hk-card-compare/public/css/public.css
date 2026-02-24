@@ -53,25 +53,15 @@
 }
 
 /* ----------------------------------------------------------------
- * Buttons — aggressive reset to override site-wide (Flatsome) CSS.
- * Uses all:unset + !important to ensure uniform look on both
- * <button> and <a> elements regardless of theme styles.
+ * Buttons — nuclear specificity override for Flatsome theme.
+ * Repeated .hkcc-btn class triples specificity (0-3-0) to beat
+ * theme selectors like .entry-content button (0-1-1).
  * -------------------------------------------------------------- */
-.hkcc-comparison .hkcc-btn,
-.hkcc-spotlight .hkcc-btn,
-.hkcc-single-card .hkcc-btn,
-.hkcc-comparison a.hkcc-btn,
-.hkcc-spotlight a.hkcc-btn,
-.hkcc-single-card a.hkcc-btn,
-.hkcc-comparison button.hkcc-btn,
-.hkcc-spotlight button.hkcc-btn,
-.hkcc-single-card button.hkcc-btn,
-.hkcc-comparison a.hkcc-btn:link,
-.hkcc-spotlight a.hkcc-btn:link,
-.hkcc-single-card a.hkcc-btn:link,
-.hkcc-comparison a.hkcc-btn:visited,
-.hkcc-spotlight a.hkcc-btn:visited,
-.hkcc-single-card a.hkcc-btn:visited {
+.hkcc-btn.hkcc-btn.hkcc-btn,
+a.hkcc-btn.hkcc-btn.hkcc-btn,
+a.hkcc-btn.hkcc-btn.hkcc-btn:link,
+a.hkcc-btn.hkcc-btn.hkcc-btn:visited,
+button.hkcc-btn.hkcc-btn.hkcc-btn {
 	all: unset !important;
 	display: inline-block !important;
 	padding: 10px 20px !important;
@@ -85,67 +75,47 @@
 	text-align: center !important;
 	min-height: 44px !important;
 	line-height: 24px !important;
-	transition: all 0.2s ease !important;
+	transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
 	box-sizing: border-box !important;
 	-webkit-appearance: none !important;
-	-moz-appearance: none !important;
 	appearance: none !important;
 }
 
-.hkcc-comparison .hkcc-btn:focus-visible,
-.hkcc-spotlight .hkcc-btn:focus-visible,
-.hkcc-single-card .hkcc-btn:focus-visible {
+/* Restore flex sizing inside action bars — must come after all:unset */
+.hkcc-card-actions .hkcc-btn.hkcc-btn.hkcc-btn {
+	flex: 1 1 0% !important;
+	min-width: 0 !important;
+}
+
+.hkcc-single-footer .hkcc-btn.hkcc-btn.hkcc-btn {
+	flex: 1 1 0% !important;
+	min-width: 0 !important;
+}
+
+.hkcc-btn.hkcc-btn.hkcc-btn:focus-visible {
 	outline: 2px solid var(--hkcc-accent) !important;
 	outline-offset: 2px !important;
 }
 
-.hkcc-comparison .hkcc-btn-secondary,
-.hkcc-spotlight .hkcc-btn-secondary,
-.hkcc-single-card .hkcc-btn-secondary,
-.hkcc-comparison a.hkcc-btn-secondary,
-.hkcc-spotlight a.hkcc-btn-secondary,
-.hkcc-single-card a.hkcc-btn-secondary,
-.hkcc-comparison a.hkcc-btn-secondary:link,
-.hkcc-spotlight a.hkcc-btn-secondary:link,
-.hkcc-single-card a.hkcc-btn-secondary:link,
-.hkcc-comparison a.hkcc-btn-secondary:visited,
-.hkcc-spotlight a.hkcc-btn-secondary:visited,
-.hkcc-single-card a.hkcc-btn-secondary:visited,
-.hkcc-comparison button.hkcc-btn-secondary,
-.hkcc-spotlight button.hkcc-btn-secondary,
-.hkcc-single-card button.hkcc-btn-secondary {
+.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary,
+a.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary:link,
+a.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary:visited,
+button.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary {
 	background: var(--hkcc-border-light) !important;
 	color: var(--hkcc-text) !important;
 }
 
-.hkcc-comparison .hkcc-btn-secondary:hover,
-.hkcc-spotlight .hkcc-btn-secondary:hover,
-.hkcc-single-card .hkcc-btn-secondary:hover,
-.hkcc-comparison a.hkcc-btn-secondary:hover,
-.hkcc-spotlight a.hkcc-btn-secondary:hover,
-.hkcc-single-card a.hkcc-btn-secondary:hover,
-.hkcc-comparison button.hkcc-btn-secondary:hover,
-.hkcc-spotlight button.hkcc-btn-secondary:hover,
-.hkcc-single-card button.hkcc-btn-secondary:hover {
+.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary:hover,
+a.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary:hover,
+button.hkcc-btn-secondary.hkcc-btn-secondary.hkcc-btn-secondary:hover {
 	background: var(--hkcc-border) !important;
 	color: var(--hkcc-text) !important;
 }
 
-.hkcc-comparison .hkcc-btn-cta,
-.hkcc-spotlight .hkcc-btn-cta,
-.hkcc-single-card .hkcc-btn-cta,
-.hkcc-comparison a.hkcc-btn-cta,
-.hkcc-spotlight a.hkcc-btn-cta,
-.hkcc-single-card a.hkcc-btn-cta,
-.hkcc-comparison a.hkcc-btn-cta:link,
-.hkcc-spotlight a.hkcc-btn-cta:link,
-.hkcc-single-card a.hkcc-btn-cta:link,
-.hkcc-comparison a.hkcc-btn-cta:visited,
-.hkcc-spotlight a.hkcc-btn-cta:visited,
-.hkcc-single-card a.hkcc-btn-cta:visited,
-.hkcc-comparison button.hkcc-btn-cta,
-.hkcc-spotlight button.hkcc-btn-cta,
-.hkcc-single-card button.hkcc-btn-cta {
+.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta,
+a.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:link,
+a.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:visited,
+button.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta {
 	background: var(--hkcc-cta) !important;
 	color: #fff !important;
 	font-size: 15px !important;
@@ -154,37 +124,25 @@
 	box-shadow: 0 2px 8px rgba(178, 0, 0, 0.3) !important;
 }
 
-.hkcc-comparison .hkcc-btn-cta:hover,
-.hkcc-spotlight .hkcc-btn-cta:hover,
-.hkcc-single-card .hkcc-btn-cta:hover,
-.hkcc-comparison a.hkcc-btn-cta:hover,
-.hkcc-spotlight a.hkcc-btn-cta:hover,
-.hkcc-single-card a.hkcc-btn-cta:hover,
-.hkcc-comparison button.hkcc-btn-cta:hover,
-.hkcc-spotlight button.hkcc-btn-cta:hover,
-.hkcc-single-card button.hkcc-btn-cta:hover {
+.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover,
+a.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover,
+button.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover {
 	background: var(--hkcc-cta-hover) !important;
 	color: #fff !important;
 	box-shadow: 0 4px 14px rgba(178, 0, 0, 0.4) !important;
 	transform: translateY(-1px) !important;
 }
 
-.hkcc-comparison .hkcc-btn-cta:active,
-.hkcc-spotlight .hkcc-btn-cta:active,
-.hkcc-single-card .hkcc-btn-cta:active {
+.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:active {
 	transform: translateY(0) !important;
 }
 
-.hkcc-comparison .hkcc-btn-primary,
-.hkcc-spotlight .hkcc-btn-primary,
-.hkcc-single-card .hkcc-btn-primary {
+.hkcc-btn-primary.hkcc-btn-primary.hkcc-btn-primary {
 	background: var(--hkcc-primary) !important;
 	color: #fff !important;
 }
 
-.hkcc-comparison .hkcc-btn-primary:hover,
-.hkcc-spotlight .hkcc-btn-primary:hover,
-.hkcc-single-card .hkcc-btn-primary:hover {
+.hkcc-btn-primary.hkcc-btn-primary.hkcc-btn-primary:hover {
 	background: var(--hkcc-primary-dark) !important;
 	color: #fff !important;
 }
@@ -405,7 +363,19 @@
 	letter-spacing: 0.03em;
 }
 
-/* Filter groups use .hkcc-filter-chips for chip-style layout */
+/* Filter chip sections — grouped by category */
+.hkcc-filter-chip-section {
+	margin-bottom: 10px;
+}
+
+.hkcc-filter-chip-section .hkcc-filter-heading {
+	margin-bottom: 6px;
+}
+
+/* Taxonomy filter groups row — side by side on desktop */
+.hkcc-filter-groups-row {
+	margin-bottom: 10px;
+}
 
 .hkcc-clear-filters {
 	background: none;
@@ -580,10 +550,6 @@
 	margin-top: 14px;
 }
 
-.hkcc-card-actions .hkcc-btn {
-	flex: 1;
-	text-align: center;
-}
 
 /* ----------------------------------------------------------------
  * Dimmed card — no affiliate link & no blog post link
@@ -863,24 +829,24 @@
 		margin-right: auto;
 	}
 
+	/* Desktop: always show toolbar body, stacked layout */
 	.hkcc-toolbar-body {
-		display: flex !important;
-		flex-wrap: wrap;
-		gap: 24px;
-		align-items: flex-start;
+		display: block !important;
 	}
 
 	.hkcc-toolbar-primary {
-		width: 100%;
-		flex: none;
+		display: flex;
+		align-items: center;
+		gap: 16px;
 	}
 
-	.hkcc-filter-chips {
-		width: 100%;
-		flex: none;
+	/* Filter groups side-by-side on desktop */
+	.hkcc-filter-groups-row {
+		display: flex;
+		gap: 24px;
 	}
 
-	.hkcc-filter-group {
+	.hkcc-filter-groups-row .hkcc-filter-group {
 		flex: 1;
 		min-width: 150px;
 		margin-bottom: 0;
