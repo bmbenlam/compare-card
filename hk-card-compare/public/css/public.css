@@ -372,29 +372,6 @@ button.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover {
 	margin-bottom: 6px;
 }
 
-/* Taxonomy filter groups — collapsible section (desktop only) */
-.hkcc-filter-groups-row {
-	margin-bottom: 10px;
-}
-
-/* Toggle button: hidden on mobile, shown on desktop */
-.hkcc-filter-groups-toggle {
-	display: none;
-}
-
-/* Content: always visible on mobile */
-.hkcc-filter-groups-content {
-	display: block !important;
-}
-
-.hkcc-filter-groups-arrow {
-	font-size: 10px;
-	transition: transform 0.2s;
-}
-
-.hkcc-filter-groups-toggle.open .hkcc-filter-groups-arrow {
-	transform: rotate(180deg);
-}
 
 .hkcc-clear-filters {
 	background: none;
@@ -857,37 +834,6 @@ button.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover {
 		display: flex;
 		align-items: center;
 		gap: 16px;
-	}
-
-	/* Taxonomy filter groups toggle — desktop only */
-	.hkcc-filter-groups-toggle {
-		all: unset;
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		padding: 6px 0;
-		margin-bottom: 4px;
-		font-size: 13px;
-		font-weight: 600;
-		color: var(--hkcc-text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.03em;
-		cursor: pointer;
-		user-select: none;
-		box-sizing: border-box;
-	}
-
-	.hkcc-filter-groups-toggle:hover {
-		color: var(--hkcc-text);
-	}
-
-	/* Desktop: hide content by default, expand on toggle */
-	.hkcc-filter-groups-content {
-		display: none !important;
-	}
-
-	.hkcc-filter-groups-content.open {
-		display: block !important;
 	}
 
 	.hkcc-toggle-arrow {
