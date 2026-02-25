@@ -300,9 +300,14 @@ class HKCC_Card_Shortcodes {
 						</div>
 					</div>
 
-					<!-- Taxonomy filters (bank + network) -->
+					<!-- Taxonomy filters (bank + network) — collapsible -->
 					<div class="hkcc-filter-groups-row">
-						<?php self::render_filters( $filter_keys ); ?>
+						<button type="button" class="hkcc-filter-groups-toggle">
+							發卡 / 結算機構 <span class="hkcc-filter-groups-arrow">&#9660;</span>
+						</button>
+						<div class="hkcc-filter-groups-content">
+							<?php self::render_filters( $filter_keys ); ?>
+						</div>
 					</div>
 
 					<button type="button" class="hkcc-clear-filters">清除所有篩選</button>

@@ -72,6 +72,25 @@
 	});
 
 	/* ----------------------------------------------------------------
+	 * Taxonomy filter groups — collapsible toggle.
+	 * -------------------------------------------------------------- */
+	document.addEventListener('click', function (e) {
+		var toggle = e.target.closest('.hkcc-filter-groups-toggle');
+		if (!toggle) return;
+
+		var content = toggle.nextElementSibling;
+		if (!content || !content.classList.contains('hkcc-filter-groups-content')) return;
+
+		if (content.style.display === 'block') {
+			content.style.display = '';
+			toggle.classList.remove('open');
+		} else {
+			content.style.display = 'block';
+			toggle.classList.add('open');
+		}
+	});
+
+	/* ----------------------------------------------------------------
 	 * View toggle switch: update labels on change.
 	 * -------------------------------------------------------------- */
 	document.addEventListener('change', function (e) {
