@@ -228,7 +228,17 @@ class HKCC_Points_System {
 		}
 
 		$cash_vpp  = $value_per_point['cash'] ?? 0;
-		$miles_vpp = $value_per_point['asia_miles'] ?? 0;
+
+		// Find the primary miles/airline reward type (first non-cash entry).
+		$miles_vpp = 0;
+		$miles_rtype = '';
+		foreach ( $value_per_point as $rtype => $vpp ) {
+			if ( 'cash' !== $rtype ) {
+				$miles_vpp   = $vpp;
+				$miles_rtype = $rtype;
+				break;
+			}
+		}
 
 		foreach ( self::get_transaction_types() as $txn ) {
 			$points_text = get_post_meta( $post_id, "{$txn}_points", true );
@@ -267,7 +277,7 @@ class HKCC_Points_System {
 			}
 
 			foreach ( $value_per_point as $rtype => $vpp ) {
-				if ( in_array( $rtype, array( 'cash', 'asia_miles' ), true ) ) {
+				if ( 'cash' === $rtype || $rtype === $miles_rtype ) {
 					continue;
 				}
 				$pts_per_dollar = $earning_rate * $vpp;

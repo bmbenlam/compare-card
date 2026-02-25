@@ -661,7 +661,14 @@ class HKCC_Card_Display {
 		$vpp = self::get_value_per_point( $system_id );
 
 		if ( 'miles' === $view ) {
-			$miles_vpp = $vpp['asia_miles'] ?? 0;
+			// Find the primary miles/airline reward type (first non-cash entry).
+			$miles_vpp = 0;
+			foreach ( $vpp as $rtype => $rv ) {
+				if ( 'cash' !== $rtype ) {
+					$miles_vpp = $rv;
+					break;
+				}
+			}
 			if ( $miles_vpp > 0 ) {
 				$m = $earning_rate * $miles_vpp;
 				if ( $m > 0 ) {
