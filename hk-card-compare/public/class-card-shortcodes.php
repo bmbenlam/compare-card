@@ -305,7 +305,7 @@ class HKCC_Card_Shortcodes {
 						<button type="button" class="hkcc-filter-groups-toggle">
 							發卡 / 結算機構 <span class="hkcc-filter-groups-arrow">&#9660;</span>
 						</button>
-						<div class="hkcc-filter-groups-content">
+						<div class="hkcc-filter-groups-content" style="display:none;">
 							<?php self::render_filters( $filter_keys ); ?>
 						</div>
 					</div>

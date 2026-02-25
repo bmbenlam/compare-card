@@ -408,7 +408,11 @@ button.hkcc-btn-cta.hkcc-btn-cta.hkcc-btn-cta:hover {
 }
 
 .hkcc-filter-groups-content {
-	display: none;
+	display: none !important;
+}
+
+.hkcc-filter-groups-content.open {
+	display: block !important;
 }
 
 .hkcc-clear-filters {

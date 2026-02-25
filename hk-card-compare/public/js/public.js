@@ -81,11 +81,14 @@
 		var content = toggle.nextElementSibling;
 		if (!content || !content.classList.contains('hkcc-filter-groups-content')) return;
 
-		if (content.style.display === 'block') {
-			content.style.display = '';
+		var isOpen = content.classList.contains('open');
+		if (isOpen) {
+			content.classList.remove('open');
+			content.style.display = 'none';
 			toggle.classList.remove('open');
 		} else {
-			content.style.display = 'block';
+			content.classList.add('open');
+			content.style.display = '';
 			toggle.classList.add('open');
 		}
 	});
