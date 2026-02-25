@@ -266,13 +266,13 @@ class HKCC_Card_Shortcodes {
 							<label for="hkcc_chip_insurance">免費旅遊保險</label>
 
 							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_cashback" name="hkcc_feature_filter" value="cashback_only" />
-							<label for="hkcc_chip_cashback">只顯示現金回贈</label>
+							<label for="hkcc_chip_cashback">純現金回贈卡</label>
 
 							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_dining" name="hkcc_feature_filter" value="good_dining" />
-							<label for="hkcc_chip_dining">餐飲優惠</label>
+							<label for="hkcc_chip_dining">食飯卡</label>
 
 							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_supermarket" name="hkcc_feature_filter" value="good_supermarket" />
-							<label for="hkcc_chip_supermarket">超市優惠</label>
+							<label for="hkcc_chip_supermarket">超市買餸卡</label>
 						</div>
 					</div>
 
