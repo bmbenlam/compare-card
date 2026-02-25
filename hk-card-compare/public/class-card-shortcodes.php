@@ -284,7 +284,7 @@ class HKCC_Card_Shortcodes {
 							<label for="hkcc_chip_asia_miles">Asia Miles</label>
 
 							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_avios" name="hkcc_feature_filter" value="has_avios" />
-							<label for="hkcc_chip_avios">Avios 系列</label>
+							<label for="hkcc_chip_avios">Avios 家族</label>
 
 							<input type="checkbox" class="hkcc-filter-chip" id="hkcc_chip_virgin" name="hkcc_feature_filter" value="has_virgin" />
 							<label for="hkcc_chip_virgin">Virgin Atlantic</label>
