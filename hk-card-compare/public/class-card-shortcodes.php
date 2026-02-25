@@ -300,12 +300,12 @@ class HKCC_Card_Shortcodes {
 						</div>
 					</div>
 
-					<!-- Taxonomy filters (bank + network) — collapsible -->
+					<!-- Taxonomy filters (bank + network) — collapsible on desktop -->
 					<div class="hkcc-filter-groups-row">
-						<button type="button" class="hkcc-filter-groups-toggle">
+						<div class="hkcc-filter-groups-toggle" role="button" tabindex="0">
 							發卡 / 結算機構 <span class="hkcc-filter-groups-arrow">&#9660;</span>
-						</button>
-						<div class="hkcc-filter-groups-content" style="display:none;">
+						</div>
+						<div class="hkcc-filter-groups-content">
 							<?php self::render_filters( $filter_keys ); ?>
 						</div>
 					</div>
@@ -405,25 +405,26 @@ class HKCC_Card_Shortcodes {
 						$query_args['meta_query'][] = array(
 							'relation' => 'OR',
 							array( 'key' => 'points_system_id', 'value' => '0', 'compare' => '=' ),
+							array( 'key' => 'points_system_id', 'value' => '', 'compare' => '=' ),
 							array( 'key' => 'points_system_id', 'compare' => 'NOT EXISTS' ),
 						);
 						break;
 
 					case 'good_dining':
+						// Match if sortable value exists OR raw points text entered.
 						$query_args['meta_query'][] = array(
-							'key'     => 'local_dining_cash_sortable',
-							'value'   => 0,
-							'compare' => '>',
-							'type'    => 'NUMERIC',
+							'relation' => 'OR',
+							array( 'key' => 'local_dining_cash_sortable', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ),
+							array( 'key' => 'local_dining_points', 'value' => '', 'compare' => '!=' ),
 						);
 						break;
 
 					case 'good_supermarket':
+						// Match if sortable value exists OR raw points text entered.
 						$query_args['meta_query'][] = array(
-							'key'     => 'designated_supermarket_cash_sortable',
-							'value'   => 0,
-							'compare' => '>',
-							'type'    => 'NUMERIC',
+							'relation' => 'OR',
+							array( 'key' => 'designated_supermarket_cash_sortable', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ),
+							array( 'key' => 'designated_supermarket_points', 'value' => '', 'compare' => '!=' ),
 						);
 						break;
 
