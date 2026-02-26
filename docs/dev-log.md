@@ -17,8 +17,10 @@
 3. [Session Log](#session-log)
    - [2026-02-10 — Session 1: Initial Plugin Build](#2026-02-10--session-1-initial-plugin-build)
    - [2026-02-10 — Session 2: Frontend zh-HK, Layout & Programme List Updates](#2026-02-10--session-2-frontend-zh-hk-layout--programme-list-updates)
-4. [Known Issues & Technical Debt](#known-issues--technical-debt)
    - [2026-02-11 — Session 3: UX/UI Psychology-Driven Redesign](#2026-02-11--session-3-uxui-psychology-driven-redesign)
+   - [2026-02-25 — Session 4: Shortcode Fixes, Name Standardisation, Airline/Hotel Filters](#2026-02-25--session-4-shortcode-fixes-name-standardisation-airlinehotel-filters)
+   - [2026-02-26 — Session 5: Thematic Filters, Tie-Breaker Sort, Points System Fix](#2026-02-26--session-5-thematic-filters-tie-breaker-sort-points-system-fix)
+4. [Known Issues & Technical Debt](#known-issues--technical-debt)
 5. [What's Next](#whats-next)
 
 ---
@@ -28,15 +30,15 @@
 | Item                  | Status                                                  |
 |-----------------------|---------------------------------------------------------|
 | **Branch**            | `claude/code-plugin-E74dL`                              |
-| **Plugin Version**    | 1.0.0                                                   |
-| **Phase**             | Phase 1 complete (core functionality). Phase 2–4 pending.|
+| **Plugin Version**    | 1.0.11                                                  |
+| **Phase**             | Phase 1 complete. Phase 2 in progress (UX & filtering). |
 | **Files**             | 18 PHP/CSS/JS files in `hk-card-compare/`               |
 | **Database Tables**   | 3 custom tables (created on activation)                 |
-| **Shortcodes**        | `[cc_comparison]`, `[cc_suggest]` — both functional     |
-| **Admin Pages**       | Card edit (tabbed), Points Systems, Analytics            |
-| **Frontend**          | Mobile-first CSS, AJAX filters, click tracking          |
+| **Shortcodes**        | `[cc_comparison]`, `[cc_suggest]`, `[cc_card]` — all functional |
+| **Admin Pages**       | Card edit (8 tabs), Points Systems, Analytics            |
+| **Frontend**          | Mobile-first CSS, AJAX filters, 15 filter chips, click tracking |
 | **Tests**             | None yet                                                |
-| **Production Deploy** | Not yet deployed                                        |
+| **Production Deploy** | Live on flyasia.co                                      |
 
 ---
 
@@ -269,6 +271,161 @@ Introduced `:root` CSS variables for consistent theming: `--hkcc-accent`, `--hkc
 - `public/class-card-display.php` — Reordered `render_expanded_details()`, added badges, welcome preview, icon spans, CTA class change
 - `public/css/public.css` — Complete overhaul: CSS variables, colour-coded sections, badge styles, CTA button, card shadows, desktop grid layout
 
+### 2026-02-25 — Session 4: Shortcode Fixes, Name Standardisation, Airline/Hotel Filters
+
+**Branch:** `claude/code-plugin-E74dL`
+**Version:** 1.0.5 → 1.0.6
+
+**What was done:**
+
+Seven changes across frontend, backend, and shortcode systems.
+
+**1. Button styling override for Flatsome theme**
+
+Flatsome theme applies aggressive CSS to buttons inside `.entry-content`. Simple `!important` is not enough — theme uses equally specific selectors. Solution evolved through multiple iterations:
+- Added `all: unset !important` to `.hkcc-btn` to reset all inherited properties
+- Scoped selectors to `.hkcc-comparison`, `.hkcc-spotlight`, `.hkcc-single-card` wrappers
+- Target both `a.hkcc-btn` and `button.hkcc-btn` plus `:link`/`:visited` states
+
+**2. Moved points system section after 福利 (benefits)**
+
+In `render_expanded_details()`, swapped section order so the points system info (積分系統, transferable airlines/hotels) appears after benefits instead of before.
+
+**3. Standardised airline/hotel program names**
+
+Changed naming convention from English-first (e.g., "Asia Miles (亞洲萬里通)") to Chinese-first (e.g., "國泰航空 Asia Miles"). Updated all 17 airlines + 4 hotels in both admin and frontend. Added migration maps for backward compatibility with old saved values.
+
+**Airlines (17):** 國泰航空 Asia Miles, 英國航空 BA Avios, 芬蘭航空 Finnair Plus, 馬來西亞航空 Enrich, 澳洲航空 Qantas FF, 新加坡航空 KrisFlyer, 長榮航空 無限萬哩遊, 阿聯酋航空 Skywards, 維珍航空 Virgin Flying Club, 阿堤哈德航空 Etihad Guest Miles, KLM Flying Blue, 卡塔爾航空 Qatar Privilege Club, 泰國航空 Royal Orchid Plus, 中國國航 鳳凰知音, 加拿大航空 Aeroplan, 蓮花航空 Lotusmiles, 土耳其航空 Miles & Smiles
+
+**Hotels (4):** 萬豪 Marriott Bonvoy, 希爾頓 Hilton Honors, 洲際 IHG Reward Club, 雅高 Accor ALL
+
+**4. Fixed multiline shortcode parsing**
+
+WordPress shortcode regex fails on multiline attributes. Added `the_content` filter at priority 5 to collapse newlines within `[cc_suggest]`, `[cc_comparison]`, `[cc_card]` tags before WordPress parses them.
+
+**5. Added `[cc_suggest metric="..."]` with zero-value filtering**
+
+Added `get_metric_map()` to resolve metric names to meta keys:
+- `cashback_local` → `local_retail_cash_sortable` (DESC)
+- `cashback_overseas` → `overseas_retail_cash_sortable` (DESC)
+- `asia_miles_local` → `local_retail_miles_sortable` (ASC)
+- `lounge_access` → `lounge_access_sortable` (DESC)
+- `annual_fee_low` → `annual_fee_sortable` (ASC)
+
+Metric-based queries automatically filter out cards with 0 or missing values.
+
+**6. Default recommendation sort for `[cc_suggest]`**
+
+When no sort/metric specified, `[cc_suggest]` now uses `recommendation_sort()`: affiliate-link cards first → overseas miles ASC → pure-cash by overseas % DESC.
+
+**7. Added `airline` and `hotel` parameters to shortcodes**
+
+Both `[cc_suggest]` and `[cc_comparison]` now accept `airline="..."` and `hotel="..."` attributes. Uses `LIKE` meta_query on serialized `transferable_airlines`/`transferable_hotels` arrays. Comma-separated values use AND logic.
+
+**8. New `[cc_card]` spotlight shortcode**
+
+Added `[cc_card slug="..." view="miles"]` shortcode for embedding a single card inline within blog posts. Shows tagline, card face, name, short welcome, 4-pack, apply button, long welcome bubble, blog/apply buttons, footnotes.
+
+**9. Updated shortcode guide**
+
+Rewrote `docs/shortcode-guide.md` with full documentation for all three shortcodes, airline/hotel parameters, metric filtering, and ready-to-use examples.
+
+**Files modified (9):**
+
+- `public/css/public.css` — Button override styles, spotlight padding
+- `public/class-card-display.php` — Section reorder, migration maps
+- `public/class-card-shortcodes.php` — `[cc_card]`, airline/hotel params, metric map, recommendation sort, multiline fix
+- `admin/class-card-admin.php` — Standardised airline/hotel checkboxes + migration map
+- `admin/class-points-admin.php` — Added Lotusmiles, Miles & Smiles, Accor to reward dropdown
+- `hk-card-compare.php` — Version bump
+- `docs/shortcode-guide.md` — Full rewrite
+
+---
+
+### 2026-02-26 — Session 5: Thematic Filters, Tie-Breaker Sort, Points System Fix
+
+**Branch:** `claude/code-plugin-E74dL`
+**Version:** 1.0.6 → 1.0.11
+
+**What was done:**
+
+Major additions: thematic filter chips, sort tie-breaker logic, points system bug fix, and frontend cleanup.
+
+**1. Button styling — triple-class specificity hack (v1.0.7)**
+
+Previous wrapper-based selectors still failed on published pages (worked on preview). Root cause: Flatsome theme CSS loads AFTER plugin CSS; at equal specificity + `!important`, the last-loaded wins.
+
+Final solution: triple-class specificity `.hkcc-btn.hkcc-btn.hkcc-btn` gives specificity 0-3-0, beating theme selectors (0-1-1 to 0-2-1). Also removed old conflicting `.hkcc-card-actions .hkcc-btn { flex: 1 }` rule. After `all: unset`, flex properties must be explicitly restored with `flex: 1 1 0% !important`.
+
+**2. Desktop toolbar rearrangement (v1.0.7)**
+
+Changed `.hkcc-toolbar-body` from `display: flex` to `display: block` on desktop for cleaner stacked layout. Chip sections got category headings.
+
+**3. Nine new thematic filter chips (v1.0.7)**
+
+Added to `[cc_comparison]` toolbar, organised into two sections:
+
+**卡片特色 (Card Features):**
+
+| Chip | Value | Meta Query |
+|------|-------|------------|
+| 永久免年費 | `free_annual_fee` | `annual_fee_sortable = 0` |
+| 可用貴賓室 | `has_lounge` | `lounge_access_sortable >= 1` |
+| 免費旅遊保險 | `has_travel_insurance` | `has_travel_insurance = 1` |
+| 純現金回贈卡 | `cashback_only` | `points_system_id = 0 OR '' OR NOT EXISTS` |
+| 食飯卡 | `good_dining` | `local_dining_cash_sortable > 0 OR local_dining_points != ''` |
+| 超市買餸卡 | `good_supermarket` | `designated_supermarket_cash_sortable > 0 OR designated_supermarket_points != ''` |
+
+**里程 / 酒店計劃 (Programs):**
+
+| Chip | Value | Meta Query |
+|------|-------|------------|
+| Asia Miles | `has_asia_miles` | `transferable_airlines LIKE 'Asia Miles'` |
+| Avios 系列 | `has_avios` | `transferable_airlines LIKE 'Avios' OR 'Qatar' OR 'Finnair'` |
+| Virgin Atlantic | `has_virgin` | `transferable_airlines LIKE 'Virgin'` |
+| KrisFlyer | `has_krisflyer` | `transferable_airlines LIKE 'KrisFlyer'` |
+| Marriott Bonvoy | `has_marriott` | `transferable_hotels LIKE 'Marriott'` |
+| Hilton Honors | `has_hilton` | `transferable_hotels LIKE 'Hilton'` |
+
+No JS changes needed — existing `.hkcc-filter-chip:checked` collection handles new chips automatically.
+
+**4. `[cc_suggest]` affiliate-only (v1.0.7)**
+
+Added `meta_query` to `shortcode_suggest()` requiring `affiliate_link != ''`. Cards without an application link are no longer shown in `[cc_suggest]` output.
+
+**5. Sort tie-breaker logic (v1.0.7)**
+
+New `tie_breaker_sort()` function. When sorting by a specific field (e.g., annual fee), cards with equal values now use recommendation logic as tie-breaker (affiliate first → overseas miles ASC → cash DESC) instead of falling back to publish date.
+
+Applied in all three sort locations: `shortcode_suggest()`, `shortcode_comparison()`, and `ajax_filter_cards()`.
+
+**6. Points system fix — dynamic miles reward type (v1.0.7)**
+
+**Root cause:** Both `auto_calculate_rebates()` and `live_calc_display()` hardcoded `$vpp['asia_miles']` for the miles conversion rate. Systems using different reward types (e.g., `'avios'` for 大新英航) would get 0 → display "不適用".
+
+**Fix:** Both functions now dynamically find the first non-`cash` reward type from the conversions table. Works for any airline program. Cards using affected systems need to be re-saved to regenerate `_miles_display` and `_miles_sortable` meta values.
+
+**Files modified:**
+- `includes/class-points-system.php` — `auto_calculate_rebates()` dynamic miles type
+- `public/class-card-display.php` — `live_calc_display()` dynamic miles type
+
+**7. Removed bank/network filter UI from frontend (v1.0.11)**
+
+Bank (發卡機構) and network (結算機構) filter chips were removed from the frontend toolbar. The Flatsome theme's aggressive button/element styling made the collapsible toggle unworkable despite multiple approaches (CSS `!important`, inline styles, `all: unset`, `<button>` → `<div>` conversion).
+
+Bank/network filtering still works via shortcode attributes (`bank="hsbc"`, `network="visa"`) and the AJAX handler. The `render_filters()` PHP method is retained for potential future use.
+
+**Removed:** All `.hkcc-filter-groups-*` CSS rules, HTML section in `shortcode_comparison()`, JS toggle handler.
+
+**Files modified across all changes in this session (6):**
+
+- `public/css/public.css` — Triple-class button hack, filter chip sections, desktop toolbar, removed filter groups
+- `public/class-card-shortcodes.php` — Thematic chips HTML, AJAX handler cases, affiliate-only filter, tie-breaker sort, removed filter groups HTML
+- `public/class-card-display.php` — Dynamic miles VPP lookup
+- `public/js/public.js` — Removed filter groups toggle handler
+- `includes/class-points-system.php` — Dynamic miles reward type in auto-calculation
+- `hk-card-compare.php` — Version bumps (1.0.7 → 1.0.11)
+
 ---
 
 ## Known Issues & Technical Debt
@@ -280,6 +437,9 @@ Introduced `:root` CSS variables for consistent theming: `--hkcc-accent`, `--hkc
 | 3  | AJAX filter sends filters as JSON string      | Low      | Works but could use proper array serialisation for cleaner backend parsing. |
 | 4  | ~~No i18n `.pot` file generated~~              | Resolved | Frontend now hardcoded zh-HK. Admin stays English. No i18n needed for now. |
 | 5  | Templates not auto-loaded from theme          | Low      | Need to add `locate_template()` fallback so themes can override templates. |
+| 6  | Flatsome theme CSS specificity wars           | Ongoing  | Theme loads CSS after plugin. Must use triple-class hack or `all: unset !important`. Document any new overrides needed. |
+| 7  | Dining/supermarket sortable fields for cash-only cards | Medium | `auto_calculate_rebates()` only runs for points-system cards. Cash-only cards need manual `_cash_sortable` entry, or admin UI needs auto-save for direct cash fields. |
+| 8  | Re-save cards after points system changes     | Info     | After fixing dynamic miles type, all cards using non-Asia-Miles systems (e.g., Avios) need a re-save to regenerate `_miles_display`/`_miles_sortable`. |
 
 ---
 
@@ -288,9 +448,11 @@ Introduced `:root` CSS variables for consistent theming: `--hkcc-accent`, `--hkc
 Per the README spec, remaining phases are:
 
 ### Phase 2: UX & Filtering (Weeks 7–10)
+- [x] Flatsome theme integration & styling polish (triple-class hack, `all: unset`)
+- [x] Thematic filter chips (15 total: features + airline/hotel programs)
+- [x] Recommendation sort & tie-breaker logic
 - [ ] Filter state persistence (localStorage / URL params)
 - [ ] Loading states & animations
-- [ ] Flatsome theme integration & styling polish
 - [ ] Error handling improvements
 
 ### Phase 3: PublishPress & Scheduling (Weeks 11–13)
