@@ -1,6 +1,6 @@
 # HK Card Compare — Shortcode Guide
 
-> Last updated: 2026-02-20
+> Last updated: 2026-02-26
 
 This document covers every shortcode provided by the HK Card Compare plugin, including all parameters, defaults, and ready-to-use examples you can paste directly into your WordPress pages or posts.
 
@@ -48,7 +48,7 @@ Displays a filterable, expandable card listing with miles/cash toggle. Designed 
 | `airline`       | string  | _(empty — show all)_           | Filter by transferable airline program. Partial name match, comma-separated (AND logic). |
 | `hotel`         | string  | _(empty — show all)_           | Filter by transferable hotel program. Partial name match, comma-separated (AND logic). |
 | `filters`       | string  | `bank,network`                 | Which filter groups to show. See [Filter Keys](#filter-keys).      |
-| `default_sort`  | string  | _(empty — recommendation)_     | Meta key to sort by on initial load. Empty = recommendation sort.  |
+| `default_sort`  | string  | _(empty — recommendation)_     | Meta key to sort by on initial load. See [Sortable Meta Keys](#sortable-meta-keys). |
 | `default_order` | string  | `desc`                         | Sort order: `asc` or `desc`.                                      |
 | `show_toggle`   | string  | `true`                         | Show the Miles/Cash toggle. Set `false` to hide.                   |
 | `default_view`  | string  | `miles`                        | Initial view mode: `miles` or `cash`.                              |
@@ -64,20 +64,64 @@ Use these values in the `filters` parameter (comma-separated):
 
 ### Sortable Meta Keys
 
-Use these in `default_sort`:
+Use these in `default_sort` (for `[cc_comparison]`) or `sort` (for `[cc_suggest]`):
 
-| Meta Key                             | Description             |
-|--------------------------------------|-------------------------|
-| `local_retail_cash_sortable`         | Local retail cashback % |
-| `overseas_retail_cash_sortable`      | Overseas cashback %     |
-| `online_hkd_cash_sortable`           | Online HKD cashback %   |
-| `online_fx_cash_sortable`            | Online FX cashback %    |
-| `local_dining_cash_sortable`         | Dining cashback %       |
-| `annual_fee_sortable`                | Annual fee (HKD)        |
-| `fx_fee_sortable`                    | FX fee (%)              |
-| `lounge_access_sortable`             | Lounge visits/year      |
-| `min_income_sortable`                | Min income (HKD)        |
-| `welcome_cooling_period_sortable`    | Cooling period (months) |
+#### Reward Cashback (%) — use with `default_order="desc"`
+
+| Meta Key                                    | Transaction Type   |
+|---------------------------------------------|--------------------|
+| `local_retail_cash_sortable`                | 本地零售簽賬         |
+| `overseas_retail_cash_sortable`             | 海外零售簽賬         |
+| `online_hkd_cash_sortable`                  | 網上港幣簽賬         |
+| `online_fx_cash_sortable`                   | 網上外幣簽賬         |
+| `local_dining_cash_sortable`                | 本地餐飲簽賬         |
+| `designated_supermarket_cash_sortable`      | 指定超市簽賬         |
+| `public_transport_cash_sortable`            | 公共交通簽賬         |
+| `designated_merchant_cash_sortable`         | 指定商戶簽賬         |
+| `contactless_mobile_cash_sortable`          | 手機感應式支付        |
+| `online_bill_payment_cash_sortable`         | 網上繳費            |
+| `payme_reload_cash_sortable`                | PayMe 增值          |
+| `alipay_reload_cash_sortable`               | AlipayHK 增值       |
+| `wechat_reload_cash_sortable`               | WeChat Pay 增值     |
+| `octopus_reload_cash_sortable`              | 八達通增值           |
+
+#### Reward Miles (HK$/mile) — use with `default_order="asc"`
+
+| Meta Key                                    | Transaction Type   |
+|---------------------------------------------|--------------------|
+| `local_retail_miles_sortable`               | 本地零售簽賬         |
+| `overseas_retail_miles_sortable`            | 海外零售簽賬         |
+| `online_hkd_miles_sortable`                 | 網上港幣簽賬         |
+| `online_fx_miles_sortable`                  | 網上外幣簽賬         |
+| `local_dining_miles_sortable`               | 本地餐飲簽賬         |
+| `designated_supermarket_miles_sortable`     | 指定超市簽賬         |
+| `public_transport_miles_sortable`           | 公共交通簽賬         |
+| `designated_merchant_miles_sortable`        | 指定商戶簽賬         |
+| `contactless_mobile_miles_sortable`         | 手機感應式支付        |
+| `online_bill_payment_miles_sortable`        | 網上繳費            |
+| `payme_reload_miles_sortable`               | PayMe 增值          |
+| `alipay_reload_miles_sortable`              | AlipayHK 增值       |
+| `wechat_reload_miles_sortable`              | WeChat Pay 增值     |
+| `octopus_reload_miles_sortable`             | 八達通增值           |
+
+#### Other Sortable Fields
+
+| Meta Key                             | Description             | Recommended Order |
+|--------------------------------------|-------------------------|-------------------|
+| `annual_fee_sortable`                | Annual fee (HKD)        | `asc`            |
+| `fx_fee_sortable`                    | FX fee (%)              | `asc`            |
+| `lounge_access_sortable`             | Lounge visits/year      | `desc`           |
+| `min_income_sortable`                | Min income (HKD)        | `asc`            |
+| `welcome_cooling_period_sortable`    | Cooling period (months) | `asc`            |
+
+### Frontend Sort Dropdown
+
+The `[cc_comparison]` sort dropdown on the frontend groups all 14 transaction types into two optgroups:
+- **現金回贈 (%)** — sorted descending (higher cashback % = better)
+- **里數 (HK$/里)** — sorted ascending (lower HK$/mile = better)
+- **其他** — annual fee, min income
+
+The dropdown auto-switches the miles/cash view toggle to match the selected sort type.
 
 ### Recommendation Sort (Default)
 
@@ -92,7 +136,7 @@ When no `default_sort` is specified, cards are sorted by a built-in recommendati
 
 ## 2. `[cc_suggest]` — Blog Post Card Recommendations
 
-Displays 3–5 recommended cards in a compact grid. Ideal for embedding at the end of blog posts.
+Displays 3–5 recommended cards in a compact grid. Ideal for embedding at the end of blog posts. Only shows cards with an affiliate link.
 
 ### Syntax
 
@@ -120,7 +164,7 @@ Displays 3–5 recommended cards in a compact grid. Ideal for embedding at the e
 | `airline`  | string  | _(empty)_              | Filter by transferable airline program. Partial name match, comma-separated (AND logic). |
 | `hotel`    | string  | _(empty)_              | Filter by transferable hotel program. Partial name match, comma-separated (AND logic). |
 | `metric`   | string  | _(empty)_              | Pre-defined sorting metric. See [Metric Options](#metric-options).      |
-| `sort`     | string  | _(empty)_              | Raw meta key to sort by. Overrides `metric`.                            |
+| `sort`     | string  | _(empty)_              | Raw meta key to sort by. Overrides `metric`. See [Sortable Meta Keys](#sortable-meta-keys). |
 | `order`    | string  | _(empty — auto)_       | Sort order: `asc` or `desc`. Auto-set by metric if omitted.            |
 | `limit`    | int     | `5`                    | Number of cards to display (1–10 recommended).                          |
 | `exclude`  | string  | _(empty)_              | Card post IDs to exclude. Comma-separated.                              |
@@ -130,13 +174,56 @@ Displays 3–5 recommended cards in a compact grid. Ideal for embedding at the e
 
 When a metric is used, cards with `0` or missing values for that field are **automatically filtered out**.
 
+#### Cashback Metrics (sorted DESC — higher % is better)
+
+| Metric Value            | Sorts By                                       | Transaction Type   |
+|-------------------------|-------------------------------------------------|--------------------|
+| `cashback_local`        | `local_retail_cash_sortable`                    | 本地零售簽賬         |
+| `cashback_overseas`     | `overseas_retail_cash_sortable`                 | 海外零售簽賬         |
+| `cashback_online_hkd`   | `online_hkd_cash_sortable`                     | 網上港幣簽賬         |
+| `cashback_online_fx`    | `online_fx_cash_sortable`                      | 網上外幣簽賬         |
+| `cashback_dining`       | `local_dining_cash_sortable`                   | 本地餐飲簽賬         |
+| `cashback_supermarket`  | `designated_supermarket_cash_sortable`          | 指定超市簽賬         |
+| `cashback_transport`    | `public_transport_cash_sortable`                | 公共交通簽賬         |
+| `cashback_merchant`     | `designated_merchant_cash_sortable`             | 指定商戶簽賬         |
+| `cashback_contactless`  | `contactless_mobile_cash_sortable`              | 手機感應式支付        |
+| `cashback_bill`         | `online_bill_payment_cash_sortable`             | 網上繳費            |
+| `cashback_payme`        | `payme_reload_cash_sortable`                    | PayMe 增值          |
+| `cashback_alipay`       | `alipay_reload_cash_sortable`                   | AlipayHK 增值       |
+| `cashback_wechat`       | `wechat_reload_cash_sortable`                   | WeChat Pay 增值     |
+| `cashback_octopus`      | `octopus_reload_cash_sortable`                  | 八達通增值           |
+
+#### Miles Metrics (sorted ASC — lower HK$/mile is better)
+
+| Metric Value            | Sorts By                                       | Transaction Type   |
+|-------------------------|-------------------------------------------------|--------------------|
+| `miles_local`           | `local_retail_miles_sortable`                   | 本地零售簽賬         |
+| `miles_overseas`        | `overseas_retail_miles_sortable`                | 海外零售簽賬         |
+| `miles_online_hkd`      | `online_hkd_miles_sortable`                    | 網上港幣簽賬         |
+| `miles_online_fx`       | `online_fx_miles_sortable`                     | 網上外幣簽賬         |
+| `miles_dining`          | `local_dining_miles_sortable`                  | 本地餐飲簽賬         |
+| `miles_supermarket`     | `designated_supermarket_miles_sortable`         | 指定超市簽賬         |
+| `miles_transport`       | `public_transport_miles_sortable`               | 公共交通簽賬         |
+| `miles_merchant`        | `designated_merchant_miles_sortable`            | 指定商戶簽賬         |
+| `miles_contactless`     | `contactless_mobile_miles_sortable`             | 手機感應式支付        |
+| `miles_bill`            | `online_bill_payment_miles_sortable`            | 網上繳費            |
+| `miles_payme`           | `payme_reload_miles_sortable`                   | PayMe 增值          |
+| `miles_alipay`          | `alipay_reload_miles_sortable`                  | AlipayHK 增值       |
+| `miles_wechat`          | `wechat_reload_miles_sortable`                  | WeChat Pay 增值     |
+| `miles_octopus`         | `octopus_reload_miles_sortable`                 | 八達通增值           |
+
+#### Other Metrics
+
 | Metric Value        | Sorts By                              | Order |
 |---------------------|---------------------------------------|-------|
-| `cashback_local`    | `local_retail_cash_sortable`          | DESC  |
-| `cashback_overseas` | `overseas_retail_cash_sortable`       | DESC  |
-| `asia_miles_local`  | `local_retail_miles_sortable`         | ASC   |
 | `lounge_access`     | `lounge_access_sortable`              | DESC  |
 | `annual_fee_low`    | `annual_fee_sortable`                 | ASC   |
+
+#### Legacy Aliases
+
+| Old Metric Value     | Maps To         |
+|----------------------|-----------------|
+| `asia_miles_local`   | `miles_local`   |
 
 ### Default Behaviour (No Sort/Metric)
 
@@ -245,9 +332,34 @@ Copy and paste these directly into your WordPress pages/posts.
 [cc_comparison default_sort="local_retail_cash_sortable" default_order="desc" default_view="cash"]
 ```
 
-#### Best Miles Cards — sorted by local spending, miles view
+#### Best Dining Cashback
 ```
-[cc_comparison default_sort="local_retail_cash_sortable" default_order="desc" default_view="miles"]
+[cc_comparison default_sort="local_dining_cash_sortable" default_order="desc" default_view="cash"]
+```
+
+#### Best Supermarket Cashback
+```
+[cc_comparison default_sort="designated_supermarket_cash_sortable" default_order="desc" default_view="cash"]
+```
+
+#### Best PayMe Reload Rate
+```
+[cc_comparison default_sort="payme_reload_cash_sortable" default_order="desc" default_view="cash"]
+```
+
+#### Best Octopus Reload Rate (Miles)
+```
+[cc_comparison default_sort="octopus_reload_miles_sortable" default_order="asc" default_view="miles"]
+```
+
+#### Best Bill Payment Cashback
+```
+[cc_comparison default_sort="online_bill_payment_cash_sortable" default_order="desc" default_view="cash"]
+```
+
+#### Best Miles Cards — sorted by local spending
+```
+[cc_comparison default_sort="local_retail_miles_sortable" default_order="asc" default_view="miles"]
 ```
 
 #### All HSBC Cards
@@ -304,27 +416,77 @@ Copy and paste these directly into your WordPress pages/posts.
 [cc_suggest]
 ```
 
-#### Best Local Cashback (for general spending articles)
+#### Best Local Cashback
 ```
 [cc_suggest metric="cashback_local" limit="5"]
 ```
 
-#### Best Overseas Cashback (for travel spending articles)
+#### Best Overseas Cashback
 ```
 [cc_suggest metric="cashback_overseas" limit="5"]
 ```
 
-#### Best Asia Miles Cards (for miles/points articles)
+#### Best Dining Cashback
 ```
-[cc_suggest metric="asia_miles_local" limit="5"]
+[cc_suggest metric="cashback_dining" limit="5"]
 ```
 
-#### Cheapest Annual Fee (for budget articles)
+#### Best Supermarket Cashback
+```
+[cc_suggest metric="cashback_supermarket" limit="5"]
+```
+
+#### Best PayMe Cashback
+```
+[cc_suggest metric="cashback_payme" limit="5"]
+```
+
+#### Best Octopus Reload (Cashback)
+```
+[cc_suggest metric="cashback_octopus" limit="5"]
+```
+
+#### Best Bill Payment Cashback
+```
+[cc_suggest metric="cashback_bill" limit="5"]
+```
+
+#### Best Online FX Cashback
+```
+[cc_suggest metric="cashback_online_fx" limit="5"]
+```
+
+#### Best Contactless Mobile Payment
+```
+[cc_suggest metric="cashback_contactless" limit="5"]
+```
+
+#### Best Local Miles Rate
+```
+[cc_suggest metric="miles_local" limit="5"]
+```
+
+#### Best Overseas Miles Rate
+```
+[cc_suggest metric="miles_overseas" limit="5"]
+```
+
+#### Best Dining Miles Rate
+```
+[cc_suggest metric="miles_dining" limit="5"]
+```
+
+#### Best Online FX Miles Rate
+```
+[cc_suggest metric="miles_online_fx" limit="5"]
+```
+
+#### Cheapest Annual Fee
 ```
 [cc_suggest metric="annual_fee_low" limit="5"]
 ```
 
-#### Best Lounge Access Cards (for airport lounge articles)
+#### Best Lounge Access Cards
 ```
 [cc_suggest metric="lounge_access" limit="3"]
 ```
@@ -370,6 +532,11 @@ Copy and paste these directly into your WordPress pages/posts.
 [cc_suggest bank="hsbc" category="mastercard" limit="3"]
 ```
 
+#### Sort by raw meta key (alternative to metric)
+```
+[cc_suggest sort="payme_reload_miles_sortable" order="asc" limit="5"]
+```
+
 ---
 
 ### Single Card Spotlight (`[cc_card]`)
@@ -397,11 +564,14 @@ Copy and paste these directly into your WordPress pages/posts.
 - **Taxonomy slugs are case-sensitive** — use lowercase slugs as they appear in WordPress (e.g., `hsbc` not `HSBC`).
 - **Multiple values** — use commas with no spaces: `bank="hsbc,citi"`.
 - **Airline/hotel matching** — the `airline` and `hotel` parameters use substring matching on the serialized meta field. Partial names work (e.g., `Avios` matches `英國航空 BA Avios`). Multiple comma-separated values use **AND** logic (card must support all listed programs).
+- **`metric` vs `sort`** — `metric` uses a friendly name (e.g., `cashback_dining`) and auto-sets the sort order + filters out cards with 0 values. `sort` takes a raw meta key (e.g., `local_dining_cash_sortable`) and needs an explicit `order`. Use `metric` for `[cc_suggest]`, use `sort`/`default_sort` for `[cc_comparison]`.
 - **The Miles/Cash toggle** only appears when at least one card on the page uses a points system with Asia Miles conversion. If all cards are direct-cash, the toggle is hidden automatically.
 - **AJAX filtering** — filter changes on `[cc_comparison]` pages happen in real-time without page reload. There's a 300ms debounce so rapid clicks don't fire excessive requests.
+- **Frontend sort dropdown** — the `[cc_comparison]` sort dropdown includes all 14 transaction types grouped into "現金回贈 (%)" and "里數 (HK$/里)" optgroups. Selecting a sort option auto-switches the miles/cash toggle.
 - **Expand/collapse** — each card in `[cc_comparison]` and `[cc_suggest]` has a "查看詳情" button that expands to show full fee, reward, welcome offer, and benefit information.
-- **Click tracking** — every "立即申請" button click is tracked automatically. View reports at **Cards → Analytics** in WordPress admin.
+- **Click tracking** — every "立即申請" and "詳細玩法" button click is tracked automatically. View reports at **Cards → Analytics** in WordPress admin. Clicks include type (affiliate/blog) and position (preview card/expanded details/card image).
 - **Featured parameters** — the 4 values shown on collapsed cards are configured per-card in the admin edit screen under the "Featured" tab.
 - **Mobile** — filters show as a collapsible accordion on mobile. On desktop (768px+), the toolbar expands by default.
 - **Recommendation sort** — when no sort is specified, both `[cc_comparison]` and `[cc_suggest]` use a smart default: affiliate cards first, then sorted by overseas miles (ascending) or overseas cash (descending).
 - **Metric filtering** — when using `metric` in `[cc_suggest]`, cards with 0 or unknown values for that metric are automatically excluded from results.
+- **Affiliate-only filter** — `[cc_suggest]` only shows cards with an affiliate link. `[cc_comparison]` shows all cards (dimming those without links).

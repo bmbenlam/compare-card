@@ -51,14 +51,49 @@ class HKCC_Card_Shortcodes {
 
 	/**
 	 * Metric → meta_key mapping for [cc_suggest metric="..."].
+	 *
+	 * Every transaction type has both a cash (DESC) and miles (ASC) variant.
 	 */
 	private static function get_metric_map() {
 		return array(
-			'cashback_local'    => array( 'key' => 'local_retail_cash_sortable',    'order' => 'DESC' ),
-			'cashback_overseas' => array( 'key' => 'overseas_retail_cash_sortable', 'order' => 'DESC' ),
-			'asia_miles_local'  => array( 'key' => 'local_retail_miles_sortable',   'order' => 'ASC' ),
-			'lounge_access'     => array( 'key' => 'lounge_access_sortable',        'order' => 'DESC' ),
-			'annual_fee_low'    => array( 'key' => 'annual_fee_sortable',           'order' => 'ASC' ),
+			// --- Cash rebate (%) — higher is better → DESC ---
+			'cashback_local'           => array( 'key' => 'local_retail_cash_sortable',           'order' => 'DESC' ),
+			'cashback_overseas'        => array( 'key' => 'overseas_retail_cash_sortable',        'order' => 'DESC' ),
+			'cashback_online_hkd'      => array( 'key' => 'online_hkd_cash_sortable',             'order' => 'DESC' ),
+			'cashback_online_fx'       => array( 'key' => 'online_fx_cash_sortable',              'order' => 'DESC' ),
+			'cashback_dining'          => array( 'key' => 'local_dining_cash_sortable',           'order' => 'DESC' ),
+			'cashback_supermarket'     => array( 'key' => 'designated_supermarket_cash_sortable',  'order' => 'DESC' ),
+			'cashback_transport'       => array( 'key' => 'public_transport_cash_sortable',        'order' => 'DESC' ),
+			'cashback_merchant'        => array( 'key' => 'designated_merchant_cash_sortable',     'order' => 'DESC' ),
+			'cashback_contactless'     => array( 'key' => 'contactless_mobile_cash_sortable',      'order' => 'DESC' ),
+			'cashback_bill'            => array( 'key' => 'online_bill_payment_cash_sortable',     'order' => 'DESC' ),
+			'cashback_payme'           => array( 'key' => 'payme_reload_cash_sortable',            'order' => 'DESC' ),
+			'cashback_alipay'          => array( 'key' => 'alipay_reload_cash_sortable',           'order' => 'DESC' ),
+			'cashback_wechat'          => array( 'key' => 'wechat_reload_cash_sortable',           'order' => 'DESC' ),
+			'cashback_octopus'         => array( 'key' => 'octopus_reload_cash_sortable',          'order' => 'DESC' ),
+
+			// --- Miles (HK$/mile) — lower is better → ASC ---
+			'miles_local'              => array( 'key' => 'local_retail_miles_sortable',           'order' => 'ASC' ),
+			'miles_overseas'           => array( 'key' => 'overseas_retail_miles_sortable',        'order' => 'ASC' ),
+			'miles_online_hkd'         => array( 'key' => 'online_hkd_miles_sortable',             'order' => 'ASC' ),
+			'miles_online_fx'          => array( 'key' => 'online_fx_miles_sortable',              'order' => 'ASC' ),
+			'miles_dining'             => array( 'key' => 'local_dining_miles_sortable',           'order' => 'ASC' ),
+			'miles_supermarket'        => array( 'key' => 'designated_supermarket_miles_sortable',  'order' => 'ASC' ),
+			'miles_transport'          => array( 'key' => 'public_transport_miles_sortable',        'order' => 'ASC' ),
+			'miles_merchant'           => array( 'key' => 'designated_merchant_miles_sortable',     'order' => 'ASC' ),
+			'miles_contactless'        => array( 'key' => 'contactless_mobile_miles_sortable',      'order' => 'ASC' ),
+			'miles_bill'               => array( 'key' => 'online_bill_payment_miles_sortable',     'order' => 'ASC' ),
+			'miles_payme'              => array( 'key' => 'payme_reload_miles_sortable',            'order' => 'ASC' ),
+			'miles_alipay'             => array( 'key' => 'alipay_reload_miles_sortable',           'order' => 'ASC' ),
+			'miles_wechat'             => array( 'key' => 'wechat_reload_miles_sortable',           'order' => 'ASC' ),
+			'miles_octopus'            => array( 'key' => 'octopus_reload_miles_sortable',          'order' => 'ASC' ),
+
+			// --- Legacy aliases (kept for backward compat) ---
+			'asia_miles_local'         => array( 'key' => 'local_retail_miles_sortable',           'order' => 'ASC' ),
+
+			// --- Non-reward sorts ---
+			'lounge_access'            => array( 'key' => 'lounge_access_sortable',               'order' => 'DESC' ),
+			'annual_fee_low'           => array( 'key' => 'annual_fee_sortable',                  'order' => 'ASC' ),
 		);
 	}
 
@@ -242,12 +277,42 @@ class HKCC_Card_Shortcodes {
 							<label for="hkcc_sort">排序</label>
 							<select class="hkcc-sort-select" id="hkcc_sort">
 								<option value="|">推薦排序</option>
-								<option value="local_retail_cash_sortable|desc">本地簽賬回贈 (%)</option>
-								<option value="local_retail_miles_sortable|asc">本地簽賬回贈 (里數)</option>
-								<option value="overseas_retail_cash_sortable|desc">海外簽賬回贈 (%)</option>
-								<option value="overseas_retail_miles_sortable|asc">海外簽賬回贈 (里數)</option>
-								<option value="min_income_sortable|asc">最低年薪要求</option>
-								<option value="annual_fee_sortable|asc">年費</option>
+								<optgroup label="現金回贈 (%)">
+									<option value="local_retail_cash_sortable|desc">本地零售簽賬</option>
+									<option value="overseas_retail_cash_sortable|desc">海外零售簽賬</option>
+									<option value="online_hkd_cash_sortable|desc">網上港幣簽賬</option>
+									<option value="online_fx_cash_sortable|desc">網上外幣簽賬</option>
+									<option value="local_dining_cash_sortable|desc">本地餐飲簽賬</option>
+									<option value="designated_supermarket_cash_sortable|desc">指定超市簽賬</option>
+									<option value="public_transport_cash_sortable|desc">公共交通簽賬</option>
+									<option value="designated_merchant_cash_sortable|desc">指定商戶簽賬</option>
+									<option value="contactless_mobile_cash_sortable|desc">手機感應式支付</option>
+									<option value="online_bill_payment_cash_sortable|desc">網上繳費</option>
+									<option value="payme_reload_cash_sortable|desc">PayMe 增值</option>
+									<option value="alipay_reload_cash_sortable|desc">AlipayHK 增值</option>
+									<option value="wechat_reload_cash_sortable|desc">WeChat Pay 增值</option>
+									<option value="octopus_reload_cash_sortable|desc">八達通增值</option>
+								</optgroup>
+								<optgroup label="里數 (HK$/里)">
+									<option value="local_retail_miles_sortable|asc">本地零售簽賬</option>
+									<option value="overseas_retail_miles_sortable|asc">海外零售簽賬</option>
+									<option value="online_hkd_miles_sortable|asc">網上港幣簽賬</option>
+									<option value="online_fx_miles_sortable|asc">網上外幣簽賬</option>
+									<option value="local_dining_miles_sortable|asc">本地餐飲簽賬</option>
+									<option value="designated_supermarket_miles_sortable|asc">指定超市簽賬</option>
+									<option value="public_transport_miles_sortable|asc">公共交通簽賬</option>
+									<option value="designated_merchant_miles_sortable|asc">指定商戶簽賬</option>
+									<option value="contactless_mobile_miles_sortable|asc">手機感應式支付</option>
+									<option value="online_bill_payment_miles_sortable|asc">網上繳費</option>
+									<option value="payme_reload_miles_sortable|asc">PayMe 增值</option>
+									<option value="alipay_reload_miles_sortable|asc">AlipayHK 增值</option>
+									<option value="wechat_reload_miles_sortable|asc">WeChat Pay 增值</option>
+									<option value="octopus_reload_miles_sortable|asc">八達通增值</option>
+								</optgroup>
+								<optgroup label="其他">
+									<option value="min_income_sortable|asc">最低年薪要求</option>
+									<option value="annual_fee_sortable|asc">年費</option>
+								</optgroup>
 							</select>
 						</div>
 					</div>
