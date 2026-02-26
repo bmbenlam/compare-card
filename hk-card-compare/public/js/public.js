@@ -30,8 +30,25 @@
 	}
 
 	/* ----------------------------------------------------------------
-	 * Click tracking.
+	 * Click tracking (affiliate + blog links).
 	 * -------------------------------------------------------------- */
+	function trackClick(cardId, clickType, clickContext) {
+		var body = new URLSearchParams();
+		body.append('action', 'hkcc_track_click');
+		body.append('nonce', hkccPublic.nonce);
+		body.append('card_id', cardId);
+		body.append('source_url', window.location.href);
+		body.append('click_type', clickType);
+		body.append('click_context', clickContext);
+
+		if (navigator.sendBeacon) {
+			navigator.sendBeacon(hkccPublic.ajaxUrl, body);
+		} else {
+			fetch(hkccPublic.ajaxUrl, { method: 'POST', body: body, keepalive: true });
+		}
+	}
+
+	// Affiliate link clicks.
 	document.addEventListener('click', function (e) {
 		var link = e.target.closest('.card-apply-link');
 		if (!link) return;
@@ -39,17 +56,19 @@
 		var cardId = link.getAttribute('data-card-id');
 		if (!cardId) return;
 
-		var body = new URLSearchParams();
-		body.append('action', 'hkcc_track_click');
-		body.append('nonce', hkccPublic.nonce);
-		body.append('card_id', cardId);
-		body.append('source_url', window.location.href);
+		var context = link.getAttribute('data-click-context') || '';
+		trackClick(cardId, 'affiliate', context);
+	});
 
-		if (navigator.sendBeacon) {
-			navigator.sendBeacon(hkccPublic.ajaxUrl, body);
-		} else {
-			fetch(hkccPublic.ajaxUrl, { method: 'POST', body: body, keepalive: true });
-		}
+	// Blog post link clicks.
+	document.addEventListener('click', function (e) {
+		var link = e.target.closest('.card-blog-link');
+		if (!link) return;
+
+		var cardId = link.getAttribute('data-card-id');
+		if (!cardId) return;
+
+		trackClick(cardId, 'blog', 'expanded');
 	});
 
 	/* ----------------------------------------------------------------

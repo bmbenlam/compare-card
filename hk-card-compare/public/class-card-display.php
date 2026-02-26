@@ -120,6 +120,9 @@ class HKCC_Card_Display {
 		$card_face_html = self::get_card_face_html( $card->ID, $card_name );
 		$has_cardface   = ! empty( $card_face_html );
 
+		// Record impression.
+		HKCC_Click_Tracker::record_impression( $card->ID );
+
 		// Dim cards without both affiliate link AND blog post link.
 		$is_dimmed = empty( $aff_link ) && empty( $blog_link );
 
@@ -142,7 +145,7 @@ class HKCC_Card_Display {
 				<?php if ( $has_cardface ) : ?>
 					<div class="hkcc-card-image">
 						<?php if ( $aff_link ) : ?>
-							<a href="<?php echo esc_url( $aff_link ); ?>" class="card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow"><?php echo $card_face_html; ?></a>
+							<a href="<?php echo esc_url( $aff_link ); ?>" class="card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="image" target="_blank" rel="noopener nofollow"><?php echo $card_face_html; ?></a>
 						<?php else : ?>
 							<?php echo $card_face_html; ?>
 						<?php endif; ?>
@@ -172,7 +175,7 @@ class HKCC_Card_Display {
 				<div class="hkcc-card-actions">
 					<button type="button" class="hkcc-btn hkcc-btn-secondary hkcc-details-toggle" aria-expanded="false">查看詳情 &#9660;</button>
 					<?php if ( $aff_link ) : ?>
-						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="preview" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -183,10 +186,10 @@ class HKCC_Card_Display {
 
 				<div class="hkcc-card-actions hkcc-card-actions-bottom">
 					<?php if ( $blog_link ) : ?>
-						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary">詳細玩法</a>
+						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary card-blog-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>">詳細玩法</a>
 					<?php endif; ?>
 					<?php if ( $aff_link ) : ?>
-						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="expanded" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -225,6 +228,9 @@ class HKCC_Card_Display {
 		$card_face_html = self::get_card_face_html( $card->ID, $card_name );
 		$has_cardface   = ! empty( $card_face_html );
 
+		// Record impression.
+		HKCC_Click_Tracker::record_impression( $card->ID );
+
 		$card_classes = 'hkcc-listing-card hkcc-spotlight-card';
 		if ( ! $has_cardface ) {
 			$card_classes .= ' hkcc-no-cardface';
@@ -239,7 +245,7 @@ class HKCC_Card_Display {
 				<?php if ( $has_cardface ) : ?>
 					<div class="hkcc-card-image">
 						<?php if ( $aff_link ) : ?>
-							<a href="<?php echo esc_url( $aff_link ); ?>" class="card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow"><?php echo $card_face_html; ?></a>
+							<a href="<?php echo esc_url( $aff_link ); ?>" class="card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="image" target="_blank" rel="noopener nofollow"><?php echo $card_face_html; ?></a>
 						<?php else : ?>
 							<?php echo $card_face_html; ?>
 						<?php endif; ?>
@@ -268,7 +274,7 @@ class HKCC_Card_Display {
 
 				<?php if ( $aff_link ) : ?>
 				<div class="hkcc-card-actions">
-					<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+					<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="preview" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 				</div>
 				<?php endif; ?>
 			</div>
@@ -291,10 +297,10 @@ class HKCC_Card_Display {
 				<?php if ( $blog_link || $aff_link ) : ?>
 				<div class="hkcc-card-actions hkcc-card-actions-mid">
 					<?php if ( $blog_link ) : ?>
-						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary">詳細玩法</a>
+						<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary card-blog-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>">詳細玩法</a>
 					<?php endif; ?>
 					<?php if ( $aff_link ) : ?>
-						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+						<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $card->ID ); ?>" data-click-context="expanded" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 					<?php endif; ?>
 				</div>
 				<?php endif; ?>
@@ -513,10 +519,10 @@ class HKCC_Card_Display {
 		<?php if ( $blog_link || $aff_link ) : ?>
 		<div class="hkcc-card-actions hkcc-card-actions-mid">
 			<?php if ( $blog_link ) : ?>
-				<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary">詳細玩法</a>
+				<a href="<?php echo esc_url( $blog_link ); ?>" class="hkcc-btn hkcc-btn-secondary card-blog-link" data-card-id="<?php echo esc_attr( $id ); ?>">詳細玩法</a>
 			<?php endif; ?>
 			<?php if ( $aff_link ) : ?>
-				<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $id ); ?>" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
+				<a href="<?php echo esc_url( $aff_link ); ?>" class="hkcc-btn hkcc-btn-cta card-apply-link" data-card-id="<?php echo esc_attr( $id ); ?>" data-click-context="expanded" target="_blank" rel="noopener nofollow">立即申請 &rarr;</a>
 			<?php endif; ?>
 		</div>
 		<?php endif; ?>

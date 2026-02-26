@@ -3,7 +3,7 @@
  * Plugin Name: HK Card Compare
  * Plugin URI:  https://flyasia.co/hk-card-compare
  * Description: Credit card comparison plugin for Hong Kong travel & personal finance blogs. Supports Traditional Chinese, points conversion, miles/cash toggle, and affiliate click tracking.
- * Version:     1.0.11
+ * Version:     1.0.12
  * Author:      FlyAsia.co
  * Author URI:  https://flyasia.co
  * Text Domain: hk-card-compare
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HKCC_VERSION', '1.0.11' );
+define( 'HKCC_VERSION', '1.0.12' );
 define( 'HKCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HKCC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -58,16 +58,31 @@ function hkcc_activate() {
 		id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		card_id BIGINT UNSIGNED NOT NULL,
 		source_url VARCHAR(500),
+		click_type VARCHAR(20) DEFAULT 'affiliate',
+		click_context VARCHAR(20) DEFAULT '',
 		clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		KEY card_id (card_id),
 		KEY clicked_at (clicked_at),
-		KEY source_card (source_url(191), card_id)
+		KEY source_card (source_url(191), card_id),
+		KEY click_type (click_type)
+	) {$charset_collate};";
+
+	$sql_card_impressions = "CREATE TABLE {$wpdb->prefix}card_impressions (
+		id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		card_id BIGINT UNSIGNED NOT NULL,
+		source_url VARCHAR(500),
+		view_date DATE NOT NULL,
+		impression_count INT UNSIGNED DEFAULT 1,
+		KEY card_id (card_id),
+		KEY view_date (view_date),
+		UNIQUE KEY card_source_date (card_id, source_url(191), view_date)
 	) {$charset_collate};";
 
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	dbDelta( $sql_points_systems );
 	dbDelta( $sql_points_conversion );
 	dbDelta( $sql_card_clicks );
+	dbDelta( $sql_card_impressions );
 
 	update_option( 'hkcc_db_version', HKCC_VERSION );
 	flush_rewrite_rules();
@@ -100,6 +115,19 @@ if ( is_admin() ) {
 
 require_once HKCC_PLUGIN_DIR . 'public/class-card-shortcodes.php';
 require_once HKCC_PLUGIN_DIR . 'public/class-card-display.php';
+
+/**
+ * Upgrade database schema when version changes (without re-activation).
+ */
+function hkcc_maybe_upgrade_db() {
+	$installed_ver = get_option( 'hkcc_db_version', '1.0.0' );
+	if ( version_compare( $installed_ver, HKCC_VERSION, '>=' ) ) {
+		return;
+	}
+	// Re-run the activation routine to apply dbDelta changes.
+	hkcc_activate();
+}
+add_action( 'plugins_loaded', 'hkcc_maybe_upgrade_db', 1 );
 
 /**
  * Initialize plugin components.
