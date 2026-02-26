@@ -94,80 +94,86 @@ class HKCC_Click_Tracker {
 	}
 
 	/* ------------------------------------------------------------------
+	 * Helper: strip query string & fragment from a URL.
+	 * ---------------------------------------------------------------- */
+
+	/**
+	 * Strip ?query and #fragment from a URL string.
+	 *
+	 * @param string $url Raw URL.
+	 * @return string Clean URL (scheme + host + path only).
+	 */
+	public static function strip_url_params( $url ) {
+		$pos = strpos( $url, '?' );
+		if ( $pos !== false ) {
+			$url = substr( $url, 0, $pos );
+		}
+		$pos = strpos( $url, '#' );
+		if ( $pos !== false ) {
+			$url = substr( $url, 0, $pos );
+		}
+		return rtrim( $url, '/' );
+	}
+
+	/* ------------------------------------------------------------------
 	 * Query helpers used by the analytics page.
 	 * ---------------------------------------------------------------- */
 
 	/**
-	 * Top cards by click count, with impression and CTR data.
+	 * All published cards with impression and click stats for the period.
 	 *
-	 * @param int    $days  Look-back window in days.
-	 * @param string $source_url Optional filter by source URL.
-	 * @param int    $limit Number of rows.
+	 * Returns every published card — even those with 0 clicks/impressions —
+	 * sorted by impressions DESC, then affiliate clicks DESC.
+	 *
+	 * @param int $days Look-back window in days.
 	 * @return array
 	 */
-	public static function top_cards( $days = 30, $source_url = '', $limit = 10 ) {
+	public static function all_cards_stats( $days = 30 ) {
 		global $wpdb;
 
-		$where = $wpdb->prepare(
-			"WHERE c.clicked_at >= DATE_SUB(NOW(), INTERVAL %d DAY)",
-			$days
-		);
-		$aff_where = $where . " AND c.click_type = 'affiliate'";
-		if ( $source_url ) {
-			$where     .= $wpdb->prepare( " AND c.source_url = %s", $source_url );
-			$aff_where .= $wpdb->prepare( " AND c.source_url = %s", $source_url );
-		}
-
-		$total = (int) $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}card_clicks c {$aff_where}"
-		);
-
 		$rows = $wpdb->get_results( $wpdb->prepare(
-			"SELECT c.card_id, p.post_title,
-			        SUM(CASE WHEN c.click_type = 'affiliate' THEN 1 ELSE 0 END) AS affiliate_clicks,
-			        SUM(CASE WHEN c.click_type = 'blog' THEN 1 ELSE 0 END) AS blog_clicks,
-			        SUM(CASE WHEN c.click_context = 'preview' AND c.click_type = 'affiliate' THEN 1 ELSE 0 END) AS preview_clicks,
-			        SUM(CASE WHEN c.click_context = 'expanded' AND c.click_type = 'affiliate' THEN 1 ELSE 0 END) AS expanded_clicks,
-			        COUNT(*) AS click_count
-			 FROM {$wpdb->prefix}card_clicks c
-			 JOIN {$wpdb->posts} p ON c.card_id = p.ID
-			 {$where}
-			 GROUP BY c.card_id
-			 ORDER BY affiliate_clicks DESC
-			 LIMIT %d",
-			$limit
+			"SELECT p.ID AS card_id,
+			        p.post_title,
+			        COALESCE(imp.impressions, 0) AS impressions,
+			        COALESCE(clk.affiliate_clicks, 0) AS affiliate_clicks,
+			        COALESCE(clk.blog_clicks, 0) AS blog_clicks,
+			        COALESCE(clk.preview_clicks, 0) AS preview_clicks,
+			        COALESCE(clk.expanded_clicks, 0) AS expanded_clicks
+			 FROM {$wpdb->posts} p
+			 LEFT JOIN (
+			     SELECT card_id, SUM(impression_count) AS impressions
+			     FROM {$wpdb->prefix}card_impressions
+			     WHERE view_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)
+			     GROUP BY card_id
+			 ) imp ON imp.card_id = p.ID
+			 LEFT JOIN (
+			     SELECT card_id,
+			            SUM(CASE WHEN click_type = 'affiliate' THEN 1 ELSE 0 END) AS affiliate_clicks,
+			            SUM(CASE WHEN click_type = 'blog' THEN 1 ELSE 0 END) AS blog_clicks,
+			            SUM(CASE WHEN click_context = 'preview' AND click_type = 'affiliate' THEN 1 ELSE 0 END) AS preview_clicks,
+			            SUM(CASE WHEN click_context = 'expanded' AND click_type = 'affiliate' THEN 1 ELSE 0 END) AS expanded_clicks
+			     FROM {$wpdb->prefix}card_clicks
+			     WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL %d DAY)
+			     GROUP BY card_id
+			 ) clk ON clk.card_id = p.ID
+			 WHERE p.post_type = 'card' AND p.post_status = 'publish'
+			 ORDER BY impressions DESC, affiliate_clicks DESC",
+			$days,
+			$days
 		) );
 
-		// Attach impressions and CTR.
-		$imp_where = $wpdb->prepare(
-			"WHERE view_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
-			$days
-		);
-		if ( $source_url ) {
-			$imp_where .= $wpdb->prepare( " AND source_url = %s", $source_url );
-		}
-		$imp_rows = $wpdb->get_results(
-			"SELECT card_id, SUM(impression_count) AS impressions
-			 FROM {$wpdb->prefix}card_impressions
-			 {$imp_where}
-			 GROUP BY card_id"
-		);
-		$imp_map = array();
-		foreach ( $imp_rows as $ir ) {
-			$imp_map[ $ir->card_id ] = (int) $ir->impressions;
-		}
-
+		// Calculate CTR.
 		foreach ( $rows as &$row ) {
-			$row->click_rate   = $total > 0 ? round( $row->affiliate_clicks / $total * 100, 1 ) : 0;
-			$row->impressions  = $imp_map[ $row->card_id ] ?? 0;
-			$row->ctr          = $row->impressions > 0 ? round( $row->affiliate_clicks / $row->impressions * 100, 2 ) : 0;
+			$row->ctr = $row->impressions > 0
+				? round( $row->affiliate_clicks / $row->impressions * 100, 2 )
+				: 0;
 		}
 
 		return $rows;
 	}
 
 	/**
-	 * Top source pages.
+	 * Top source pages, aggregated by base URL (query params & fragments stripped).
 	 *
 	 * @param int $days  Look-back window.
 	 * @param int $limit Number of rows.
@@ -176,10 +182,12 @@ class HKCC_Click_Tracker {
 	public static function top_sources( $days = 30, $limit = 10 ) {
 		global $wpdb;
 		return $wpdb->get_results( $wpdb->prepare(
-			"SELECT source_url, COUNT(*) AS total_clicks
+			"SELECT
+			     SUBSTRING_INDEX(SUBSTRING_INDEX(source_url, '#', 1), '?', 1) AS source_page,
+			     COUNT(*) AS total_clicks
 			 FROM {$wpdb->prefix}card_clicks
 			 WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL %d DAY)
-			 GROUP BY source_url
+			 GROUP BY source_page
 			 ORDER BY total_clicks DESC
 			 LIMIT %d",
 			$days,
@@ -188,14 +196,14 @@ class HKCC_Click_Tracker {
 	}
 
 	/**
-	 * Recent clicks.
+	 * Recent clicks (source_url stripped of query/fragment in PHP for display).
 	 *
 	 * @param int $limit Number of rows.
 	 * @return array
 	 */
 	public static function recent( $limit = 100 ) {
 		global $wpdb;
-		return $wpdb->get_results( $wpdb->prepare(
+		$rows = $wpdb->get_results( $wpdb->prepare(
 			"SELECT c.clicked_at, c.source_url, c.click_type, c.click_context, p.post_title
 			 FROM {$wpdb->prefix}card_clicks c
 			 JOIN {$wpdb->posts} p ON c.card_id = p.ID
@@ -203,6 +211,12 @@ class HKCC_Click_Tracker {
 			 LIMIT %d",
 			$limit
 		) );
+
+		foreach ( $rows as &$row ) {
+			$row->source_page = self::strip_url_params( $row->source_url );
+		}
+
+		return $rows;
 	}
 
 	/**
@@ -236,5 +250,32 @@ class HKCC_Click_Tracker {
 			   AND click_type = 'affiliate'",
 			$days
 		) );
+	}
+
+	/**
+	 * Cards with expiring or already-expired welcome offers.
+	 *
+	 * @return object[] Each with ->ID, ->post_title, ->expiry, ->days_left.
+	 */
+	public static function expiring_cards() {
+		global $wpdb;
+		$rows = $wpdb->get_results(
+			"SELECT p.ID, p.post_title, pm.meta_value AS expiry
+			 FROM {$wpdb->posts} p
+			 JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+			 WHERE p.post_type = 'card'
+			   AND p.post_status = 'publish'
+			   AND pm.meta_key = 'welcome_offer_expiry'
+			   AND pm.meta_value != ''
+			   AND pm.meta_value <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+			 ORDER BY pm.meta_value ASC"
+		);
+
+		foreach ( $rows as &$row ) {
+			$ts = strtotime( $row->expiry );
+			$row->days_left = $ts ? (int) round( ( $ts - time() ) / 86400 ) : null;
+		}
+
+		return $rows;
 	}
 }

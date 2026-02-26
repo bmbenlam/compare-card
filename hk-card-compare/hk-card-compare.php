@@ -3,7 +3,7 @@
  * Plugin Name: HK Card Compare
  * Plugin URI:  https://flyasia.co/hk-card-compare
  * Description: Credit card comparison plugin for Hong Kong travel & personal finance blogs. Supports Traditional Chinese, points conversion, miles/cash toggle, and affiliate click tracking.
- * Version:     1.0.12
+ * Version:     1.0.13
  * Author:      FlyAsia.co
  * Author URI:  https://flyasia.co
  * Text Domain: hk-card-compare
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HKCC_VERSION', '1.0.12' );
+define( 'HKCC_VERSION', '1.0.13' );
 define( 'HKCC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HKCC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HKCC_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
